@@ -526,8 +526,8 @@
                     <a href="#features">서비스 소개</a>
                     <a href="#pricing">요금안내</a>
                     <a href="#process">이용방법</a>
-                    <a href="#" onclick="openModal('business')">사업자</a>
-                    <a href="#" onclick="openModal('partner')">파트너 지원</a>
+                    <a href="#" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); openModal('business')">사업자</a>
+                    <a href="#" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); openModal('partner')">파트너 지원</a>
                     <a href="#" class="btn btn-primary" style="padding: 10px 20px;">시작하기</a>
                 </nav>
                 <button class="mobile-menu-btn">☰</button>
@@ -546,8 +546,8 @@
                 합리적인 가격으로 해결하세요
             </p>
             <div class="hero-buttons animate-fade-in">
-                <a href="#" class="btn btn-white" onclick="openModal('business')">사업자로 시작하기</a>
-                <a href="#" class="btn btn-outline" onclick="openModal('partner')">파트너로 지원하기</a>
+                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); openModal('business')">사업자로 시작하기</a>
+                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); openModal('partner')">파트너로 지원하기</a>
             </div>
         </div>
     </section>
@@ -680,8 +680,8 @@
                 첫 이용 시 20% 할인 쿠폰을 드립니다
             </p>
             <div class="hero-buttons">
-                <a href="#" class="btn btn-white" onclick="openModal('business')">사업자 등록</a>
-                <a href="#" class="btn btn-outline" onclick="openModal('partner')">파트너 지원</a>
+                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); openModal('business')">사업자 등록</a>
+                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); openModal('partner')">파트너 지원</a>
             </div>
         </div>
     </section>
@@ -738,7 +738,7 @@
     <!-- 사업자 모달 -->
     <div id="businessModal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('business')">&times;</span>
+            <span class="modal-close" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); closeModal('business')">&times;</span>
             <h3 class="modal-title">청소 서비스 사업자 신청</h3>
             <p style="margin-bottom: 20px; color: #6b7280; font-size: 14px;">
                 안녕하세요. 공간 운영자님을 위한 10분 청소 서비스입니다.<br><br>
@@ -809,7 +809,7 @@
     <!-- 파트너 모달 -->
     <div id="partnerModal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('partner')">&times;</span>
+            <span class="modal-close" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); closeModal('partner')">&times;</span>
             <h3 class="modal-title">청소 파트너 지원</h3>
             <p style="margin-bottom: 20px; color: #6b7280; font-size: 14px;">
                 10분 단위로 진행되는 간단한 청소 업무입니다.<br><br>
