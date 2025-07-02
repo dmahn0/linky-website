@@ -413,7 +413,7 @@
             color: #374151;
         }
 
-        .form-input, .form-select {
+        .form-input, .form-select, .form-textarea {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e5e7eb;
@@ -422,9 +422,15 @@
             transition: border-color 0.3s;
         }
 
-        .form-input:focus, .form-select:focus {
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
             border-color: #22c55e;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
         }
 
         /* 반응형 */
@@ -723,41 +729,68 @@
     <div id="businessModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('business')">&times;</span>
-            <h3 class="modal-title">사업자 등록</h3>
+            <h3 class="modal-title">청소 서비스 사업자 신청</h3>
+            <p style="margin-bottom: 20px; color: #6b7280; font-size: 14px;">
+                안녕하세요. 공간 운영자님을 위한 10분 청소 서비스입니다.<br><br>
+                스터디룸, 파티룸, 무인매장 등 소규모 공간의 간단한 청소와 정리를 
+                건당 10분 내외로 처리해드립니다.<br><br>
+                아래 양식을 작성해주시면 1-2일 내 연락드리겠습니다.<br>
+                소요시간: 약 2분
+            </p>
             <form onsubmit="handleBusinessSubmit(event)">
                 <div class="form-group">
-                    <label class="form-label">사업자명</label>
-                    <input type="text" class="form-input" placeholder="예: 스터디카페 논현점" required>
+                    <label class="form-label">사업장명 *</label>
+                    <input type="text" class="form-input" placeholder="사업장명을 입력해주세요" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">사업자번호</label>
-                    <input type="text" class="form-input" placeholder="123-45-67890" required>
+                    <label class="form-label">담당자명 *</label>
+                    <input type="text" class="form-input" placeholder="담당자 성함을 입력해주세요" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">공간 유형</label>
+                    <label class="form-label">연락처 *</label>
+                    <input type="tel" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">위치 (동 단위) *</label>
+                    <input type="text" class="form-input" placeholder="예: 강남구 논현동" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">공간 종류 *</label>
                     <select class="form-select" required>
                         <option value="">선택해주세요</option>
-                        <option value="study">스터디룸/스터디카페</option>
-                        <option value="party">파티룸</option>
-                        <option value="unmanned">무인매장</option>
-                        <option value="office">공유오피스</option>
-                        <option value="other">기타</option>
+                        <option value="스터디룸">스터디룸</option>
+                        <option value="파티룸">파티룸</option>
+                        <option value="무인매장">무인매장</option>
+                        <option value="공유오피스">공유오피스</option>
+                        <option value="기타">기타</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">위치</label>
-                    <input type="text" class="form-input" placeholder="예: 서울시 강남구 논현동" required>
+                    <label class="form-label">공간 크기</label>
+                    <select class="form-select">
+                        <option value="">선택해주세요</option>
+                        <option value="10평 이하">10평 이하</option>
+                        <option value="10-15평">10-15평</option>
+                        <option value="15-20평">15-20평</option>
+                        <option value="20평 이상">20평 이상</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">연락처</label>
-                    <input type="tel" class="form-input" placeholder="010-0000-0000" required>
+                    <label class="form-label">현재 관리 방식 *</label>
+                    <select class="form-select" required>
+                        <option value="">선택해주세요</option>
+                        <option value="직접 관리">직접 관리</option>
+                        <option value="업체 이용">업체 이용</option>
+                        <option value="아르바이트">아르바이트</option>
+                        <option value="기타">기타</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">이메일</label>
-                    <input type="email" class="form-input" placeholder="business@example.com" required>
+                    <label class="form-label">문의사항</label>
+                    <textarea class="form-textarea" placeholder="궁금하신 점이나 요청사항을 자유롭게 작성해주세요" rows="3"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                    무료 상담 신청
+                    신청하기
                 </button>
             </form>
         </div>
