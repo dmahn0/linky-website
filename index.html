@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ECHMHGKCHW"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -545,9 +545,9 @@
                     <a href="#features">서비스 소개</a>
                     <a href="#pricing">요금안내</a>
                     <a href="#process">이용방법</a>
-                    <a href="#" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'nav_business'}); openModal('business');">사업자</a>
-                    <a href="#" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'nav_partner'}); openModal('partner');">파트너 지원</a>
-                    <a href="#" class="btn btn-primary" style="padding: 10px 20px;">시작하기</a>
+                    <a href="#" onclick="trackButtonClick('nav_business'); openModal('business');">사업자</a>
+                    <a href="#" onclick="trackButtonClick('nav_partner'); openModal('partner');">파트너 지원</a>
+                    <a href="#" class="btn btn-primary" style="padding: 10px 20px;" onclick="trackButtonClick('nav_start');">시작하기</a>
                 </nav>
                 <button class="mobile-menu-btn">☰</button>
             </div>
@@ -565,8 +565,8 @@
                 합리적인 가격으로 해결하세요
             </p>
             <div class="hero-buttons animate-fade-in">
-                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'hero_business'}); openModal('business');">사업자로 시작하기</a>
-                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'hero_partner'}); openModal('partner');">파트너로 지원하기</a>
+                <a href="#" class="btn btn-white" onclick="trackButtonClick('hero_business'); openModal('business');">사업자로 시작하기</a>
+                <a href="#" class="btn btn-outline" onclick="trackButtonClick('hero_partner'); openModal('partner');">파트너로 지원하기</a>
             </div>
         </div>
     </section>
@@ -589,7 +589,7 @@
                     <h3 class="feature-title">투명한 가격</h3>
                     <p class="feature-desc">
                         평수별 고정 요금제<br>
-                        건당 12,000원부터 시작
+                        건당 9,800원부터 시작
                     </p>
                 </div>
                 <div class="feature-card">
@@ -635,7 +635,7 @@
             <div class="pricing-grid">
                 <div class="pricing-card">
                     <h3 class="pricing-title">기본 청소</h3>
-                    <div class="pricing-price">12,000원~</div>
+                    <div class="pricing-price">9,800원~</div>
                     <ul class="pricing-features">
                         <li>✓ 10평 이하 공간</li>
                         <li>✓ 기본 정리정돈</li>
@@ -643,12 +643,12 @@
                         <li>✓ 소모품 보충</li>
                         <li>✓ 전후 사진 제공</li>
                     </ul>
-                    <a href="#" class="btn btn-primary" style="width: 100%;">선택하기</a>
+                    <a href="#" class="btn btn-primary" style="width: 100%;" onclick="trackButtonClick('pricing_basic');">선택하기</a>
                 </div>
                 <div class="pricing-card featured">
                     <div class="badge" style="margin-bottom: 10px;">인기</div>
                     <h3 class="pricing-title">정기 청소</h3>
-                    <div class="pricing-price">10,800원~</div>
+                    <div class="pricing-price">8,820원~</div>
                     <ul class="pricing-features">
                         <li>✓ 기본 청소 모든 혜택</li>
                         <li>✓ 10% 할인 적용</li>
@@ -656,7 +656,7 @@
                         <li>✓ 우선 예약 가능</li>
                         <li>✓ 월별 리포트 제공</li>
                     </ul>
-                    <a href="#" class="btn btn-primary" style="width: 100%;">선택하기</a>
+                    <a href="#" class="btn btn-primary" style="width: 100%;" onclick="trackButtonClick('pricing_regular');">선택하기</a>
                 </div>
             </div>
         </div>
@@ -699,8 +699,8 @@
                 첫 이용 시 10% 할인 쿠폰을 드립니다
             </p>
             <div class="hero-buttons">
-                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'cta_business'}); openModal('business');">사업자 등록</a>
-                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'cta_partner'}); openModal('partner');">파트너 지원</a>
+                <a href="#" class="btn btn-white" onclick="trackButtonClick('cta_business'); openModal('business');">사업자 등록</a>
+                <a href="#" class="btn btn-outline" onclick="trackButtonClick('cta_partner'); openModal('partner');">파트너 지원</a>
             </div>
         </div>
     </section>
@@ -969,8 +969,22 @@
     </div>
 
     <script>
-        // 모달 관리
+        // GA 이벤트 트래킹 함수
+        function trackButtonClick(buttonLabel) {
+            gtag('event', 'click', {
+                'event_category': 'engagement',
+                'event_label': buttonLabel
+            });
+        }
+
+        // 모달 관리 (GA 트래킹 포함)
         function openModal(type) {
+            // GA 모달 오픈 이벤트
+            gtag('event', 'modal_open', {
+                'event_category': 'engagement',
+                'event_label': type === 'business' ? 'business_modal_open' : 'partner_modal_open'
+            });
+            
             const modal = document.getElementById(type + 'Modal');
             if (modal) {
                 modal.style.display = 'flex';
@@ -979,6 +993,12 @@
         }
 
         function closeModal(type) {
+            // GA 모달 닫기 이벤트
+            gtag('event', 'modal_close', {
+                'event_category': 'engagement',
+                'event_label': type === 'business' ? 'business_modal_close' : 'partner_modal_close'
+            });
+            
             const modal = document.getElementById(type + 'Modal');
             if (modal) {
                 modal.style.display = 'none';
@@ -989,14 +1009,20 @@
         // 모달 외부 클릭 시 닫기
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-                document.body.style.overflow = 'auto';
+                const modalType = event.target.id === 'businessModal' ? 'business' : 'partner';
+                closeModal(modalType);
             }
         }
 
         // 폼 제출 처리 (Google Apps Script 사용)
         function handleFormSubmit(event, type) {
             event.preventDefault();
+            
+            // GA 폼 제출 이벤트
+            gtag('event', 'form_submit', {
+                'event_category': 'engagement',
+                'event_label': type === 'business' ? 'business_form_submit' : 'partner_form_submit'
+            });
             
             const form = event.target;
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -1018,6 +1044,12 @@
                 mode: 'no-cors' // CORS 이슈 해결
             })
             .then(() => {
+                // GA 폼 제출 성공 이벤트
+                gtag('event', 'form_submit_success', {
+                    'event_category': 'engagement',
+                    'event_label': type === 'business' ? 'business_form_success' : 'partner_form_success'
+                });
+                
                 // no-cors 모드에서는 응답을 읽을 수 없으므로 성공으로 가정
                 const message = type === 'business' 
                     ? '신청이 완료되었습니다.\n1-2일 내에 연락드리겠습니다.'
@@ -1028,6 +1060,12 @@
                 form.reset();
             })
             .catch(error => {
+                // GA 폼 제출 에러 이벤트
+                gtag('event', 'form_submit_error', {
+                    'event_category': 'engagement',
+                    'event_label': type === 'business' ? 'business_form_error' : 'partner_form_error'
+                });
+                
                 console.error('Error:', error);
                 alert('전송 중 오류가 발생했습니다. 다시 시도해 주세요.');
             })
@@ -1061,6 +1099,12 @@
 
         // 모바일 메뉴 토글
         document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            // GA 모바일 메뉴 이벤트
+            gtag('event', 'mobile_menu_toggle', {
+                'event_category': 'navigation',
+                'event_label': 'mobile_menu_click'
+            });
+            
             const navMenu = document.querySelector('.nav-menu');
             if (navMenu.style.display === 'flex') {
                 navMenu.style.display = 'none';
@@ -1077,7 +1121,7 @@
             }
         });
 
-        // 부드러운 스크롤
+        // 부드러운 스크롤 (GA 트래킹 포함)
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
