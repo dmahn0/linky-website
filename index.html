@@ -533,7 +533,7 @@
 <body>
     <!-- 알림 배너 -->
     <div class="notification-banner">
-        🎉 서비스 런칭 기념! 첫 이용 시 20% 할인 쿠폰 제공
+        🎉 서비스 런칭 기념! 첫 이용 시 10% 할인 쿠폰 제공
     </div>
 
     <!-- 헤더 -->
@@ -545,8 +545,8 @@
                     <a href="#features">서비스 소개</a>
                     <a href="#pricing">요금안내</a>
                     <a href="#process">이용방법</a>
-                    <a href="#" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'nav_business'}); openModal('business')">사업자</a>
-                    <a href="#" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'nav_partner'}); openModal('partner')">파트너 지원</a>
+                    <a href="#" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'nav_business'}); openModal('business');">사업자</a>
+                    <a href="#" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'nav_partner'}); openModal('partner');">파트너 지원</a>
                     <a href="#" class="btn btn-primary" style="padding: 10px 20px;">시작하기</a>
                 </nav>
                 <button class="mobile-menu-btn">☰</button>
@@ -565,8 +565,8 @@
                 합리적인 가격으로 해결하세요
             </p>
             <div class="hero-buttons animate-fade-in">
-                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'hero_business'}); openModal('business')">사업자로 시작하기</a>
-                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'hero_partner'}); openModal('partner')">파트너로 지원하기</a>
+                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'hero_business'}); openModal('business');">사업자로 시작하기</a>
+                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'hero_partner'}); openModal('partner');">파트너로 지원하기</a>
             </div>
         </div>
     </section>
@@ -648,10 +648,10 @@
                 <div class="pricing-card featured">
                     <div class="badge" style="margin-bottom: 10px;">인기</div>
                     <h3 class="pricing-title">정기 청소</h3>
-                    <div class="pricing-price">9,600원~</div>
+                    <div class="pricing-price">10,800원~</div>
                     <ul class="pricing-features">
                         <li>✓ 기본 청소 모든 혜택</li>
-                        <li>✓ 20% 할인 적용</li>
+                        <li>✓ 10% 할인 적용</li>
                         <li>✓ 전담 파트너 배정</li>
                         <li>✓ 우선 예약 가능</li>
                         <li>✓ 월별 리포트 제공</li>
@@ -696,11 +696,11 @@
         <div class="section-container">
             <h2 class="cta-title">지금 바로 시작하세요</h2>
             <p class="cta-subtitle">
-                첫 이용 시 20% 할인 쿠폰을 드립니다
+                첫 이용 시 10% 할인 쿠폰을 드립니다
             </p>
             <div class="hero-buttons">
-                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'cta_business'}); openModal('business')">사업자 등록</a>
-                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'cta_partner'}); openModal('partner')">파트너 지원</a>
+                <a href="#" class="btn btn-white" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'cta_business'}); openModal('business');">사업자 등록</a>
+                <a href="#" class="btn btn-outline" onclick="gtag('event', 'click_cta', {'event_category': 'engagement', 'event_label': 'cta_partner'}); openModal('partner');">파트너 지원</a>
             </div>
         </div>
     </section>
@@ -1085,8 +1085,8 @@
                 // GA 내부 링크 클릭 이벤트
                 const targetId = this.getAttribute('href').substring(1);
                 gtag('event', 'internal_link_click', {
-                    event_category: 'navigation',
-                    event_label: targetId
+                    'event_category': 'navigation',
+                    'event_label': targetId
                 });
                 
                 const target = document.querySelector(this.getAttribute('href'));
@@ -1102,8 +1102,8 @@
         // 페이지 로드 완료 이벤트
         window.addEventListener('load', function() {
             gtag('event', 'page_load_complete', {
-                event_category: 'engagement',
-                event_label: 'page_fully_loaded'
+                'event_category': 'engagement',
+                'event_label': 'page_fully_loaded'
             });
         });
 
