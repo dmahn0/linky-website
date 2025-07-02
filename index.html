@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ECHMHGKCHW"></script>
 <script>
@@ -443,6 +442,26 @@
             min-height: 80px;
         }
 
+        /* 로딩 상태 */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* 반응형 */
         @media (max-width: 768px) {
             .nav-menu {
@@ -738,7 +757,7 @@
     <!-- 사업자 모달 -->
     <div id="businessModal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); closeModal('business')">&times;</span>
+            <span class="modal-close" onclick="closeModal('business')">&times;</span>
             <h3 class="modal-title">청소 서비스 사업자 신청</h3>
             <p style="margin-bottom: 20px; color: #6b7280; font-size: 14px;">
                 안녕하세요. 공간 운영자님을 위한 10분 청소 서비스입니다.<br><br>
@@ -747,26 +766,28 @@
                 아래 양식을 작성해주시면 1-2일 내 연락드리겠습니다.<br>
                 소요시간: 약 2분
             </p>
-            <form onsubmit="handleBusinessSubmit(event)">
+            <!-- Google Apps Script로 변경 -->
+            <form action="https://script.google.com/macros/s/AKfycbz07W9EOIeqlxGqPNO9tVStrsNHEtIUipATv4v2wO2b7fYGGJa5Dv66qi1t7FG0Vc79/exec" method="POST" onsubmit="handleFormSubmit(event, 'business')">
+                <input type="hidden" name="form_type" value="business">
                 <div class="form-group">
                     <label class="form-label">사업장명 *</label>
-                    <input type="text" class="form-input" placeholder="사업장명을 입력해주세요" required>
+                    <input type="text" name="business_name" class="form-input" placeholder="사업장명을 입력해주세요" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">담당자명 *</label>
-                    <input type="text" class="form-input" placeholder="담당자 성함을 입력해주세요" required>
+                    <input type="text" name="contact_name" class="form-input" placeholder="담당자 성함을 입력해주세요" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">연락처 *</label>
-                    <input type="tel" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
+                    <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">위치 (동 단위) *</label>
-                    <input type="text" class="form-input" placeholder="예: 강남구 논현동" required>
+                    <input type="text" name="location" class="form-input" placeholder="예: 강남구 논현동" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">공간 종류 *</label>
-                    <select class="form-select" required>
+                    <select name="space_type" class="form-select" required>
                         <option value="">선택해주세요</option>
                         <option value="스터디룸">스터디룸</option>
                         <option value="파티룸">파티룸</option>
@@ -777,7 +798,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">공간 크기</label>
-                    <select class="form-select">
+                    <select name="space_size" class="form-select">
                         <option value="">선택해주세요</option>
                         <option value="10평 이하">10평 이하</option>
                         <option value="10-15평">10-15평</option>
@@ -787,7 +808,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">현재 청소 방법 *</label>
-                    <select class="form-select" required>
+                    <select name="current_cleaning" class="form-select" required>
                         <option value="">선택해주세요</option>
                         <option value="직접 청소">직접 청소</option>
                         <option value="업체 이용">업체 이용</option>
@@ -797,10 +818,11 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">문의사항</label>
-                    <textarea class="form-textarea" placeholder="궁금하신 점이나 요청사항을 자유롭게 작성해주세요" rows="3"></textarea>
+                    <textarea name="inquiry" class="form-textarea" placeholder="궁금하신 점이나 요청사항을 자유롭게 작성해주세요" rows="3"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                    신청하기
+                    <span class="btn-text">신청하기</span>
+                    <span class="loading" style="display: none;"></span>
                 </button>
             </form>
         </div>
@@ -809,7 +831,7 @@
     <!-- 파트너 모달 -->
     <div id="partnerModal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="gtag('event', 'click_cta', {event_category: 'engagement', event_label: 'business_hero'}); closeModal('partner')">&times;</span>
+            <span class="modal-close" onclick="closeModal('partner')">&times;</span>
             <h3 class="modal-title">청소 파트너 지원</h3>
             <p style="margin-bottom: 20px; color: #6b7280; font-size: 14px;">
                 10분 단위로 진행되는 간단한 청소 업무입니다.<br><br>
@@ -829,18 +851,20 @@
                 아래 내용을 작성해주시면 검토 후 개별 연락드리겠습니다.<br>
                 소요시간: 약 3분
             </p>
-            <form onsubmit="handlePartnerSubmit(event)">
+            <!-- Google Apps Script로 변경 -->
+            <form action="https://script.google.com/macros/s/AKfycbz07W9EOIeqlxGqPNO9tVStrsNHEtIUipATv4v2wO2b7fYGGJa5Dv66qi1t7FG0Vc79/exec" method="POST" onsubmit="handleFormSubmit(event, 'partner')">
+                <input type="hidden" name="form_type" value="partner">
                 <div class="form-group">
                     <label class="form-label">이름 *</label>
-                    <input type="text" class="form-input" placeholder="이름을 입력해주세요" required>
+                    <input type="text" name="name" class="form-input" placeholder="이름을 입력해주세요" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">연락처 *</label>
-                    <input type="tel" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
+                    <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">연령대 *</label>
-                    <select class="form-select" required>
+                    <select name="age_group" class="form-select" required>
                         <option value="">선택해주세요</option>
                         <option value="20대">20대</option>
                         <option value="30대">30대</option>
@@ -851,31 +875,31 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">거주지 (구 단위) *</label>
-                    <input type="text" class="form-input" placeholder="예: 강남구, 서초구" required>
+                    <input type="text" name="residence" class="form-input" placeholder="예: 강남구, 서초구" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">활동 희망 지역 (복수 선택 가능) *</label>
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 강남역 일대
+                            <input type="checkbox" name="work_areas" value="강남역 일대" style="margin-right: 8px;"> 강남역 일대
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 논현·학동
+                            <input type="checkbox" name="work_areas" value="논현·학동" style="margin-right: 8px;"> 논현·학동
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 역삼·선릉
+                            <input type="checkbox" name="work_areas" value="역삼·선릉" style="margin-right: 8px;"> 역삼·선릉
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 삼성·코엑스
+                            <input type="checkbox" name="work_areas" value="삼성·코엑스" style="margin-right: 8px;"> 삼성·코엑스
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 서초·교대
+                            <input type="checkbox" name="work_areas" value="서초·교대" style="margin-right: 8px;"> 서초·교대
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 신논현·강남구청
+                            <input type="checkbox" name="work_areas" value="신논현·강남구청" style="margin-right: 8px;"> 신논현·강남구청
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 기타
+                            <input type="checkbox" name="work_areas" value="기타" style="margin-right: 8px;"> 기타
                         </label>
                     </div>
                 </div>
@@ -883,28 +907,28 @@
                     <label class="form-label">활동 가능 시간대 (복수 선택 가능) *</label>
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 평일 오전 (6-12시)
+                            <input type="checkbox" name="work_times" value="평일 오전 (6-12시)" style="margin-right: 8px;"> 평일 오전 (6-12시)
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 평일 오후 (12-18시)
+                            <input type="checkbox" name="work_times" value="평일 오후 (12-18시)" style="margin-right: 8px;"> 평일 오후 (12-18시)
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 평일 저녁 (18-22시)
+                            <input type="checkbox" name="work_times" value="평일 저녁 (18-22시)" style="margin-right: 8px;"> 평일 저녁 (18-22시)
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 주말 오전
+                            <input type="checkbox" name="work_times" value="주말 오전" style="margin-right: 8px;"> 주말 오전
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 주말 오후
+                            <input type="checkbox" name="work_times" value="주말 오후" style="margin-right: 8px;"> 주말 오후
                         </label>
                         <label style="display: flex; align-items: center;">
-                            <input type="checkbox" style="margin-right: 8px;"> 주말 저녁
+                            <input type="checkbox" name="work_times" value="주말 저녁" style="margin-right: 8px;"> 주말 저녁
                         </label>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">주당 활동 가능 일수 *</label>
-                    <select class="form-select" required>
+                    <select name="weekly_days" class="form-select" required>
                         <option value="">선택해주세요</option>
                         <option value="주 1-2일">주 1-2일</option>
                         <option value="주 3-4일">주 3-4일</option>
@@ -914,7 +938,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">이동 수단</label>
-                    <select class="form-select">
+                    <select name="transportation" class="form-select">
                         <option value="">선택해주세요</option>
                         <option value="도보·대중교통">도보·대중교통</option>
                         <option value="자전거·킥보드">자전거·킥보드</option>
@@ -924,7 +948,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">시작 가능일 *</label>
-                    <select class="form-select" required>
+                    <select name="start_date" class="form-select" required>
                         <option value="">선택해주세요</option>
                         <option value="즉시 가능">즉시 가능</option>
                         <option value="1주일 이내">1주일 이내</option>
@@ -934,10 +958,11 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">문의사항</label>
-                    <textarea class="form-textarea" placeholder="추가로 문의하실 사항이나 하고 싶은 말씀을 자유롭게 작성해주세요" rows="3"></textarea>
+                    <textarea name="inquiry" class="form-textarea" placeholder="추가로 문의하실 사항이나 하고 싶은 말씀을 자유롭게 작성해주세요" rows="3"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                    지원하기
+                    <span class="btn-text">지원하기</span>
+                    <span class="loading" style="display: none;"></span>
                 </button>
             </form>
         </div>
@@ -969,20 +994,49 @@
             }
         }
 
-        // 사업자 폼 제출
-        function handleBusinessSubmit(event) {
+        // 폼 제출 처리 (Google Apps Script 사용)
+        function handleFormSubmit(event, type) {
             event.preventDefault();
-            alert('신청이 완료되었습니다.\n1-2일 내에 연락드리겠습니다.');
-            closeModal('business');
-            event.target.reset();
-        }
-
-        // 파트너 폼 제출
-        function handlePartnerSubmit(event) {
-            event.preventDefault();
-            alert('지원해 주셔서 감사합니다.\n2-3일 내에 연락드리겠습니다.');
-            closeModal('partner');
-            event.target.reset();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loading = submitBtn.querySelector('.loading');
+            
+            // 로딩 상태로 변경
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
+            
+            // FormData 생성
+            const formData = new FormData(form);
+            
+            // Google Apps Script로 전송
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors' // CORS 이슈 해결
+            })
+            .then(() => {
+                // no-cors 모드에서는 응답을 읽을 수 없으므로 성공으로 가정
+                const message = type === 'business' 
+                    ? '신청이 완료되었습니다.\n1-2일 내에 연락드리겠습니다.'
+                    : '지원해 주셔서 감사합니다.\n2-3일 내에 연락드리겠습니다.';
+                
+                alert(message);
+                closeModal(type);
+                form.reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('전송 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            })
+            .finally(() => {
+                // 로딩 상태 해제
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                loading.style.display = 'none';
+            });
         }
 
         // 스크롤 애니메이션
