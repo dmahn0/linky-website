@@ -686,11 +686,22 @@
                         무료 상담 신청 →
                     </a>
                 </div>
-                <div class="hero-image">
-                    <div style="background: #f3f4f6; border-radius: 16px; padding: 80px; text-align: center; color: #9ca3af;">
-                        <img src="./linky_sample1.jpg"; style="width:auto%; height:auto;" loading="lazy">
+                .hero-image .img-frame {  
+                background:#f3f4f6;  
+                border-radius:16px;  
+                padding:0;                 /* 불필요한 80px 패딩 제거 *
+                overflow:hidden;          /* 이미지 넘침 방지 */
+                width:100%;
+                height:400px;             /* 필요 시 비율 대신 고정 높이 */
+                }
+                .hero-image img {
+                width:100%;
+                height:100%;  
+                object-fit:cover;         /* 프레임에 꽉 차게 */
+                object-position:center;   /* 중앙 기준 크롭 */
+                display:block;
+                }
 
-                    </div>
                 </div>
             </div>
         </div>
