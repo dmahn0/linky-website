@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RYYX6LYN2B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky 파트너 - 출퇴근길 10분, 월 100만원 부수입</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #ffffff;
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 헤더 */
+        .header {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #2d3748;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #22c55e;
+        }
+
+        /* 히어로 섹션 */
+        .hero-section {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 46px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 19px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .hero-stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            word-break: keep-all;
+        }
+
+        .hero-stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-white {
+            background: white;
+            color: #22c55e;
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-large {
+            font-size: 18px;
+            padding: 20px 40px;
+        }
+
+        /* 수익 계산기 섹션 */
+        .calculator-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #1f2937;
+        }
+
+        .calculator-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .calculator-input {
+            margin-bottom: 30px;
+        }
+
+        .calculator-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #22c55e;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #22c55e;
+            margin-top: 10px;
+        }
+
+        .calculator-result {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .result-amount {
+            font-size: 32px;
+            font-weight: bold;
+            word-break: keep-all;
+            line-height: 1.2;
+        }
+
+        /* 혜택 섹션 */
+        .benefits-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .benefit-card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+
+        .benefit-card:hover {
+            background: #f8f9fa;
+            transform: translateY(-5px);
+        }
+
+        .benefit-icon {
+            width: 70px;
+            height: 70px;
+            background: #dcfce7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+
+        .benefit-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        .benefit-desc {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 작업 과정 섹션 */
+        .process-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .process-timeline {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .process-item {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            align-items: flex-start;
+        }
+
+        .process-number {
+            width: 50px;
+            height: 50px;
+            background: #22c55e;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .process-content {
+            flex: 1;
+        }
+
+        .process-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .process-desc {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .process-time {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* FAQ 섹션 */
+        .faq-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            background: #f3f4f6;
+        }
+
+        .faq-question {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-arrow {
+            font-size: 20px;
+            color: #22c55e;
+            transition: transform 0.3s;
+        }
+
+        .faq-answer {
+            margin-top: 15px;
+            color: #6b7280;
+            display: none;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* 후기 섹션 */
+        .testimonial-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .testimonial-stars {
+            color: #fbbf24;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-text {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .author-info {
+            flex: 1;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .author-detail {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* CTA 섹션 */
+        .cta-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .cta-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* 폼 스타일 */
+        .form-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .checkbox-label input {
+            margin-right: 8px;
+        }
+
+        /* 푸터 */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 50px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h4 {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 14px;
+        }
+
+        .footer-column a:hover {
+            color: #22c55e;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 30px;
+            }
+
+            .hero-subtitle {
+                font-size: 15px;
+            }
+
+            .hero-stats {
+                gap: 25px;
+                flex-direction: column;
+            }
+
+            .hero-stat {
+                min-width: auto;
+            }
+
+            .hero-stat-number {
+                font-size: 24px;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .process-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-title {
+                font-size: 26px;
+            }
+
+            .cta-subtitle {
+                font-size: 15px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .result-amount {
+                font-size: 22px;
+            }
+
+            .form-container {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-stat-number {
+                font-size: 20px;
+            }
+
+            .result-amount {
+                font-size: 18px;
+            }
+
+            .calculator-container {
+                padding: 20px;
+            }
+
+            .benefit-card {
+                padding: 18px;
+            }
+
+            .benefit-icon {
+                width: 55px;
+                height: 55px;
+                font-size: 24px;
+            }
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="section-container">
+            <div class="header-content">
+                <a href="/" class="logo">🔗 Linky 파트너</a>
+                <nav class="nav-menu">
+                    <a href="#calculator">수익 계산기</a>
+                    <a href="#benefits">파트너 혜택</a>
+                    <a href="#process">작업 과정</a>
+                    <a href="#faq">자주 묻는 질문</a>
+                    <a href="#apply" class="btn btn-primary" style="padding: 10px 20px;">지원하기</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero-section">
+        <div class="section-container">
+            <div class="hero-badge">🎯 출퇴근길 활용 부업</div>
+            <h1 class="hero-title animate-fade-in">
+                하루 10분 투자로<br>
+                월 100만원 부수입 만들기
+            </h1>
+            <p class="hero-subtitle animate-fade-in">
+                출퇴근길, 점심시간을 활용해 간단한 공간 정리로 수익 창출
+            </p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-number">10분</div>
+                    <div class="hero-stat-label">평균 작업시간</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">1만원</div>
+                    <div class="hero-stat-label">건당 수익</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-number">시급 6만원</div>
+                    <div class="hero-stat-label">예상 시급</div>
+                </div>
+            </div>
+            <a href="#apply" class="btn btn-white btn-large" onclick="trackEvent('hero_apply_click')">
+                지금 바로 지원하기 →
+            </a>
+        </div>
+    </section>
+
+    <!-- 수익 계산기 섹션 -->
+    <section id="calculator" class="calculator-section">
+        <div class="section-container">
+            <h2 class="section-title">내 예상 수익 계산하기</h2>
+            <div class="calculator-container">
+                <div class="calculator-input">
+                    <label class="calculator-label">하루 작업 건수</label>
+                    <input type="range" class="slider" id="dailyTasks" min="1" max="6" value="3" oninput="calculateIncome()">
+                    <div class="slider-value"><span id="dailyTasksValue">3</span>건</div>
+                </div>
+                <div class="calculator-input">
+                    <label class="calculator-label">주당 활동 일수</label>
+                    <input type="range" class="slider" id="weeklyDays" min="1" max="7" value="5" oninput="calculateIncome()">
+                    <div class="slider-value"><span id="weeklyDaysValue">5</span>일</div>
+                </div>
+                <div class="calculator-result">
+                    <div class="result-title">예상 월 수익 (최소)</div>
+                    <div class="result-amount" id="monthlyIncome">₩60만원</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 혜택 섹션 -->
+    <section id="benefits" class="benefits-section">
+        <div class="section-container">
+            <h2 class="section-title">Linky 파트너가 되면</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">⏰</div>
+                    <h3 class="benefit-title">자유로운 시간</h3>
+                    <p class="benefit-desc">
+                        출퇴근 전후, 점심시간 등<br>
+                        원하는 시간에만 활동 가능
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📍</div>
+                    <h3 class="benefit-title">가까운 거리</h3>
+                    <p class="benefit-desc">
+                        내 동네, 직장 근처에서만<br>
+                        작업하여 이동 시간 최소화
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💰</div>
+                    <h3 class="benefit-title">즉시 정산</h3>
+                    <p class="benefit-desc">
+                        주 단위 정산으로<br>
+                        빠른 수익 실현
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🛡️</div>
+                    <h3 class="benefit-title">안전 보장</h3>
+                    <p class="benefit-desc">
+                        상해보험 자동 가입<br>
+                        안전한 작업 환경
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📈</div>
+                    <h3 class="benefit-title">성장 기회</h3>
+                    <p class="benefit-desc">
+                        우수 파트너 인센티브<br>
+                        팀장 승진 기회
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎯</div>
+                    <h3 class="benefit-title">간단한 업무</h3>
+                    <p class="benefit-desc">
+                        복잡한 청소 X<br>
+                        10분 내 간단 정리 O
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 작업 과정 섹션 -->
+    <section id="process" class="process-section">
+        <div class="section-container">
+            <h2 class="section-title">하루 10분, 이렇게 일해요</h2>
+            <div class="process-timeline">
+                <div class="process-item">
+                    <div class="process-number">1</div>
+                    <div class="process-content">
+                        <h3 class="process-title">앱에서 근처 요청 확인</h3>
+                        <p class="process-desc">출퇴근길이나 여유 시간에 앱을 켜고 근처 요청을 확인합니다.</p>
+                        <span class="process-time">30초</span>
+                    </div>
+                </div>
+                <div class="process-item">
+                    <div class="process-number">2</div>
+                    <div class="process-content">
+                        <h3 class="process-title">원하는 작업 선택</h3>
+                        <p class="process-desc">위치, 시간, 작업 내용을 보고 가능한 것만 선택합니다.</p>
+                        <span class="process-time">30초</span>
+                    </div>
+                </div>
+                <div class="process-item">
+                    <div class="process-number">3</div>
+                    <div class="process-content">
+                        <h3 class="process-title">현장 도착 후 정리</h3>
+                        <p class="process-desc">제공된 체크리스트에 따라 간단한 정리를 진행합니다.</p>
+                        <span class="process-time">8-10분</span>
+                    </div>
+                </div>
+                <div class="process-item">
+                    <div class="process-number">4</div>
+                    <div class="process-content">
+                        <h3 class="process-title">완료 사진 촬영</h3>
+                        <p class="process-desc">작업 전후 사진을 찍어 앱에 업로드하면 끝!</p>
+                        <span class="process-time">1분</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ 섹션 -->
+    <section id="faq" class="faq-section">
+        <div class="section-container">
+            <h2 class="section-title">자주 묻는 질문</h2>
+            <div class="faq-container">
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        정말 10분 안에 끝나나요?
+                        <span class="faq-arrow">⌄</span>
+                    </div>
+                    <div class="faq-answer">
+                        네, 대부분의 작업은 10분 내외로 완료됩니다. 스터디룸, 파티룸 등 소규모 공간의 간단한 정리 작업이기 때문에 
+                        복잡한 청소가 아닌 가구 재배치, 쓰레기 수거, 소모품 보충 등의 단순 작업입니다.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        청소 경험이 없어도 가능한가요?
+                        <span class="faq-arrow">⌄</span>
+                    </div>
+                    <div class="faq-answer">
+                        물론입니다! 전문적인 청소 기술이 필요없는 간단한 정리 작업입니다. 
+                        앱에서 제공하는 체크리스트와 사진 가이드를 따라하시면 누구나 쉽게 할 수 있습니다.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        정산은 언제 받나요?
+                        <span class="faq-arrow">⌄</span>
+                    </div>
+                    <div class="faq-answer">
+                        매주 월요일에 지난 주 작업분이 일괄 정산됩니다. 
+                        등록하신 계좌로 자동 입금되며, 정산 내역은 앱에서 실시간으로 확인 가능합니다.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        꼭 매일 해야 하나요?
+                        <span class="faq-arrow">⌄</span>
+                    </div>
+                    <div class="faq-answer">
+                        아닙니다. 원하는 날, 원하는 시간에만 활동하시면 됩니다. 
+                        최소 활동 의무나 패널티가 없어 자유롭게 일정을 조절할 수 있습니다.
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        필요한 준비물이 있나요?
+                        <span class="faq-arrow">⌄</span>
+                    </div>
+                    <div class="faq-answer">
+                        스마트폰만 있으면 됩니다. 청소 도구는 현장에 모두 구비되어 있으며, 
+                        작업 전후 사진 촬영과 체크리스트 확인을 위한 스마트폰만 준비하시면 됩니다.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 후기 섹션 -->
+    <section class="testimonial-section">
+        <div class="section-container">
+            <h2 class="section-title">실제 파트너들의 이야기</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">
+                        "회사 출근 전 30분만 투자해서 월 80만원 정도 벌고 있어요. 
+                        아침 운동 삼아 하는데 돈도 벌고 일석이조예요!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">김○○</div>
+                        <div class="author-info">
+                            <div class="author-name">김○○님</div>
+                            <div class="author-detail">30대 직장인 · 강남 거주</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">
+                        "육아로 경력이 단절됐는데, 아이 등원 후 2시간만 일해도 
+                        월 120만원은 벌어요. 시간도 자유롭고 너무 좋아요."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">박○○</div>
+                        <div class="author-info">
+                            <div class="author-name">박○○님</div>
+                            <div class="author-detail">40대 주부 · 서초 거주</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">
+                        "퇴근 후 집 근처에서 1-2건만 해도 한 달 용돈은 충분해요. 
+                        부담없이 할 수 있는 부업이라 만족합니다."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">이○○</div>
+                        <div class="author-info">
+                            <div class="author-name">이○○님</div>
+                            <div class="author-detail">20대 직장인 · 역삼 거주</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 지원 폼 섹션 -->
+    <section id="apply" class="cta-section">
+        <div class="section-container">
+            <h2 class="cta-title">지금 시작하세요</h2>
+            <p class="cta-subtitle">
+                심사 후 최대 3일 내 활동 시작 가능
+            </p>
+            
+            <div class="form-container">
+                <form action="https://script.google.com/macros/s/AKfycbyRvA4KgKgDGNGOlRc8gwi2F76VFDhxGvkExQuQZetzQFVLeItFLerNt8kzqchhBu_6/exec" method="POST" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" name="form_type" value="partner">
+                    <div class="form-group">
+                        <label class="form-label">이름 *</label>
+                        <input type="text" name="name" class="form-input" placeholder="이름을 입력해주세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">연락처 *</label>
+                        <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">연령대 *</label>
+                        <select name="age_group" class="form-select" required>
+                            <option value="">선택해주세요</option>
+                            <option value="20대">20대</option>
+                            <option value="30대">30대</option>
+                            <option value="40대">40대</option>
+                            <option value="50대">50대</option>
+                            <option value="60대 이상">60대 이상</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">거주지 (구 단위) *</label>
+                        <input type="text" name="residence" class="form-input" placeholder="예: 강남구, 서초구" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">활동 희망 지역 (복수 선택 가능) *</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_areas" value="강남·논현·학동"> 강남·논현·학동
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_areas" value="역삼·선릉·삼성"> 역삼·선릉·삼성
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_areas" value="서초·교대·방배"> 서초·교대·방배
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_areas" value="신사·압구정·청담"> 신사·압구정·청담
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_areas" value="홍대·합정·상수"> 홍대·합정·상수
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_areas" value="기타"> 기타 지역
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">활동 가능 시간대 (복수 선택 가능) *</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_times" value="평일 오전 (6-12시)"> 평일 오전 (6-12시)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_times" value="평일 오후 (12-18시)"> 평일 오후 (12-18시)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_times" value="평일 저녁 (18-22시)"> 평일 저녁 (18-22시)
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_times" value="주말 오전"> 주말 오전
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_times" value="주말 오후"> 주말 오후
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="work_times" value="주말 저녁"> 주말 저녁
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">주당 활동 가능 일수 *</label>
+                        <select name="weekly_days" class="form-select" required>
+                            <option value="">선택해주세요</option>
+                            <option value="주 1-2일">주 1-2일</option>
+                            <option value="주 3-4일">주 3-4일</option>
+                            <option value="주 5일 이상">주 5일 이상</option>
+                            <option value="유동적">유동적</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">이동 수단</label>
+                        <select name="transportation" class="form-select">
+                            <option value="">선택해주세요</option>
+                            <option value="도보·대중교통">도보·대중교통</option>
+                            <option value="자전거·킥보드">자전거·킥보드</option>
+                            <option value="오토바이">오토바이</option>
+                            <option value="자가용">자가용</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">시작 가능일 *</label>
+                        <select name="start_date" class="form-select" required>
+                            <option value="">선택해주세요</option>
+                            <option value="즉시 가능">즉시 가능</option>
+                            <option value="1주일 이내">1주일 이내</option>
+                            <option value="2주일 이내">2주일 이내</option>
+                            <option value="협의 필요">협의 필요</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 15px; padding: 16px;">
+                        <span class="btn-text">파트너 지원하기</span>
+                        <span class="loading" style="display: none;"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h4>Linky 파트너</h4>
+                    <p style="color: #9ca3af; margin-bottom: 20px;">
+                        10분 투자로 만드는<br>
+                        스마트한 부수입
+                    </p>
+                </div>
+                <div class="footer-column">
+                    <h4>파트너 지원</h4>
+                    <ul>
+                        <li><a href="#benefits">파트너 혜택</a></li>
+                        <li><a href="#calculator">수익 계산기</a></li>
+                        <li><a href="#process">작업 과정</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>정보</h4>
+                    <ul>
+                        <li><a href="#faq">자주 묻는 질문</a></li>
+                        <li><a href="#">파트너 가이드</a></li>
+                        <li><a href="#">안전 수칙</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>문의</h4>
+                    <ul>
+                        <li><a href="#">카카오톡 상담</a></li>
+                        <li><a href="#">이메일 문의</a></li>
+                        <li><a href="#">파트너 커뮤니티</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 수익 계산기
+        function calculateIncome() {
+            const dailyTasks = document.getElementById('dailyTasks').value;
+            const weeklyDays = document.getElementById('weeklyDays').value;
+            
+            document.getElementById('dailyTasksValue').textContent = dailyTasks;
+            document.getElementById('weeklyDaysValue').textContent = weeklyDays;
+            
+            const monthlyIncome = dailyTasks * weeklyDays * 4 * 10000;
+            
+            // 만원 단위로 계산하여 xx만원 형태로 표시 (최소 금액 기준)
+            const manwon = monthlyIncome / 10000;
+            const displayText = `₩${manwon}만원~`;
+            
+            document.getElementById('monthlyIncome').textContent = displayText;
+        }
+
+        // FAQ 토글
+        function toggleFAQ(element) {
+            element.classList.toggle('active');
+        }
+
+        // GA 이벤트 트래킹
+        function trackEvent(eventName) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', eventName, {
+                    'event_category': 'partner_page',
+                    'event_label': eventName
+                });
+            }
+        }
+
+        // 폼 제출 처리
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            trackEvent('partner_form_submit');
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loading = submitBtn.querySelector('.loading');
+            
+            // 체크박스 값 수집
+            const workAreas = Array.from(form.querySelectorAll('input[name="work_areas"]:checked'))
+                .map(cb => cb.value).join(', ');
+            const workTimes = Array.from(form.querySelectorAll('input[name="work_times"]:checked'))
+                .map(cb => cb.value).join(', ');
+            
+            // 로딩 상태
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
+            
+            // FormData 생성
+            const formData = new FormData(form);
+            formData.set('work_areas', workAreas);
+            formData.set('work_times', workTimes);
+            
+            // Google Apps Script로 전송
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                trackEvent('partner_form_success');
+                alert('지원해 주셔서 감사합니다.\n2-3일 내에 심사 결과를 안내드리겠습니다.');
+                form.reset();
+            })
+            .catch(error => {
+                trackEvent('partner_form_error');
+                console.error('Error:', error);
+                alert('전송 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                loading.style.display = 'none';
+            });
+        }
+
+        // 스크롤 애니메이션
+        function handleScroll() {
+            const elements = document.querySelectorAll('.benefit-card, .testimonial-card, .process-item');
+            
+            elements.forEach(element => {
+                const rect = element.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                
+                if (isVisible && !element.classList.contains('animate-fade-in')) {
+                    element.classList.add('animate-fade-in');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', handleScroll);
+        handleScroll();
+
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 초기 계산
+        calculateIncome();
+    </script>
+</body>
+</html>
