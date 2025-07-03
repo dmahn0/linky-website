@@ -758,7 +758,7 @@
             <div class="calculator-container">
                 <div class="calculator-input">
                     <label class="calculator-label">하루 작업 건수</label>
-                    <input type="range" class="slider" id="dailyTasks" min="1" max="6" value="3" oninput="calculateIncome()">
+                    <input type="range" class="slider" id="dailyTasks" min="1" max="20" value="3" oninput="calculateIncome()">
                     <div class="slider-value"><span id="dailyTasksValue">3</span>건</div>
                 </div>
                 <div class="calculator-input">
