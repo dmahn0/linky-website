@@ -2,7 +2,7 @@
   "rewrites": [
     { "source": "/",          "destination": "/index.html"     },
     { "source": "/business",  "destination": "/business.html"  },
-    { "source": "/partner",   "destination": "/partners.html"   },
+    { "source": "/partners",   "destination": "/partners.html"   },
     { "source": "/og-main",   "destination": "/og-main.png"   }
   ]
 }
