@@ -556,28 +556,38 @@
                     
                     <!-- 서명 섹션 -->
                     <div class="signature-section">
-                        <h3 class="form-section-title">3. 계약서 서명</h3>
-                        <p style="text-align: center; color: #6b7280; margin-bottom: 20px;">
-                            아래 공간에 마우스나 터치로 서명해주세요
-                        </p>
+                        <h3 class="form-section-title">3. 계약 동의 및 서명</h3>
                         
-                        <div class="signature-container">
+                        <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <label style="display: flex; align-items: flex-start; cursor: pointer; font-size: 16px;">
+                                <input type="checkbox" id="agreeTerms" style="width: 20px; height: 20px; margin-right: 10px; margin-top: 2px;" required>
+                                <span>
+                                    본인은 위 계약 내용을 모두 확인하였으며, 서비스 이용약관에 동의합니다.<br>
+                                    <span style="font-size: 14px; color: #6b7280; margin-top: 5px; display: block;">
+                                        ※ 전자서명법에 따라 아래 서명은 실제 서명과 동일한 법적 효력을 가집니다.
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div class="signature-container" style="grid-template-columns: 1fr;">
                             <div class="signature-box">
-                                <div class="signature-label">이용자 서명</div>
+                                <div class="signature-label">계약자 서명</div>
                                 <canvas id="userSignature" class="signature-canvas"></canvas>
                                 <div class="signature-controls">
                                     <button type="button" class="btn btn-secondary btn-small" onclick="clearSignature('userSignature')">지우기</button>
                                 </div>
-                            </div>
-                            
-                            <div class="signature-box">
-                                <div class="signature-label">Linky 담당자 서명</div>
-                                <canvas id="companySignature" class="signature-canvas"></canvas>
-                                <div class="signature-controls">
-                                    <button type="button" class="btn btn-secondary btn-small" onclick="clearSignature('companySignature')">지우기</button>
-                                    <button type="button" class="btn btn-primary btn-small" onclick="autoSign()">자동 서명</button>
+                                <div style="margin-top: 10px; font-size: 14px; color: #6b7280;">
+                                    서명일시: <span id="signatureDate"></span>
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #6b7280;">
+                            <p style="margin-bottom: 5px;">📌 <strong>계약 프로세스 안내</strong></p>
+                            <p>1. 계약서 작성 완료 후 Linky 담당자가 검토합니다.</p>
+                            <p>2. 검토 완료 시 계약서 사본이 이메일로 발송됩니다.</p>
+                            <p>3. 서비스는 계약 확정 후 즉시 이용 가능합니다.</p>
                         </div>
                     </div>
                     
@@ -607,18 +617,16 @@
     <script>
         // 서명 캔버스 초기화
         const userCanvas = document.getElementById('userSignature');
-        const companyCanvas = document.getElementById('companySignature');
         const userCtx = userCanvas.getContext('2d');
-        const companyCtx = companyCanvas.getContext('2d');
+        
+        // 서명 날짜 표시
+        document.getElementById('signatureDate').textContent = new Date().toLocaleString('ko-KR');
         
         // 캔버스 크기 설정
         function resizeCanvas() {
-            const canvases = [userCanvas, companyCanvas];
-            canvases.forEach(canvas => {
-                const rect = canvas.getBoundingClientRect();
-                canvas.width = rect.width;
-                canvas.height = rect.height;
-            });
+            const rect = userCanvas.getBoundingClientRect();
+            userCanvas.width = rect.width;
+            userCanvas.height = rect.height;
         }
         
         window.addEventListener('resize', resizeCanvas);
@@ -657,20 +665,18 @@
         }
         
         // 이벤트 리스너 추가
-        [userCanvas, companyCanvas].forEach((canvas, index) => {
-            const ctx = index === 0 ? userCtx : companyCtx;
-            
-            // 마우스 이벤트
-            canvas.addEventListener('mousedown', (e) => startDrawing(e, canvas, ctx));
-            canvas.addEventListener('mousemove', (e) => draw(e, canvas, ctx));
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-            
-            // 터치 이벤트
-            canvas.addEventListener('touchstart', (e) => startDrawing(e, canvas, ctx));
-            canvas.addEventListener('touchmove', (e) => draw(e, canvas, ctx));
-            canvas.addEventListener('touchend', stopDrawing);
-        });
+        // 마우스 이벤트
+        userCanvas.addEventListener('mousedown', (e) => startDrawing(e, userCanvas, userCtx));
+        userCanvas.addEventListener('mousemove', (e) => draw(e, userCanvas, userCtx));
+        userCanvas.addEventListener('mouseup', stopDrawing);
+        userCanvas.addEventListener('mouseout', stopDrawing);
+        
+        // 터치 이벤트
+        userCanvas.addEventListener('touchstart', (e) => startDrawing(e, userCanvas, userCtx));
+        userCanvas.addEventListener('touchmove', (e) => draw(e, userCanvas, userCtx));
+        userCanvas.addEventListener('touchend', stopDrawing);
+        
+        // 자동 서명 함수 제거
         
         // 서명 지우기
         function clearSignature(canvasId) {
@@ -808,7 +814,6 @@
             
             // 서명 이미지 가져오기
             const userSignatureImg = userCanvas.toDataURL();
-            const companySignatureImg = companyCanvas.toDataURL();
             
             // 계약서 HTML 생성
             const contractHTML = `
@@ -832,8 +837,8 @@
                             <td style="padding: 10px; border: 1px solid #e5e7eb;">
                                 상호: Linky<br>
                                 사업자등록번호: 123-45-67890<br>
-                                담당자: 링키 매니저<br>
-                                연락처: 010-XXXX-XXXX
+                                대표자: 홍길동<br>
+                                연락처: 1588-0000
                             </td>
                         </tr>
                     </table>
@@ -879,27 +884,29 @@
                         수집된 개인정보는 서비스 제공 목적으로만 사용되며, 제3자에게 제공되지 않습니다.</p>
                     </div>
                     
-                    <div style="margin-top: 50px; text-align: center;">
-                        <p>작성일: ${new Date().toLocaleDateString('ko-KR')}</p>
-                        <div style="margin-top: 40px; display: flex; justify-content: space-around;">
-                            <div style="text-align: center;">
-                                <p>서비스 이용자</p>
+                    <div style="margin-top: 50px;">
+                        <p style="text-align: center; margin-bottom: 40px;">
+                            <strong>작성일:</strong> ${new Date().toLocaleDateString('ko-KR')}<br>
+                            <strong>서명일시:</strong> ${new Date().toLocaleString('ko-KR')}
+                        </p>
+                        
+                        <div style="text-align: center;">
+                            <div style="display: inline-block; text-align: center; margin: 0 50px;">
+                                <p style="margin-bottom: 20px;"><strong>서비스 이용자</strong></p>
                                 <div style="margin: 20px 0;">
-                                    <img src="${userSignatureImg}" style="max-width: 200px; height: 100px; border: 1px solid #e5e7eb;">
+                                    <img src="${userSignatureImg}" style="width: 200px; height: 100px; border: 1px solid #e5e7eb; background: white;">
                                 </div>
                                 <div style="margin-top: 10px;">
-                                    ${formData.get('contactName')} (인)
+                                    ${formData.get('contactName')} (전자서명)
                                 </div>
                             </div>
-                            <div style="text-align: center;">
-                                <p>서비스 제공자</p>
-                                <div style="margin: 20px 0;">
-                                    <img src="${companySignatureImg}" style="max-width: 200px; height: 100px; border: 1px solid #e5e7eb;">
-                                </div>
-                                <div style="margin-top: 10px;">
-                                    Linky 담당자 (인)
-                                </div>
-                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 40px; padding: 20px; background: #f0fdf4; border-radius: 8px; text-align: center;">
+                            <p style="color: #166534; font-size: 14px;">
+                                ✓ 본 전자계약서는 전자서명법에 의해 법적 효력을 가집니다.<br>
+                                ✓ Linky 담당자 검토 후 최종 계약서가 이메일로 발송됩니다.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -985,75 +992,113 @@
         document.getElementById('contractForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // 약관 동의 확인
+            if (!document.getElementById('agreeTerms').checked) {
+                alert('약관에 동의해주세요.');
+                return;
+            }
+            
             // 서명 확인
             const userSignature = userCanvas.toDataURL();
-            const companySignature = companyCanvas.toDataURL();
             
             if (userSignature === document.createElement('canvas').toDataURL()) {
-                alert('이용자 서명을 해주세요.');
+                alert('서명을 해주세요.');
                 return;
             }
             
-            if (companySignature === document.createElement('canvas').toDataURL()) {
-                alert('Linky 담당자 서명을 해주세요.');
-                return;
-            }
+            // 버튼 비활성화
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> 처리 중...';
             
             // 계약서 데이터 수집
             const formData = new FormData(e.target);
-            const contractData = {
-                contractNumber: 'LINK-' + new Date().getTime(),
-                businessName: formData.get('businessName'),
-                businessNumber: formData.get('businessNumber'),
-                contactName: formData.get('contactName'),
-                phone: formData.get('phone'),
-                address: formData.get('address'),
-                spaceSize: document.querySelector('[name="spaceSize"] option:checked').text,
-                regularService: document.querySelector('[name="regularService"] option:checked').text,
-                totalPrice: document.getElementById('totalPrice').textContent,
-                userSignature: userSignature,
-                companySignature: companySignature,
-                contractDate: new Date().toLocaleDateString('ko-KR')
-            };
+            const contractNumber = 'LINK-' + new Date().getTime();
             
-            // Google Apps Script로 전송
-            const googleFormData = new FormData();
-            googleFormData.append('form_type', 'contract');
-            googleFormData.append('contract_number', contractData.contractNumber);
-            googleFormData.append('business_name', contractData.businessName);
-            googleFormData.append('business_number', contractData.businessNumber);
-            googleFormData.append('contact_name', contractData.contactName);
-            googleFormData.append('phone', contractData.phone);
-            googleFormData.append('address', contractData.address);
-            googleFormData.append('space_size', contractData.spaceSize);
-            googleFormData.append('regular_service', contractData.regularService);
-            googleFormData.append('total_price', contractData.totalPrice);
-            googleFormData.append('contract_date', contractData.contractDate);
+            // 계약서 미리보기 생성 (이미지 저장용)
+            const contractHTML = generateContractPreview();
+            const preview = document.getElementById('contractPreview');
+            preview.innerHTML = contractHTML;
+            preview.style.display = 'block';
             
-            fetch('https://script.google.com/macros/s/AKfycbyRvA4KgKgDGNGOlRc8gwi2F76VFDhxGvkExQuQZetzQFVLeItFLerNt8kzqchhBu_6/exec', {
-                method: 'POST',
-                body: googleFormData,
-                mode: 'no-cors'
-            })
-            .then(() => {
-                alert('계약서가 작성되었습니다!\n계약번호: ' + contractData.contractNumber);
+            // 계약서를 이미지로 변환
+            html2canvas(preview.querySelector('div'), {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(canvas => {
+                const contractImageUrl = canvas.toDataURL('image/png');
+                preview.style.display = 'none';
                 
-                // 자동으로 이미지와 PDF 다운로드
-                saveAsImage();
-                setTimeout(() => {
-                    saveAsPDF();
-                }, 1000);
+                // Google Apps Script로 전송
+                const googleFormData = new FormData();
+                googleFormData.append('form_type', 'contract');
+                googleFormData.append('contract_number', contractNumber);
+                googleFormData.append('business_name', formData.get('businessName'));
+                googleFormData.append('business_number', formData.get('businessNumber'));
+                googleFormData.append('contact_name', formData.get('contactName'));
+                googleFormData.append('phone', formData.get('phone'));
+                googleFormData.append('address', formData.get('address'));
+                googleFormData.append('space_size', document.querySelector('[name="spaceSize"] option:checked').text);
+                googleFormData.append('regular_service', document.querySelector('[name="regularService"] option:checked').text);
+                googleFormData.append('total_price', document.getElementById('totalPrice').textContent);
+                googleFormData.append('contract_date', new Date().toLocaleDateString('ko-KR'));
+                googleFormData.append('user_signature', userSignature);
+                googleFormData.append('contract_image', contractImageUrl);
+                googleFormData.append('services', collectSelectedServices().join(', '));
                 
-                // 메인 페이지로 이동
-                setTimeout(() => {
-                    window.location.href = '/business';
-                }, 2000);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('계약서 전송 중 오류가 발생했습니다.');
+                fetch('https://script.google.com/macros/s/AKfycbyRvA4KgKgDGNGOlRc8gwi2F76VFDhxGvkExQuQZetzQFVLeItFLerNt8kzqchhBu_6/exec', {
+                    method: 'POST',
+                    body: googleFormData,
+                    mode: 'no-cors'
+                })
+                .then(() => {
+                    alert(`계약서가 작성되었습니다!\n\n계약번호: ${contractNumber}\n\n계약서 사본이 이메일로 발송됩니다.`);
+                    
+                    // 자동으로 이미지와 PDF 다운로드
+                    saveAsImage();
+                    setTimeout(() => {
+                        saveAsPDF();
+                    }, 1000);
+                    
+                    // 메인 페이지로 이동
+                    setTimeout(() => {
+                        window.location.href = '/business';
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('계약서 전송 중 오류가 발생했습니다.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '계약서 작성 완료';
+                });
             });
         });
+        
+        // 선택된 서비스 수집 함수
+        function collectSelectedServices() {
+            let services = ['가구 및 비품 원위치 정리', '쓰레기통 비우기', '간단한 정리정돈', '전원 및 안전 점검', '작업 전후 사진 촬영'];
+            
+            const options = [
+                {checkbox: 'floorCleaning', select: 'floorSize', name: '바닥 쓸기'},
+                {checkbox: 'tableCleaning', select: 'tableCount', name: '테이블 닦기'},
+                {checkbox: 'dishWashing', select: 'dishAmount', name: '설거지'},
+                {checkbox: 'toiletCleaning', select: 'toiletType', name: '화장실 정리'},
+                {checkbox: 'recycling', select: 'recycleType', name: '분리수거'}
+            ];
+            
+            options.forEach(option => {
+                const checkbox = document.querySelector(`[name="${option.checkbox}"]`);
+                if (checkbox && checkbox.checked) {
+                    const select = document.querySelector(`[name="${option.select}"]`);
+                    if (select.value !== '0') {
+                        services.push(option.name + ' - ' + select.options[select.selectedIndex].text);
+                    }
+                }
+            });
+            
+            return services;
+        }
         
         // 초기 가격 계산
         calculatePrice();
