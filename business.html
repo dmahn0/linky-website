@@ -796,13 +796,12 @@
                         </div>
                     </div>
                     
-                    <!-- 정기 이용 -->
+                    <!-- 패키지 선택 -->
                     <div class="form-group">
-                        <label class="form-label">정기 이용 여부</label>
-                        <select class="form-select" name="regularService" onchange="calculatePrice()">
-                            <option value="single">단발 이용</option>
-                            <option value="weekly3">주 3회 이상 (10% 할인)</option>
-                            <option value="daily">매일 이용 (15% 할인)</option>
+                        <label class="form-label">이용권 선택</label>
+                        <select class="form-select" name="packageType" onchange="calculatePrice()">
+                            <option value="single">1회 이용</option>
+                            <option value="package30">30회 패키지 (10% 할인, 6개월 유효)</option>
                         </select>
                     </div>
                     
@@ -970,35 +969,141 @@
                 }
             });
             
-            // 정기 할인 적용
-            const regularService = document.querySelector('[name="regularService"]').value;
-            let discount = 0;
-            if (regularService === 'weekly3') {
-                discount = Math.floor(basePrice * 0.1);
-                breakdown.push({name: '정기 할인 (10%)', price: -discount});
-            } else if (regularService === 'daily') {
-                discount = Math.floor(basePrice * 0.15);
-                breakdown.push({name: '정기 할인 (15%)', price: -discount});
+            // 패키지 할인 적용
+            const packageType = document.querySelector('[name="packageType"]').value;
+            let finalPrice = totalPrice;
+            let displayPrice = totalPrice.toLocaleString() + '원';
+            
+            if (packageType === 'package30') {
+                // 30회 패키지 - 10% 할인
+                const packageTotal = totalPrice * 30;
+                const discountAmount = Math.floor(packageTotal * 0.1);
+                const discountedTotal = packageTotal - discountAmount;
+                
+                breakdown.push({name: '30회 패키지 할인 (10%)', price: -discountAmount});
+                displayPrice = `회당 ${totalPrice.toLocaleString()}원 × 30회 = ${discountedTotal.toLocaleString()}원`;
+                
+                // 패키지 정보 추가
+                breakdown.push({name: '유효기간', price: '구매일로부터 6개월'});
             }
-            totalPrice -= discount;
             
             // 화면 업데이트
-            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString() + '원';
+            document.getElementById('totalPrice').textContent = displayPrice;
             
             // 가격 내역 업데이트
             let breakdownHTML = '';
             breakdown.forEach(item => {
-                const priceText = item.price < 0 ? 
-                    item.price.toLocaleString() + '원' : 
-                    '+' + item.price.toLocaleString() + '원';
-                breakdownHTML += `
-                    <div class="price-item">
-                        <span>${item.name}</span>
-                        <span>${item.name === '기본 서비스' ? item.price.toLocaleString() + '원' : priceText}</span>
-                    </div>
-                `;
+                if (item.name === '유효기간') {
+                    breakdownHTML += `
+                        <div class="price-item">
+                            <span>${item.name}</span>
+                            <span style="font-size: 12px;">${item.price}</span>
+                        </div>
+                    `;
+                } else {
+                    const priceText = item.price < 0 ? 
+                        item.price.toLocaleString() + '원' : 
+                        '+' + item.price.toLocaleString() + '원';
+                    breakdownHTML += `
+                        <div class="price-item">
+                            <span>${item.name}</span>
+                            <span>${item.name === '기본 서비스' ? item.price.toLocaleString() + '원' : priceText}</span>
+                        </div>
+                    `;
+                }
             });
             document.getElementById('priceBreakdown').innerHTML = breakdownHTML;
+        }
+
+        // 계약서 텍스트 생성
+        function generateContractText() {
+            const form = document.getElementById('contractForm');
+            const formData = new FormData(form);
+            
+            // 계약번호 생성
+            const contractNumber = 'LINK-' + new Date().getFullYear() + 
+                                 (new Date().getMonth() + 1).toString().padStart(2, '0') +
+                                 new Date().getDate().toString().padStart(2, '0') + '-' +
+                                 Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            
+            // 선택된 서비스 목록
+            let services = ['가구 및 비품 원위치 정리', '쓰레기통 비우기', '간단한 정리정돈', '전원 및 안전 점검', '작업 전후 사진 촬영'];
+            
+            const options = [
+                {checkbox: 'floorCleaning', select: 'floorSize', name: '바닥 쓸기'},
+                {checkbox: 'tableCleaning', select: 'tableCount', name: '테이블 닦기'},
+                {checkbox: 'dishWashing', select: 'dishAmount', name: '설거지'},
+                {checkbox: 'toiletCleaning', select: 'toiletType', name: '화장실 정리'},
+                {checkbox: 'recycling', select: 'recycleType', name: '분리수거'}
+            ];
+            
+            options.forEach(option => {
+                const checkbox = document.querySelector(`[name="${option.checkbox}"]`);
+                if (checkbox && checkbox.checked) {
+                    const select = document.querySelector(`[name="${option.select}"]`);
+                    if (select.value !== '0') {
+                        services.push(option.name + ' - ' + select.options[select.selectedIndex].text);
+                    }
+                }
+            });
+            
+            const totalPrice = document.getElementById('totalPrice').textContent;
+            
+            // 텍스트 계약서 생성
+            const contractText = `
+=================================================
+        Linky 무인공간 정리 서비스 계약서
+=================================================
+
+계약번호: ${contractNumber}
+작성일: ${new Date().toLocaleDateString('ko-KR')}
+
+1. 계약 당사자
+   가. 서비스 이용자
+       - 사업장명: ${formData.get('businessName')}
+       - 담당자: ${formData.get('contactName')}
+       - 연락처: ${formData.get('phone')}
+   
+   나. 서비스 제공자
+       - 상호: Linky
+       - 담당자: 링키 매니저
+       - 연락처: 010-XXXX-XXXX
+
+2. 서비스 내용
+   - 서비스 주소: ${formData.get('address')}
+   - 공간 크기: ${document.querySelector('[name="spaceSize"] option:checked').text}
+   - 이용권 종류: ${document.querySelector('[name="packageType"] option:checked').text}
+   - 서비스 항목:
+     ${services.map(s => '  • ' + s).join('\n     ')}
+   - 서비스 요금: ${totalPrice}
+
+3. 서비스 약관
+   제1조 (서비스 수준)
+   작업은 지정 시간 이전에 완료되며, 체크리스트 기준으로 품질을 보증합니다.
+   
+   제2조 (책임과 보상)
+   서비스 제공 중 발생한 손해는 실손해 배상을 원칙으로 합니다.
+   
+   제3조 (취소 및 환불)
+   24시간 전 100%, 4-24시간 전 50%, 4시간 이내는 환불이 불가합니다.
+
+=================================================
+            `;
+
+            return {
+                contractNumber: contractNumber,
+                text: contractText,
+                data: {
+                    businessName: formData.get('businessName'),
+                    contactName: formData.get('contactName'),
+                    phone: formData.get('phone'),
+                    address: formData.get('address'),
+                    spaceSize: document.querySelector('[name="spaceSize"] option:checked').text,
+                    packageType: document.querySelector('[name="packageType"] option:checked').text,
+                    services: services,
+                    totalPrice: totalPrice
+                }
+            };
         }
 
         // 계약서 미리보기 생성
@@ -1078,8 +1183,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">이용 형태</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="regularService"] option:checked').text}</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">이용권 종류</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="packageType"] option:checked').text}</td>
                         </tr>
                         <tr>
                             <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">서비스 요금</td>
@@ -1123,24 +1228,36 @@
         }
 
         // 이미지로 저장
-        function saveAsImage() {
+        function saveAsImage(sendToGoogle = false) {
             const contractHTML = generateContractPreview();
             const preview = document.getElementById('contractPreview');
             preview.innerHTML = contractHTML;
             preview.style.display = 'block';
             
             html2canvas(preview.querySelector('div'), {
-                scale: 2,
+                scale: 1.5,  // 2에서 1.5로 줄여서 파일 크기 감소
                 backgroundColor: '#ffffff',
-                logging: false
+                logging: false,
+                useCORS: true,
+                allowTaint: true
             }).then(canvas => {
+                const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);  // PNG를 JPEG로 변경하고 품질 80%
+                
+                // 이미지 다운로드
                 const link = document.createElement('a');
-                link.download = `Linky_계약서_${new Date().toISOString().split('T')[0]}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.download = `Linky_계약서_${new Date().toISOString().split('T')[0]}.jpg`;
+                link.href = imageDataUrl;
                 link.click();
                 
                 preview.style.display = 'none';
-                alert('계약서가 이미지로 저장되었습니다!');
+                
+                // Google Apps Script로 전송
+                if (sendToGoogle) {
+                    const contractData = generateContractText();
+                    sendToGoogleScript(contractData, imageDataUrl);
+                } else {
+                    alert('계약서가 이미지로 저장되었습니다!');
+                }
             });
         }
 
@@ -1154,25 +1271,27 @@
             const { jsPDF } = window.jspdf;
             
             html2canvas(preview.querySelector('div'), {
-                scale: 2,
+                scale: 1.5,  // 파일 크기 최적화
                 backgroundColor: '#ffffff',
-                logging: false
+                logging: false,
+                useCORS: true,
+                allowTaint: true
             }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
+                const imgData = canvas.toDataURL('image/jpeg', 0.8);  // JPEG 포맷, 80% 품질
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210;
-                const pageHeight = 297;
+                const imgWidth = 190;  // 좌우 여백을 위해 210에서 190으로
+                const pageHeight = 277;  // 상하 여백을 위해 297에서 277로
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 let heightLeft = imgHeight;
-                let position = 0;
+                let position = 10;  // 상단 여백
                 
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
                 heightLeft -= pageHeight;
                 
                 while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
+                    position = heightLeft - imgHeight + 10;  // 상단 여백 추가
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
                     heightLeft -= pageHeight;
                 }
                 
@@ -1181,6 +1300,16 @@
                 preview.style.display = 'none';
                 alert('계약서가 PDF로 저장되었습니다!');
             });
+        }
+
+        // 텍스트 계약서 다운로드
+        function downloadTextContract() {
+            const contractData = generateContractText();
+            const blob = new Blob([contractData.text], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.download = `Linky_계약서_${contractData.contractNumber}.txt`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
         }
 
         // Google Apps Script로 데이터 전송
@@ -1196,7 +1325,7 @@
             formData.append('phone', contractData.data.phone);
             formData.append('address', contractData.data.address);
             formData.append('space_size', contractData.data.spaceSize);
-            formData.append('regular_service', contractData.data.regularService);
+            formData.append('package_type', contractData.data.packageType);
             formData.append('total_price', contractData.data.totalPrice);
             formData.append('services', contractData.data.services.join(', '));
             formData.append('contract_text', contractData.text);
@@ -1224,88 +1353,7 @@
             });
         }
 
-        // 이미지로 저장 (수정)
-        function saveAsImage(sendToGoogle = false) {
-            const contractHTML = generateContractPreview();
-            const preview = document.getElementById('contractPreview');
-            preview.innerHTML = contractHTML;
-            preview.style.display = 'block';
-            
-            html2canvas(preview.querySelector('div'), {
-                scale: 2,
-                backgroundColor: '#ffffff',
-                logging: false
-            }).then(canvas => {
-                const imageDataUrl = canvas.toDataURL('image/png');
-                
-                // 이미지 다운로드
-                const link = document.createElement('a');
-                link.download = `Linky_계약서_${new Date().toISOString().split('T')[0]}.png`;
-                link.href = imageDataUrl;
-                link.click();
-                
-                preview.style.display = 'none';
-                
-                // Google Apps Script로 전송
-                if (sendToGoogle) {
-                    const contractData = generateContractText();
-                    sendToGoogleScript(contractData, imageDataUrl);
-                } else {
-                    alert('계약서가 이미지로 저장되었습니다!');
-                }
-            });
-        }
-
-        // 텍스트 계약서 다운로드
-        function downloadTextContract() {
-            const contractData = generateContractText();
-            const blob = new Blob([contractData.text], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.download = `Linky_계약서_${contractData.contractNumber}.txt`;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-        }
-
-        // PDF로 저장
-        function saveAsPDF() {
-            const contractHTML = generateContractPreview();
-            const preview = document.getElementById('contractPreview');
-            preview.innerHTML = contractHTML;
-            preview.style.display = 'block';
-            
-            const { jsPDF } = window.jspdf;
-            
-            html2canvas(preview.querySelector('div'), {
-                scale: 2,
-                backgroundColor: '#ffffff',
-                logging: false
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210;
-                const pageHeight = 297;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                let heightLeft = imgHeight;
-                let position = 0;
-                
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-                
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-                
-                pdf.save(`Linky_계약서_${new Date().toISOString().split('T')[0]}.pdf`);
-                
-                preview.style.display = 'none';
-                alert('계약서가 PDF로 저장되었습니다!');
-            });
-        }
-
-        // 폼 제출 (수정)
+        // 폼 제출
         document.getElementById('contractForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
