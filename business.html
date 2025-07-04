@@ -4,6 +4,36 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
     <script>
+        // 토스트 알림 함수
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 모달 알림 함수
+        function showModalAlert(title, message, icon = '✅') {
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalAlert').style.display = 'flex';
+        }
+
+        function closeModalAlert() {
+            document.getElementById('modalAlert').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('modalAlert').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModalAlert();
+            }
+        });
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
@@ -505,6 +535,105 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* 토스트 알림 스타일 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 90%;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        .toast.success {
+            background: #22c55e;
+        }
+
+        .toast.error {
+            background: #dc2626;
+        }
+
+        .toast.warning {
+            background: #f59e0b;
+        }
+
+        .toast.info {
+            background: #3b82f6;
+        }
+
+        /* 모달 알림 */
+        .modal-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .modal-alert-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-alert-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .modal-alert-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .modal-alert-message {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .modal-alert-button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-alert-button:hover {
+            background: #16a34a;
+        }
     </style>
 </head>
 <body>
@@ -821,7 +950,7 @@
                     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                         <button type="button" class="btn btn-secondary" onclick="saveAsImage()">이미지로 저장</button>
                         <button type="button" class="btn btn-secondary" onclick="saveAsPDF()">PDF로 저장</button>
-                        <button type="button" class="btn btn-secondary" onclick="downloadTextContract()">텍스트로 저장</button>
+                        <button type="button" class="btn btn-secondary" onclick="downloadTextContract()">텍스트로 복사</button>
                         <button type="submit" class="btn btn-primary">계약서 작성 완료</button>
                     </div>
                 </form>
@@ -907,6 +1036,19 @@
     <!-- 계약서 미리보기 (숨김) -->
     <div id="contractPreview" class="contract-preview"></div>
 
+    <!-- 토스트 컨테이너 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 모달 알림 -->
+    <div id="modalAlert" class="modal-alert">
+        <div class="modal-alert-content">
+            <div class="modal-alert-icon" id="modalIcon">✅</div>
+            <h3 class="modal-alert-title" id="modalTitle">성공</h3>
+            <p class="modal-alert-message" id="modalMessage">작업이 완료되었습니다.</p>
+            <button class="modal-alert-button" onclick="closeModalAlert()">확인</button>
+        </div>
+    </div>
+
     <script>
         // GA 이벤트 트래킹
         function trackEvent(eventName) {
@@ -923,9 +1065,11 @@
             const optionDiv = document.getElementById(optionId);
             if (checkbox.checked) {
                 optionDiv.classList.add('active');
+                showToast(`${checkbox.nextElementSibling.textContent} 옵션이 추가되었습니다`, 'info');
             } else {
                 optionDiv.classList.remove('active');
                 optionDiv.querySelector('select').value = '0';
+                showToast(`${checkbox.nextElementSibling.textContent} 옵션이 제거되었습니다`, 'warning');
             }
         }
 
@@ -969,8 +1113,12 @@
                 }
             });
             
-            // 패키지 할인 적용
+            // 패키지 선택 시 알림
             const packageType = document.querySelector('[name="packageType"]').value;
+            if (packageType === 'package30' && !this.lastPackageType || this.lastPackageType !== 'package30') {
+                showToast('30회 패키지 선택! 10% 할인이 적용됩니다', 'success');
+            }
+            this.lastPackageType = packageType;
             let finalPrice = totalPrice;
             let displayPrice = totalPrice.toLocaleString() + '원';
             
@@ -1020,11 +1168,25 @@
             const form = document.getElementById('contractForm');
             const formData = new FormData(form);
             
-            // 계약번호 생성
-            const contractNumber = 'LINK-' + new Date().getFullYear() + 
-                                 (new Date().getMonth() + 1).toString().padStart(2, '0') +
-                                 new Date().getDate().toString().padStart(2, '0') + '-' +
-                                 Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            // 계약번호 생성 (전화번호 기반)
+            const phone = formData.get('phone');
+            let contractNumber = 'LINK-';
+            
+            if (phone) {
+                // 전화번호에서 각 섹션의 첫 번째 숫자 추출
+                const phoneParts = phone.replace(/-/g, '').match(/(\d{3})(\d{4})(\d{4})/);
+                if (phoneParts) {
+                    const firstDigits = phoneParts[1][0] + phoneParts[2][0] + phoneParts[3][0];
+                    const randomDigits = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+                    contractNumber += firstDigits + randomDigits;
+                } else {
+                    // 전화번호 형식이 맞지 않으면 기본 랜덤
+                    contractNumber += Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+                }
+            } else {
+                // 전화번호가 없으면 기본 랜덤
+                contractNumber += Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            }
             
             // 선택된 서비스 목록
             let services = ['가구 및 비품 원위치 정리', '쓰레기통 비우기', '간단한 정리정돈', '전원 및 안전 점검', '작업 전후 사진 촬영'];
@@ -1111,11 +1273,25 @@
             const form = document.getElementById('contractForm');
             const formData = new FormData(form);
             
-            // 계약번호 생성
-            const contractNumber = 'LINK-' + new Date().getFullYear() + 
-                                 (new Date().getMonth() + 1).toString().padStart(2, '0') +
-                                 new Date().getDate().toString().padStart(2, '0') + '-' +
-                                 Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            // 계약번호 생성 (전화번호 기반)
+            const phone = formData.get('phone');
+            let contractNumber = 'LINK-';
+            
+            if (phone) {
+                // 전화번호에서 각 섹션의 첫 번째 숫자 추출
+                const phoneParts = phone.replace(/-/g, '').match(/(\d{3})(\d{4})(\d{4})/);
+                if (phoneParts) {
+                    const firstDigits = phoneParts[1][0] + phoneParts[2][0] + phoneParts[3][0];
+                    const randomDigits = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+                    contractNumber += firstDigits + randomDigits;
+                } else {
+                    // 전화번호 형식이 맞지 않으면 기본 랜덤
+                    contractNumber += Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+                }
+            } else {
+                // 전화번호가 없으면 기본 랜덤
+                contractNumber += Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            }
             
             // 선택된 서비스 목록
             let services = ['가구 및 비품 원위치 정리', '쓰레기통 비우기', '간단한 정리정돈', '전원 및 안전 점검', '작업 전후 사진 촬영'];
@@ -1256,7 +1432,7 @@
                     const contractData = generateContractText();
                     sendToGoogleScript(contractData, imageDataUrl);
                 } else {
-                    alert('계약서가 이미지로 저장되었습니다!');
+                    showToast('계약서가 이미지로 저장되었습니다!', 'success');
                 }
             });
         }
@@ -1298,18 +1474,32 @@
                 pdf.save(`Linky_계약서_${new Date().toISOString().split('T')[0]}.pdf`);
                 
                 preview.style.display = 'none';
-                alert('계약서가 PDF로 저장되었습니다!');
+                showToast('계약서가 PDF로 저장되었습니다!', 'success');
             });
         }
 
-        // 텍스트 계약서 다운로드
+        // 텍스트 계약서 복사
         function downloadTextContract() {
             const contractData = generateContractText();
-            const blob = new Blob([contractData.text], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.download = `Linky_계약서_${contractData.contractNumber}.txt`;
-            link.href = URL.createObjectURL(blob);
-            link.click();
+            
+            // 클립보드에 복사
+            navigator.clipboard.writeText(contractData.text).then(() => {
+                showToast('계약서 내용이 클립보드에 복사되었습니다!', 'success');
+                showModalAlert(
+                    '복사 완료',
+                    '계약서 내용이 클립보드에 복사되었습니다.\n메모장이나 워드에 붙여넣기(Ctrl+V) 하세요.',
+                    '📋'
+                );
+            }).catch(err => {
+                // 복사 실패 시 다운로드로 대체
+                console.error('클립보드 복사 실패:', err);
+                const blob = new Blob([contractData.text], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.download = `Linky_계약서_${contractData.contractNumber}.txt`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                showToast('클립보드 복사에 실패하여 파일로 다운로드합니다', 'warning');
+            });
         }
 
         // Google Apps Script로 데이터 전송
@@ -1344,12 +1534,20 @@
             })
             .then(() => {
                 console.log('Google Sheets에 계약서 데이터 전송 완료');
-                alert('계약서가 작성되었습니다!\n이미지와 텍스트 파일이 다운로드되며,\n계약 내용이 시스템에 저장되었습니다.');
+                showModalAlert(
+                    '계약서 작성 완료!',
+                    '계약서가 성공적으로 작성되었습니다.\n이미지와 텍스트 파일이 다운로드되며,\n계약 내용이 시스템에 저장되었습니다.',
+                    '✅'
+                );
             })
             .catch(error => {
                 console.error('전송 오류:', error);
                 // 실패해도 계약서는 저장되었으므로 사용자에게는 성공 메시지
-                alert('계약서가 작성되었습니다!\n이미지와 텍스트 파일이 다운로드되었습니다.');
+                showModalAlert(
+                    '계약서 작성 완료!',
+                    '계약서가 작성되었습니다.\n이미지와 텍스트 파일이 다운로드되었습니다.',
+                    '✅'
+                );
             });
         }
 
@@ -1357,10 +1555,31 @@
         document.getElementById('contractForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // 필수 입력 검증
+            const requiredFields = ['businessName', 'contactName', 'phone', 'address', 'spaceSize'];
+            let isValid = true;
+            
+            for (const fieldName of requiredFields) {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                if (!field.value) {
+                    isValid = false;
+                    field.style.borderColor = '#dc2626';
+                    showToast(`${field.previousElementSibling.textContent.replace(' *', '')}을(를) 입력해주세요`, 'error');
+                    field.focus();
+                    break;
+                } else {
+                    field.style.borderColor = '#e5e7eb';
+                }
+            }
+            
+            if (!isValid) return;
+            
             // 버튼 비활성화 (중복 제출 방지)
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.textContent = '처리 중...';
+            
+            showToast('계약서를 생성하고 있습니다...', 'info');
             
             // 계약서 데이터 생성
             const contractData = generateContractText();
@@ -1409,6 +1628,13 @@
                     });
                 }
             });
+        });
+
+        // 페이지 로드 시 환영 메시지
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                showToast('Linky business에 오신 것을 환영합니다!', 'info');
+            }, 1000);
         });
 
         // 초기 가격 계산
