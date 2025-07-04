@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
     <!-- Google tag (gtag.js) -->
@@ -546,10 +545,120 @@
             align-items: center;
             cursor: pointer;
             font-size: 14px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .checkbox-label:hover {
+            background: #f3f4f6;
         }
 
         .checkbox-label input {
             margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* 토스트 알림 스타일 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 90%;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px);
+        }
+
+        .toast.success {
+            background: #22c55e;
+        }
+
+        .toast.error {
+            background: #dc2626;
+        }
+
+        .toast.warning {
+            background: #f59e0b;
+        }
+
+        .toast.info {
+            background: #3b82f6;
+        }
+
+        /* 모달 알림 */
+        .modal-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .modal-alert-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-alert-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .modal-alert-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .modal-alert-message {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-alert-button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-alert-button:hover {
+            background: #16a34a;
         }
 
         /* 푸터 */
@@ -700,6 +809,38 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* 진행 표시기 */
+        .progress-indicator {
+            background: #f3f4f6;
+            border-radius: 20px;
+            padding: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active {
+            background: #22c55e;
+        }
+
+        /* 숫자 증가 애니메이션 */
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .count-animation {
+            animation: countUp 0.5s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -758,16 +899,16 @@
                 <div class="calculator-input">
                     <label class="calculator-label">하루 작업 건수</label>
                     <input type="range" class="slider" id="dailyTasks" min="1" max="20" value="3" oninput="calculateIncome()">
-                    <div class="slider-value"><span id="dailyTasksValue">3</span>건</div>
+                    <div class="slider-value"><span id="dailyTasksValue" class="count-animation">3</span>건</div>
                 </div>
                 <div class="calculator-input">
                     <label class="calculator-label">주당 활동 일수</label>
                     <input type="range" class="slider" id="weeklyDays" min="1" max="7" value="5" oninput="calculateIncome()">
-                    <div class="slider-value"><span id="weeklyDaysValue">5</span>일</div>
+                    <div class="slider-value"><span id="weeklyDaysValue" class="count-animation">5</span>일</div>
                 </div>
                 <div class="calculator-result">
                     <div class="result-title">예상 월 수익 (최소)</div>
-                    <div class="result-amount" id="monthlyIncome">₩60만원</div>
+                    <div class="result-amount" id="monthlyIncome">₩60만원~</div>
                 </div>
             </div>
         </div>
@@ -837,23 +978,32 @@
             <div class="process-timeline">
                 <div class="process-item">
                     <div class="process-number">1</div>
-                    <h3 class="process-title">앱에서 근처 요청 확인</h3>
-                    <p class="process-desc">출퇴근길이나 여유 시간에 앱을 켜고 근처 요청을 확인하세요.</p>
+                    <div class="process-content">
+                        <h3 class="process-title">앱에서 근처 요청 확인</h3>
+                        <p class="process-desc">출퇴근길이나 여유 시간에 앱을 켜고 근처 요청을 확인하세요.</p>
+                    </div>
                 </div>
                 <div class="process-item">
                     <div class="process-number">2</div>
-                    <h3 class="process-title">원하는 작업 선택</h3>
-                    <p class="process-desc">위치, 시간, 작업 내용을 보고 가능한 것만 선택하시면 됩니다.</p>
+                    <div class="process-content">
+                        <h3 class="process-title">원하는 작업 선택</h3>
+                        <p class="process-desc">위치, 시간, 작업 내용을 보고 가능한 것만 선택하시면 됩니다.</p>
+                    </div>
                 </div>
                 <div class="process-item">
                     <div class="process-number">3</div>
-                    <h3 class="process-title">현장 도착 후 간단 정리</h3>
-                    <p class="process-desc">제공된 체크리스트에 따라 간단한 정리를 진행하세요.</p>
+                    <div class="process-content">
+                        <h3 class="process-title">현장 도착 후 간단 정리</h3>
+                        <p class="process-desc">제공된 체크리스트에 따라 간단한 정리를 진행하세요.</p>
+                        <span class="process-time">평균 10분</span>
+                    </div>
                 </div>
                 <div class="process-item">
                     <div class="process-number">4</div>
-                    <h3 class="process-title">완료 사진 촬영</h3>
-                    <p class="process-desc">작업 전후 사진을 찍어 앱에 업로드하면 완료!</p>
+                    <div class="process-content">
+                        <h3 class="process-title">완료 사진 촬영</h3>
+                        <p class="process-desc">작업 전후 사진을 찍어 앱에 업로드하면 완료!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -982,111 +1132,163 @@
             </p>
             
             <div class="form-container">
+                <!-- 진행 표시기 -->
+                <div class="progress-indicator">
+                    <div class="progress-step active" id="step1"></div>
+                    <div class="progress-step" id="step2"></div>
+                    <div class="progress-step" id="step3"></div>
+                    <div class="progress-step" id="step4"></div>
+                </div>
+                
                 <form action="https://script.google.com/macros/s/AKfycbyRvA4KgKgDGNGOlRc8gwi2F76VFDhxGvkExQuQZetzQFVLeItFLerNt8kzqchhBu_6/exec" method="POST" onsubmit="handleFormSubmit(event)">
                     <input type="hidden" name="form_type" value="partner">
-                    <div class="form-group">
-                        <label class="form-label">이름 *</label>
-                        <input type="text" name="name" class="form-input" placeholder="이름을 입력해주세요" required>
+                    
+                    <!-- Step 1: 기본 정보 -->
+                    <div id="formStep1" class="form-step">
+                        <div class="form-group">
+                            <label class="form-label">이름 *</label>
+                            <input type="text" name="name" class="form-input" placeholder="이름을 입력해주세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">연락처 *</label>
+                            <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">연령대 *</label>
+                            <select name="age_group" class="form-select" required>
+                                <option value="">선택해주세요</option>
+                                <option value="20대">20대</option>
+                                <option value="30대">30대</option>
+                                <option value="40대">40대</option>
+                                <option value="50대">50대</option>
+                                <option value="60대 이상">60대 이상</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">거주지 (구 단위) *</label>
+                            <input type="text" name="residence" class="form-input" placeholder="예: 강남구, 서초구" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" style="width: 100%;" onclick="nextStep(2)">
+                            다음 단계로 →
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">연락처 *</label>
-                        <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" pattern="^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">연령대 *</label>
-                        <select name="age_group" class="form-select" required>
-                            <option value="">선택해주세요</option>
-                            <option value="20대">20대</option>
-                            <option value="30대">30대</option>
-                            <option value="40대">40대</option>
-                            <option value="50대">50대</option>
-                            <option value="60대 이상">60대 이상</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">거주지 (구 단위) *</label>
-                        <input type="text" name="residence" class="form-input" placeholder="예: 강남구, 서초구" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">활동 희망 지역 (복수 선택 가능) *</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_areas" value="강남·논현·학동"> 강남·논현·학동
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_areas" value="역삼·선릉·삼성"> 역삼·선릉·삼성
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_areas" value="서초·교대·방배"> 서초·교대·방배
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_areas" value="신사·압구정·청담"> 신사·압구정·청담
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_areas" value="홍대·합정·상수"> 홍대·합정·상수
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_areas" value="기타"> 기타 지역
-                            </label>
+                    
+                    <!-- Step 2: 활동 지역 -->
+                    <div id="formStep2" class="form-step" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">활동 희망 지역 (복수 선택 가능) *</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_areas" value="강남·논현·학동"> 강남·논현·학동
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_areas" value="역삼·선릉·삼성"> 역삼·선릉·삼성
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_areas" value="서초·교대·방배"> 서초·교대·방배
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_areas" value="신사·압구정·청담"> 신사·압구정·청담
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_areas" value="홍대·합정·상수"> 홍대·합정·상수
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_areas" value="기타"> 기타 지역
+                                </label>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="prevStep(1)">
+                                ← 이전
+                            </button>
+                            <button type="button" class="btn btn-primary" style="flex: 2;" onclick="nextStep(3)">
+                                다음 단계로 →
+                            </button>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">활동 가능 시간대 (복수 선택 가능) *</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_times" value="평일 오전 (6-12시)"> 평일 오전 (6-12시)
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_times" value="평일 오후 (12-18시)"> 평일 오후 (12-18시)
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_times" value="평일 저녁 (18-22시)"> 평일 저녁 (18-22시)
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_times" value="주말 오전"> 주말 오전
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_times" value="주말 오후"> 주말 오후
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="work_times" value="주말 저녁"> 주말 저녁
-                            </label>
+                    
+                    <!-- Step 3: 활동 시간 -->
+                    <div id="formStep3" class="form-step" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">활동 가능 시간대 (복수 선택 가능) *</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_times" value="평일 오전 (6-12시)"> 평일 오전 (6-12시)
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_times" value="평일 오후 (12-18시)"> 평일 오후 (12-18시)
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_times" value="평일 저녁 (18-22시)"> 평일 저녁 (18-22시)
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_times" value="주말 오전"> 주말 오전
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_times" value="주말 오후"> 주말 오후
+                                </label>
+                                <label class="checkbox-label" onclick="toggleCheckbox(this)">
+                                    <input type="checkbox" name="work_times" value="주말 저녁"> 주말 저녁
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">주당 활동 가능 일수 *</label>
+                            <select name="weekly_days" class="form-select" required>
+                                <option value="">선택해주세요</option>
+                                <option value="주 1-2일">주 1-2일</option>
+                                <option value="주 3-4일">주 3-4일</option>
+                                <option value="주 5일 이상">주 5일 이상</option>
+                                <option value="유동적">유동적</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="prevStep(2)">
+                                ← 이전
+                            </button>
+                            <button type="button" class="btn btn-primary" style="flex: 2;" onclick="nextStep(4)">
+                                다음 단계로 →
+                            </button>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">주당 활동 가능 일수 *</label>
-                        <select name="weekly_days" class="form-select" required>
-                            <option value="">선택해주세요</option>
-                            <option value="주 1-2일">주 1-2일</option>
-                            <option value="주 3-4일">주 3-4일</option>
-                            <option value="주 5일 이상">주 5일 이상</option>
-                            <option value="유동적">유동적</option>
-                        </select>
+                    
+                    <!-- Step 4: 추가 정보 -->
+                    <div id="formStep4" class="form-step" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">이동 수단</label>
+                            <select name="transportation" class="form-select">
+                                <option value="">선택해주세요</option>
+                                <option value="도보·대중교통">도보·대중교통</option>
+                                <option value="자전거·킥보드">자전거·킥보드</option>
+                                <option value="오토바이">오토바이</option>
+                                <option value="자가용">자가용</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">시작 가능일 *</label>
+                            <select name="start_date" class="form-select" required>
+                                <option value="">선택해주세요</option>
+                                <option value="즉시 가능">즉시 가능</option>
+                                <option value="1주일 이내">1주일 이내</option>
+                                <option value="2주일 이내">2주일 이내</option>
+                                <option value="협의 필요">협의 필요</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">문의사항</label>
+                            <textarea name="inquiry" class="form-textarea" placeholder="추가로 문의하실 사항이나 하고 싶은 말씀을 자유롭게 작성해주세요" rows="3"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="prevStep(3)">
+                                ← 이전
+                            </button>
+                            <button type="submit" class="btn btn-primary" style="flex: 2;">
+                                <span class="btn-text">파트너 지원하기</span>
+                                <span class="loading" style="display: none;"></span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">이동 수단</label>
-                        <select name="transportation" class="form-select">
-                            <option value="">선택해주세요</option>
-                            <option value="도보·대중교통">도보·대중교통</option>
-                            <option value="자전거·킥보드">자전거·킥보드</option>
-                            <option value="오토바이">오토바이</option>
-                            <option value="자가용">자가용</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">시작 가능일 *</label>
-                        <select name="start_date" class="form-select" required>
-                            <option value="">선택해주세요</option>
-                            <option value="즉시 가능">즉시 가능</option>
-                            <option value="1주일 이내">1주일 이내</option>
-                            <option value="2주일 이내">2주일 이내</option>
-                            <option value="협의 필요">협의 필요</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 15px; padding: 16px;">
-                        <span class="btn-text">파트너 지원하기</span>
-                        <span class="loading" style="display: none;"></span>
-                    </button>
                 </form>
             </div>
         </div>
@@ -1131,27 +1333,182 @@
         </div>
     </footer>
 
+    <!-- 토스트 컨테이너 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- 모달 알림 -->
+    <div id="modalAlert" class="modal-alert">
+        <div class="modal-alert-content">
+            <div class="modal-alert-icon" id="modalIcon">✅</div>
+            <h3 class="modal-alert-title" id="modalTitle">성공</h3>
+            <p class="modal-alert-message" id="modalMessage">작업이 완료되었습니다.</p>
+            <button class="modal-alert-button" onclick="closeModalAlert()">확인</button>
+        </div>
+    </div>
+
     <script>
+        // 토스트 알림 함수
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 모달 알림 함수
+        function showModalAlert(title, message, icon = '✅') {
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modalAlert').style.display = 'flex';
+        }
+
+        function closeModalAlert() {
+            document.getElementById('modalAlert').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('modalAlert').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModalAlert();
+            }
+        });
+
         // 수익 계산기
         function calculateIncome() {
             const dailyTasks = document.getElementById('dailyTasks').value;
             const weeklyDays = document.getElementById('weeklyDays').value;
             
-            document.getElementById('dailyTasksValue').textContent = dailyTasks;
-            document.getElementById('weeklyDaysValue').textContent = weeklyDays;
+            // 숫자 애니메이션
+            const dailyTasksEl = document.getElementById('dailyTasksValue');
+            const weeklyDaysEl = document.getElementById('weeklyDaysValue');
+            
+            dailyTasksEl.textContent = dailyTasks;
+            dailyTasksEl.classList.add('count-animation');
+            weeklyDaysEl.textContent = weeklyDays;
+            weeklyDaysEl.classList.add('count-animation');
+            
+            setTimeout(() => {
+                dailyTasksEl.classList.remove('count-animation');
+                weeklyDaysEl.classList.remove('count-animation');
+            }, 500);
             
             const monthlyIncome = dailyTasks * weeklyDays * 4 * 10000;
             
-            // 만원 단위로 계산하여 xx만원 형태로 표시 (최소 금액 기준)
+            // 만원 단위로 계산하여 xx만원 형태로 표시
             const manwon = monthlyIncome / 10000;
             const displayText = `₩${manwon}만원~`;
             
             document.getElementById('monthlyIncome').textContent = displayText;
+            
+            // 특정 금액 도달 시 알림
+            if (manwon >= 100 && !this.milestone100) {
+                this.milestone100 = true;
+                showToast('월 100만원 이상의 수익이 예상됩니다!', 'success');
+            } else if (manwon < 100) {
+                this.milestone100 = false;
+            }
         }
 
         // FAQ 토글
         function toggleFAQ(element) {
-            element.classList.toggle('active');
+            const wasActive = element.classList.contains('active');
+            
+            // 모든 FAQ 닫기
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 클릭한 항목 토글
+            if (!wasActive) {
+                element.classList.add('active');
+            }
+        }
+
+        // 체크박스 토글
+        function toggleCheckbox(label) {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            const checkedCount = document.querySelectorAll('input[name="' + checkbox.name + '"]:checked').length;
+            
+            if (!checkbox.checked && checkedCount === 0) {
+                showToast('최소 1개 이상 선택해주세요', 'warning');
+            }
+            
+            label.style.background = checkbox.checked ? '#f0fdf4' : 'transparent';
+        }
+
+        // 폼 단계 관리
+        let currentStep = 1;
+
+        function updateProgressIndicator(step) {
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                if (i <= step) {
+                    stepEl.classList.add('active');
+                } else {
+                    stepEl.classList.remove('active');
+                }
+            }
+        }
+
+        function nextStep(step) {
+            // 현재 단계 검증
+            if (!validateStep(currentStep)) {
+                return;
+            }
+            
+            document.getElementById(`formStep${currentStep}`).style.display = 'none';
+            document.getElementById(`formStep${step}`).style.display = 'block';
+            currentStep = step;
+            updateProgressIndicator(step);
+            
+            showToast(`${step}단계로 이동했습니다`, 'info');
+        }
+
+        function prevStep(step) {
+            document.getElementById(`formStep${currentStep}`).style.display = 'none';
+            document.getElementById(`formStep${step}`).style.display = 'block';
+            currentStep = step;
+            updateProgressIndicator(step);
+        }
+
+        function validateStep(step) {
+            const formStep = document.getElementById(`formStep${step}`);
+            const requiredInputs = formStep.querySelectorAll('[required]');
+            
+            for (const input of requiredInputs) {
+                if (!input.value) {
+                    input.style.borderColor = '#dc2626';
+                    showToast(`${input.previousElementSibling.textContent.replace(' *', '')}을(를) 입력해주세요`, 'error');
+                    input.focus();
+                    return false;
+                } else {
+                    input.style.borderColor = '#e5e7eb';
+                }
+            }
+            
+            // 체크박스 검증
+            if (step === 2) {
+                const checkedAreas = document.querySelectorAll('input[name="work_areas"]:checked');
+                if (checkedAreas.length === 0) {
+                    showToast('활동 희망 지역을 최소 1개 이상 선택해주세요', 'error');
+                    return false;
+                }
+            }
+            
+            if (step === 3) {
+                const checkedTimes = document.querySelectorAll('input[name="work_times"]:checked');
+                if (checkedTimes.length === 0) {
+                    showToast('활동 가능 시간대를 최소 1개 이상 선택해주세요', 'error');
+                    return false;
+                }
+            }
+            
+            return true;
         }
 
         // GA 이벤트 트래킹
@@ -1167,6 +1524,11 @@
         // 폼 제출 처리
         function handleFormSubmit(event) {
             event.preventDefault();
+            
+            // 마지막 단계 검증
+            if (!validateStep(4)) {
+                return;
+            }
             
             trackEvent('partner_form_submit');
             
@@ -1186,6 +1548,8 @@
             btnText.style.display = 'none';
             loading.style.display = 'inline-block';
             
+            showToast('지원서를 제출하고 있습니다...', 'info');
+            
             // FormData 생성
             const formData = new FormData(form);
             formData.set('work_areas', workAreas);
@@ -1199,13 +1563,22 @@
             })
             .then(() => {
                 trackEvent('partner_form_success');
-                alert('지원해 주셔서 감사합니다.\n2-3일 내에 심사 결과를 안내드리겠습니다.');
+                showModalAlert(
+                    '지원 완료!',
+                    '지원해 주셔서 감사합니다.\n2-3일 내에 심사 결과를 안내드리겠습니다.\n\n곧 Linky 파트너가 되어 함께하실 수 있기를 기대합니다!',
+                    '🎉'
+                );
                 form.reset();
+                // 첫 단계로 리셋
+                document.getElementById(`formStep${currentStep}`).style.display = 'none';
+                document.getElementById('formStep1').style.display = 'block';
+                currentStep = 1;
+                updateProgressIndicator(1);
             })
             .catch(error => {
                 trackEvent('partner_form_error');
                 console.error('Error:', error);
-                alert('전송 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                showToast('전송 중 오류가 발생했습니다. 다시 시도해 주세요.', 'error');
             })
             .finally(() => {
                 submitBtn.disabled = false;
@@ -1243,6 +1616,13 @@
                     });
                 }
             });
+        });
+
+        // 페이지 로드 시 환영 메시지
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                showToast('Linky 파트너가 되어 새로운 기회를 만나보세요!', 'info');
+            }, 1000);
         });
 
         // 초기 계산
