@@ -217,7 +217,7 @@
             display: block;
         }
 
-        /* 시간 선택기 스타일 */
+        /* 시간 선택기 스타일 - 가로 스크롤 */
         .time-picker-container {
             background: #f9fafb;
             border-radius: 12px;
@@ -231,15 +231,36 @@
             color: #374151;
         }
 
-        .time-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+        .time-scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .time-scroll-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .time-scroll-wrapper::-webkit-scrollbar-track {
+            background: #e5e7eb;
+            border-radius: 4px;
+        }
+
+        .time-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: #22c55e;
+            border-radius: 4px;
+        }
+
+        .time-grid {
+            display: flex;
+            gap: 10px;
+            min-width: max-content;
         }
 
         .time-slot {
-            padding: 10px;
+            padding: 12px 20px;
             text-align: center;
             background: white;
             border: 2px solid #e5e7eb;
@@ -247,6 +268,8 @@
             cursor: pointer;
             transition: all 0.3s;
             font-size: 14px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .time-slot:hover {
@@ -332,6 +355,89 @@
             font-size: 14px;
         }
 
+        /* 파일 업로드 스타일 */
+        .file-upload-section {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-upload-area:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .file-upload-area.dragging {
+            border-color: #22c55e;
+            background: #dcfce7;
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: #22c55e;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-text {
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .file-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .file-remove {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .image-preview {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 4px;
+        }
+
         /* 서명 캔버스 스타일 */
         .signature-section {
             margin: 40px 0;
@@ -342,7 +448,7 @@
 
         .signature-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
         }
 
@@ -434,8 +540,13 @@
                 display: none;
             }
 
-            .time-grid {
-                grid-template-columns: repeat(3, 1fr);
+            .contract-form {
+                padding: 20px;
+            }
+
+            .time-slot {
+                padding: 10px 15px;
+                font-size: 13px;
             }
         }
 
@@ -595,7 +706,7 @@
                                 <div id="toiletOption" class="option-select">
                                     <select class="form-select" name="toiletType" onchange="calculatePrice()">
                                         <option value="0">타입 선택</option>
-                                        <option value="2000">소모품 보충만 (+2,000원)</option>
+                                        <option value="2000">휴지, 비누 등 소모품 보충 (+2,000원)</option>
                                         <option value="5000">간단 청소 포함 (+5,000원)</option>
                                     </select>
                                 </div>
@@ -612,7 +723,6 @@
                                         <option value="0">종류 선택</option>
                                         <option value="3000">일반+재활용 (+3,000원)</option>
                                         <option value="5000">음식물 포함 (+5,000원)</option>
-                                        <option value="8000">대형 쓰레기 포함 (+8,000원)</option>
                                     </select>
                                 </div>
                             </div>
@@ -638,31 +748,33 @@
                                 시작 시간과 종료 시간을 클릭하여 범위를 지정하세요. 긴급 요청 시 추가 요금이 발생할 수 있습니다.
                             </p>
                             
-                            <div class="time-grid">
-                                <div class="time-slot" onclick="selectTimeSlot(0)">00:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(1)">01:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(2)">02:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(3)">03:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(4)">04:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(5)">05:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(6)">06:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(7)">07:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(8)">08:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(9)">09:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(10)">10:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(11)">11:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(12)">12:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(13)">13:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(14)">14:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(15)">15:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(16)">16:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(17)">17:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(18)">18:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(19)">19:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(20)">20:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(21)">21:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(22)">22:00</div>
-                                <div class="time-slot" onclick="selectTimeSlot(23)">23:00</div>
+                            <div class="time-scroll-wrapper">
+                                <div class="time-grid">
+                                    <div class="time-slot" onclick="selectTimeSlot(0)">00:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(1)">01:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(2)">02:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(3)">03:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(4)">04:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(5)">05:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(6)">06:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(7)">07:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(8)">08:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(9)">09:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(10)">10:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(11)">11:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(12)">12:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(13)">13:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(14)">14:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(15)">15:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(16)">16:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(17)">17:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(18)">18:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(19)">19:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(20)">20:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(21)">21:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(22)">22:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(23)">23:00</div>
+                                </div>
                             </div>
                             
                             <div class="time-summary" id="timeSummary" style="display: none;">
@@ -685,12 +797,44 @@
                                 긴급 요청 시 추가 요금이 발생하며, 파트너 매칭이 제한될 수 있습니다.
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- 추가 정보 섹션 -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">4. 추가 정보 및 가구 배치 안내</h3>
                         
-                        <div class="form-group" style="margin-top: 20px;">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="nightService" onchange="calculatePrice()">
-                                <span>심야 서비스 가능 (22:00 - 06:00) - 별도 협의</span>
-                            </label>
+                        <div class="form-group">
+                            <label class="form-label">기타 사항</label>
+                            <textarea class="form-input" name="additionalNotes" rows="4" 
+                                placeholder="심야 서비스(22:00-06:00), 대형 쓰레기 처리, 기타 협의가 필요한 사항을 입력해주세요"></textarea>
+                        </div>
+                        
+                        <!-- 가구 배치 안내 -->
+                        <div class="file-upload-section">
+                            <label class="form-label">가구 원상복귀 위치 안내</label>
+                            <p style="color: #6b7280; font-size: 14px; margin-bottom: 15px;">
+                                가구 배치 사진이나 안내 이미지가 있다면 업로드해주세요. URL로도 입력 가능합니다.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label class="form-label">참고 URL (선택)</label>
+                                <input type="url" class="form-input" name="referenceUrl" 
+                                    placeholder="https://example.com/furniture-layout">
+                            </div>
+                            
+                            <div class="file-upload-area" onclick="document.getElementById('fileInput').click()" 
+                                 ondrop="handleDrop(event)" ondragover="handleDragOver(event)" 
+                                 ondragleave="handleDragLeave(event)">
+                                <div class="file-upload-icon">📎</div>
+                                <div class="file-upload-text">
+                                    클릭하거나 파일을 드래그하여 업로드<br>
+                                    <small>(JPG, PNG, PDF / 최대 10MB)</small>
+                                </div>
+                                <input type="file" id="fileInput" class="file-input" 
+                                       accept="image/*,.pdf" multiple onchange="handleFileSelect(event)">
+                            </div>
+                            
+                            <div id="filePreview" class="file-preview"></div>
                         </div>
                     </div>
                     
@@ -708,7 +852,7 @@
                     
                     <!-- 서명 섹션 -->
                     <div class="signature-section">
-                        <h3 class="form-section-title">4. 계약 동의 및 서명</h3>
+                        <h3 class="form-section-title">5. 계약 동의 및 서명</h3>
                         
                         <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                             <label style="display: flex; align-items: flex-start; cursor: pointer; font-size: 16px;">
@@ -722,432 +866,14 @@
                             </label>
                         </div>
                         
-                        <div class="signature-container" style="grid-template-columns: 1fr;">
+                        <div class="signature-container">
                             <div class="signature-box">
                                 <div class="signature-label">계약자 서명</div>
                                 <canvas id="userSignature" class="signature-canvas"></canvas>
                                 <div class="signature-controls">
                                     <button type="button" class="btn btn-secondary btn-small" onclick="clearSignature('userSignature')">지우기</button>
                                 </div>
-                                <div style="margin-top: 10px; font-size: 14px; color: #6b7280;">
-                                    서명일시: <span id="signatureDate"></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #6b7280;">
-                            <p style="margin-bottom: 5px;">📌 <strong>계약 프로세스 안내</strong></p>
-                            <p>1. 계약서 작성 완료 후 Linky 담당자가 검토합니다.</p>
-                            <p>2. 검토 완료 시 계약서 사본이 이메일로 발송됩니다.</p>
-                            <p>3. 서비스는 계약 확정 후 즉시 이용 가능합니다.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- 버튼 -->
-                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 40px;">
-                        <button type="button" class="btn btn-secondary" onclick="previewContract()">미리보기</button>
-                        <button type="button" class="btn btn-secondary" onclick="saveAsImage()">이미지로 저장</button>
-                        <button type="button" class="btn btn-secondary" onclick="saveAsPDF()">PDF로 저장</button>
-                        <button type="submit" class="btn btn-primary">계약서 작성 완료</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- 계약서 미리보기 (숨김) -->
-    <div id="contractPreview" class="contract-preview"></div>
-
-    <!-- 미리보기 모달 -->
-    <div id="previewModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <div id="modalPreview"></div>
-        </div>
-    </div>
-
-    <script>
-        // 시간 선택 관련 변수
-        let timeSelection = {
-            start: null,
-            end: null
-        };
-
-        // 서명 캔버스 초기화
-        const userCanvas = document.getElementById('userSignature');
-        const userCtx = userCanvas.getContext('2d');
-        
-        // 서명 날짜 표시
-        document.getElementById('signatureDate').textContent = new Date().toLocaleString('ko-KR');
-        
-        // 캔버스 크기 설정
-        function resizeCanvas() {
-            const rect = userCanvas.getBoundingClientRect();
-            userCanvas.width = rect.width;
-            userCanvas.height = rect.height;
-        }
-        
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        
-        // 서명 기능
-        let isDrawing = false;
-        
-        function startDrawing(e, canvas, ctx) {
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || e.touches[0].clientX) - rect.left;
-            const y = (e.clientY || e.touches[0].clientY) - rect.top;
-            
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = '#000';
-            ctx.lineCap = 'round';
-        }
-        
-        function draw(e, canvas, ctx) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || e.touches[0].clientX) - rect.left;
-            const y = (e.clientY || e.touches[0].clientY) - rect.top;
-            
-            ctx.lineTo(x, y);
-            ctx.stroke();
-        }
-        
-        function stopDrawing() {
-            isDrawing = false;
-        }
-        
-        // 이벤트 리스너 추가
-        // 마우스 이벤트
-        userCanvas.addEventListener('mousedown', (e) => startDrawing(e, userCanvas, userCtx));
-        userCanvas.addEventListener('mousemove', (e) => draw(e, userCanvas, userCtx));
-        userCanvas.addEventListener('mouseup', stopDrawing);
-        userCanvas.addEventListener('mouseout', stopDrawing);
-        
-        // 터치 이벤트
-        userCanvas.addEventListener('touchstart', (e) => startDrawing(e, userCanvas, userCtx));
-        userCanvas.addEventListener('touchmove', (e) => draw(e, userCanvas, userCtx));
-        userCanvas.addEventListener('touchend', stopDrawing);
-        
-        // 서명 지우기
-        function clearSignature(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-        
-        // 시간 슬롯 선택
-        function selectTimeSlot(hour) {
-            const slots = document.querySelectorAll('.time-slot');
-            
-            if (timeSelection.start === null) {
-                // 시작 시간 선택
-                timeSelection.start = hour;
-                timeSelection.end = null;
-                slots[hour].classList.add('selected');
-                updateTimeDisplay();
-            } else if (timeSelection.end === null) {
-                // 종료 시간 선택
-                if (hour < timeSelection.start) {
-                    // 더 이른 시간을 선택한 경우 시작 시간으로 변경
-                    slots.forEach(slot => slot.classList.remove('selected', 'in-range'));
-                    timeSelection.start = hour;
-                    timeSelection.end = null;
-                    slots[hour].classList.add('selected');
-                } else {
-                    timeSelection.end = hour;
-                    updateTimeRange();
-                }
-                updateTimeDisplay();
-            } else {
-                // 재선택
-                slots.forEach(slot => slot.classList.remove('selected', 'in-range'));
-                timeSelection.start = hour;
-                timeSelection.end = null;
-                slots[hour].classList.add('selected');
-                updateTimeDisplay();
-            }
-        }
-        
-        // 시간 범위 표시 업데이트
-        function updateTimeRange() {
-            const slots = document.querySelectorAll('.time-slot');
-            slots.forEach(slot => slot.classList.remove('selected', 'in-range'));
-            
-            for (let i = timeSelection.start; i <= timeSelection.end; i++) {
-                if (i === timeSelection.start || i === timeSelection.end) {
-                    slots[i].classList.add('selected');
-                } else {
-                    slots[i].classList.add('in-range');
-                }
-            }
-        }
-        
-        // 시간 표시 업데이트
-        function updateTimeDisplay() {
-            const summary = document.getElementById('timeSummary');
-            const content = document.getElementById('timeSummaryContent');
-            
-            if (timeSelection.start !== null) {
-                summary.style.display = 'block';
-                if (timeSelection.end === null) {
-                    content.textContent = `시작: ${timeSelection.start}:00 (종료 시간을 선택해주세요)`;
-                } else {
-                    content.textContent = `${timeSelection.start}:00 ~ ${timeSelection.end}:00`;
-                }
-            } else {
-                summary.style.display = 'none';
-            }
-        }
-        
-        // 옵션 토글
-        function toggleOption(checkbox, optionId) {
-            const optionDiv = document.getElementById(optionId);
-            if (checkbox.checked) {
-                optionDiv.classList.add('active');
-            } else {
-                optionDiv.classList.remove('active');
-                optionDiv.querySelector('select').value = '0';
-            }
-        }
-        
-        // 가격 계산
-        function calculatePrice() {
-            let basePrice = 0;
-            let totalPrice = 0;
-            let breakdown = [];
-            
-            // 공간 크기별 기본 요금
-            const spaceSize = document.querySelector('[name="spaceSize"]').value;
-            switch(spaceSize) {
-                case '10': basePrice = 12000; break;
-                case '15': basePrice = 15000; break;
-                case '20': basePrice = 18000; break;
-                case '25': basePrice = 22000; break;
-                default: basePrice = 12000;
-            }
-            
-            totalPrice = basePrice;
-            breakdown.push({name: '기본 서비스', price: basePrice});
-            
-            // 추가 옵션 계산
-            const options = [
-                {checkbox: 'floorCleaning', select: 'floorSize', name: '바닥 쓸기'},
-                {checkbox: 'tableCleaning', select: 'tableCount', name: '테이블 닦기'},
-                {checkbox: 'dishWashing', select: 'dishAmount', name: '설거지'},
-                {checkbox: 'toiletCleaning', select: 'toiletType', name: '화장실 정리'},
-                {checkbox: 'recycling', select: 'recycleType', name: '분리수거'}
-            ];
-            
-            options.forEach(option => {
-                const checkbox = document.querySelector(`[name="${option.checkbox}"]`);
-                if (checkbox && checkbox.checked) {
-                    const select = document.querySelector(`[name="${option.select}"]`);
-                    const value = parseInt(select.value) || 0;
-                    if (value > 0) {
-                        totalPrice += value;
-                        breakdown.push({name: option.name, price: value});
-                    }
-                }
-            });
-            
-            // 긴급 요청 옵션
-            const urgencyOption = document.querySelector('[name="urgencyOption"]').value;
-            const urgencyNotice = document.getElementById('urgencyNotice');
-            
-            switch(urgencyOption) {
-                case 'urgent4':
-                    totalPrice += 10000;
-                    breakdown.push({name: '긴급 요청 (4시간 내)', price: 10000});
-                    urgencyNotice.style.display = 'block';
-                    urgencyNotice.className = 'urgency-notice';
-                    break;
-                case 'urgent2':
-                    totalPrice += 20000;
-                    breakdown.push({name: '긴급 요청 (2시간 내)', price: 20000});
-                    urgencyNotice.style.display = 'block';
-                    urgencyNotice.className = 'urgency-notice high';
-                    break;
-                case 'immediate':
-                    totalPrice += 30000;
-                    breakdown.push({name: '즉시 요청 (30분 내)', price: 30000});
-                    urgencyNotice.style.display = 'block';
-                    urgencyNotice.className = 'urgency-notice high';
-                    urgencyNotice.innerHTML = '<strong>⚠️ 즉시 요청 안내</strong><br>즉시 요청은 매칭 가능성이 제한적이며, 추가 요금이 높습니다. 가급적 여유를 두고 예약해주세요.';
-                    break;
-                default:
-                    urgencyNotice.style.display = 'none';
-            }
-            
-            // 심야 서비스
-            const nightService = document.querySelector('[name="nightService"]');
-            if (nightService && nightService.checked) {
-                breakdown.push({name: '심야 서비스', price: '별도 협의'});
-            }
-            
-            // 정기 할인 적용
-            const regularService = document.querySelector('[name="regularService"]').value;
-            let discount = 0;
-            if (regularService === 'package30') {
-                discount = Math.floor(basePrice * 0.1);
-                breakdown.push({name: '30회권 할인 (10%)', price: -discount});
-            }
-            totalPrice -= discount;
-            
-            // 화면 업데이트
-            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString() + '원';
-            
-            // 가격 내역 업데이트
-            let breakdownHTML = '';
-            breakdown.forEach(item => {
-                if (item.price === '별도 협의') {
-                    breakdownHTML += `
-                        <div class="price-item">
-                            <span>${item.name}</span>
-                            <span>${item.price}</span>
-                        </div>
-                    `;
-                } else {
-                    const priceText = item.price < 0 ? 
-                        item.price.toLocaleString() + '원' : 
-                        '+' + item.price.toLocaleString() + '원';
-                    breakdownHTML += `
-                        <div class="price-item">
-                            <span>${item.name}</span>
-                            <span>${item.name === '기본 서비스' ? item.price.toLocaleString() + '원' : priceText}</span>
-                        </div>
-                    `;
-                }
-            });
-            document.getElementById('priceBreakdown').innerHTML = breakdownHTML;
-        }
-        
-        // 계약서 미리보기 생성
-        function generateContractPreview() {
-            const form = document.getElementById('contractForm');
-            const formData = new FormData(form);
-            
-            // 계약번호 생성
-            const contractNumber = 'LINK-' + new Date().getFullYear() + 
-                                 (new Date().getMonth() + 1).toString().padStart(2, '0') +
-                                 new Date().getDate().toString().padStart(2, '0') + '-' +
-                                 Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            
-            // 선택된 서비스 목록
-            let services = ['가구 및 비품 원위치 정리', '쓰레기통 비우기', '간단한 정리정돈', '전원 및 안전 점검', '작업 전후 사진 촬영'];
-            
-            const options = [
-                {checkbox: 'floorCleaning', select: 'floorSize', name: '바닥 쓸기'},
-                {checkbox: 'tableCleaning', select: 'tableCount', name: '테이블 닦기'},
-                {checkbox: 'dishWashing', select: 'dishAmount', name: '설거지'},
-                {checkbox: 'toiletCleaning', select: 'toiletType', name: '화장실 정리'},
-                {checkbox: 'recycling', select: 'recycleType', name: '분리수거'}
-            ];
-            
-            options.forEach(option => {
-                const checkbox = document.querySelector(`[name="${option.checkbox}"]`);
-                if (checkbox && checkbox.checked) {
-                    const select = document.querySelector(`[name="${option.select}"]`);
-                    if (select.value !== '0') {
-                        services.push(option.name + ' - ' + select.options[select.selectedIndex].text);
-                    }
-                }
-            });
-            
-            const totalPrice = document.getElementById('totalPrice').textContent;
-            
-            // 서명 이미지 가져오기
-            const userSignatureImg = userCanvas.toDataURL();
-            
-            // 계약서 HTML 생성
-            const contractHTML = `
-                <div style="max-width: 800px; margin: 0 auto; padding: 40px; background: white;">
-                    <h1 style="text-align: center; margin-bottom: 30px;">Linky 무인공간 정리 서비스 계약서</h1>
-                    <p style="text-align: center; color: #6b7280; margin-bottom: 40px;">계약번호: ${contractNumber}</p>
-                    
-                    <h3 style="margin: 30px 0 20px;">계약 당사자</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; width: 30%;">서비스 이용자</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">
-                                사업장명: ${formData.get('businessName')}<br>
-                                사업자등록번호: ${formData.get('businessNumber')}<br>
-                                담당자: ${formData.get('contactName')}<br>
-                                연락처: ${formData.get('phone')}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">서비스 제공자</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">
-                                상호: Linky<br>
-                                사업자등록번호: 123-45-67890<br>
-                                대표자: 홍길동<br>
-                                연락처: 1588-0000
-                            </td>
-                        </tr>
-                    </table>
-                    
-                    <h3 style="margin: 30px 0 20px;">서비스 내용</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; width: 30%;">서비스 주소</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${formData.get('address')}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">공간 크기</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="spaceSize"] option:checked').text}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; vertical-align: top;">서비스 항목</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">
-                                ${services.map(s => '• ' + s).join('<br>')}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">서비스 시간대</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${timeSelection.start !== null && timeSelection.end !== null ? `${timeSelection.start}:00 ~ ${timeSelection.end}:00` : '지정하지 않음'}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">긴급 요청</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="urgencyOption"] option:checked').text}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">이용 형태</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="regularService"] option:checked').text}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">서비스 요금</td>
-                            <td style="padding: 10px; border: 1px solid #e5e7eb; font-weight: bold; color: #22c55e;">${totalPrice}</td>
-                        </tr>
-                    </table>
-                    
-                    <h3 style="margin: 30px 0 20px;">약관</h3>
-                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px; font-size: 14px; line-height: 1.8;">
-                        <p><strong>제1조 (서비스 수준)</strong><br>
-                        작업은 지정 시간 이전에 완료되며, 체크리스트 기준으로 품질을 보증합니다.</p>
-                        
-                        <p><strong>제2조 (책임과 보상)</strong><br>
-                        서비스 제공 중 발생한 손해는 실손해 배상을 원칙으로 합니다.</p>
-                        
-                        <p><strong>제3조 (취소 및 환불)</strong><br>
-                        24시간 전 100%, 4-24시간 전 50%, 4시간 이내는 환불이 불가합니다.</p>
-                        
-                        <p><strong>제4조 (개인정보 보호)</strong><br>
-                        수집된 개인정보는 서비스 제공 목적으로만 사용되며, 제3자에게 제공되지 않습니다.</p>
-                        
-                        <p><strong>제5조 (긴급 요청 서비스)</strong><br>
-                        긴급 요청 시 추가 요금이 발생하며, 파트너 매칭이 제한될 수 있습니다.<br>
-                        - 4시간 내: +10,000원<br>
-                        - 2시간 내: +20,000원<br>
-                        - 30분 내: +30,000원</p>
-                    </div>
-                    
-                    <div style="margin-top: 50px;">
+                                <div style="margin-top: 50px;">
                         <p style="text-align: center; margin-bottom: 40px;">
                             <strong>작성일:</strong> ${new Date().toLocaleDateString('ko-KR')}<br>
                             <strong>서명일시:</strong> ${new Date().toLocaleString('ko-KR')}
@@ -1293,7 +1019,7 @@
                 const contractImageUrl = canvas.toDataURL('image/png');
                 preview.style.display = 'none';
                 
-                // Google Apps Script로 전송
+                // Google Apps Script로 전송할 데이터 준비
                 const googleFormData = new FormData();
                 googleFormData.append('form_type', 'contract');
                 googleFormData.append('contract_number', contractNumber);
@@ -1311,6 +1037,16 @@
                 googleFormData.append('user_signature', userSignature);
                 googleFormData.append('contract_image', contractImageUrl);
                 googleFormData.append('services', collectSelectedServices().join(', '));
+                googleFormData.append('additional_notes', formData.get('additionalNotes') || '');
+                googleFormData.append('reference_url', formData.get('referenceUrl') || '');
+                
+                // 업로드된 파일들 처리
+                if (uploadedFiles.length > 0) {
+                    uploadedFiles.forEach((file, index) => {
+                        googleFormData.append(`attachment_${index}`, file);
+                    });
+                    googleFormData.append('attachment_count', uploadedFiles.length);
+                }
                 
                 fetch('https://script.google.com/macros/s/AKfycbxGrU2h4mACNK966AgnQzo9sXf6xbb57exVNskr6uOYBgfq0GiQh86imEM8Q9m1AKBO/exec', {
                     method: 'POST',
@@ -1342,4 +1078,538 @@
         
         // 선택된 서비스 수집 함수
         function collectSelectedServices() {
-            let services = ['가구 및 비품 원위치 정리',
+            let services = ['가구 및 비품 원위치 정리', '쓰레기통 비우기', '소모품 리필', '간단한 정리정돈', '전열기구 및 조명 점검', '작업 전후 사진 촬영'];
+            
+            const options = [
+                {checkbox: 'floorCleaning', select: 'floorSize', name: '바닥 쓸기'},
+                {checkbox: 'tableCleaning', select: 'tableCount', name: '테이블 닦기'},
+                {checkbox: 'dishWashing', select: 'dishAmount', name: '설거지'},
+                {checkbox: 'toiletCleaning', select: 'toiletType', name: '화장실 정리'},
+                {checkbox: 'recycling', select: 'recycleType', name: '분리수거'}
+            ];
+            
+            options.forEach(option => {
+                const checkbox = document.querySelector(`[name="${option.checkbox}"]`);
+                if (checkbox && checkbox.checked) {
+                    const select = document.querySelector(`[name="${option.select}"]`);
+                    if (select.value !== '0') {
+                        services.push(option.name + ' - ' + select.options[select.selectedIndex].text);
+                    }
+                }
+            });
+            
+            return services;
+        }
+        
+        // 초기 가격 계산
+        calculatePrice();
+    </script>
+</body>
+</html>top: 10px; font-size: 14px; color: #6b7280;">
+                                    서명일시: <span id="signatureDate"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #6b7280;">
+                            <p style="margin-bottom: 5px;">📌 <strong>계약 프로세스 안내</strong></p>
+                            <p>1. 계약서 작성 완료 후 Linky 담당자가 검토합니다.</p>
+                            <p>2. 검토 완료 시 계약서 사본이 이메일로 발송됩니다.</p>
+                            <p>3. 서비스는 계약 확정 후 즉시 이용 가능합니다.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 버튼 -->
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 40px;">
+                        <button type="button" class="btn btn-secondary" onclick="previewContract()">미리보기</button>
+                        <button type="button" class="btn btn-secondary" onclick="saveAsImage()">이미지로 저장</button>
+                        <button type="button" class="btn btn-secondary" onclick="saveAsPDF()">PDF로 저장</button>
+                        <button type="submit" class="btn btn-primary">계약서 작성 완료</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 계약서 미리보기 (숨김) -->
+    <div id="contractPreview" class="contract-preview"></div>
+
+    <!-- 미리보기 모달 -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modalPreview"></div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 변수
+        let timeSelection = {
+            start: null,
+            end: null
+        };
+        let uploadedFiles = [];
+
+        // 서명 캔버스 초기화
+        const userCanvas = document.getElementById('userSignature');
+        const userCtx = userCanvas.getContext('2d');
+        
+        // 서명 날짜 표시
+        document.getElementById('signatureDate').textContent = new Date().toLocaleString('ko-KR');
+        
+        // 캔버스 크기 설정
+        function resizeCanvas() {
+            const rect = userCanvas.getBoundingClientRect();
+            userCanvas.width = rect.width;
+            userCanvas.height = rect.height;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // 서명 기능
+        let isDrawing = false;
+        
+        function startDrawing(e, canvas, ctx) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#000';
+            ctx.lineCap = 'round';
+        }
+        
+        function draw(e, canvas, ctx) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+        
+        function stopDrawing() {
+            isDrawing = false;
+        }
+        
+        // 이벤트 리스너 추가
+        // 마우스 이벤트
+        userCanvas.addEventListener('mousedown', (e) => startDrawing(e, userCanvas, userCtx));
+        userCanvas.addEventListener('mousemove', (e) => draw(e, userCanvas, userCtx));
+        userCanvas.addEventListener('mouseup', stopDrawing);
+        userCanvas.addEventListener('mouseout', stopDrawing);
+        
+        // 터치 이벤트
+        userCanvas.addEventListener('touchstart', (e) => startDrawing(e, userCanvas, userCtx));
+        userCanvas.addEventListener('touchmove', (e) => draw(e, userCanvas, userCtx));
+        userCanvas.addEventListener('touchend', stopDrawing);
+        
+        // 서명 지우기
+        function clearSignature(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // 시간 슬롯 선택
+        function selectTimeSlot(hour) {
+            const slots = document.querySelectorAll('.time-slot');
+            
+            if (timeSelection.start === null) {
+                // 시작 시간 선택
+                timeSelection.start = hour;
+                timeSelection.end = null;
+                slots[hour].classList.add('selected');
+                updateTimeDisplay();
+            } else if (timeSelection.end === null) {
+                // 종료 시간 선택
+                if (hour < timeSelection.start) {
+                    // 더 이른 시간을 선택한 경우 시작 시간으로 변경
+                    slots.forEach(slot => slot.classList.remove('selected', 'in-range'));
+                    timeSelection.start = hour;
+                    timeSelection.end = null;
+                    slots[hour].classList.add('selected');
+                } else {
+                    timeSelection.end = hour;
+                    updateTimeRange();
+                }
+                updateTimeDisplay();
+            } else {
+                // 재선택
+                slots.forEach(slot => slot.classList.remove('selected', 'in-range'));
+                timeSelection.start = hour;
+                timeSelection.end = null;
+                slots[hour].classList.add('selected');
+                updateTimeDisplay();
+            }
+        }
+        
+        // 시간 범위 표시 업데이트
+        function updateTimeRange() {
+            const slots = document.querySelectorAll('.time-slot');
+            slots.forEach(slot => slot.classList.remove('selected', 'in-range'));
+            
+            for (let i = timeSelection.start; i <= timeSelection.end; i++) {
+                if (i === timeSelection.start || i === timeSelection.end) {
+                    slots[i].classList.add('selected');
+                } else {
+                    slots[i].classList.add('in-range');
+                }
+            }
+        }
+        
+        // 시간 표시 업데이트
+        function updateTimeDisplay() {
+            const summary = document.getElementById('timeSummary');
+            const content = document.getElementById('timeSummaryContent');
+            
+            if (timeSelection.start !== null) {
+                summary.style.display = 'block';
+                if (timeSelection.end === null) {
+                    content.textContent = `시작: ${timeSelection.start}:00 (종료 시간을 선택해주세요)`;
+                } else {
+                    content.textContent = `${timeSelection.start}:00 ~ ${timeSelection.end}:00`;
+                }
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+        
+        // 파일 업로드 관련 함수
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            processFiles(files);
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const area = event.currentTarget;
+            area.classList.remove('dragging');
+            
+            const files = Array.from(event.dataTransfer.files);
+            processFiles(files);
+        }
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragging');
+        }
+        
+        function handleDragLeave(event) {
+            event.currentTarget.classList.remove('dragging');
+        }
+        
+        function processFiles(files) {
+            const validFiles = files.filter(file => {
+                const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                
+                if (!validTypes.includes(file.type)) {
+                    alert(`${file.name}: 지원하지 않는 파일 형식입니다.`);
+                    return false;
+                }
+                
+                if (file.size > maxSize) {
+                    alert(`${file.name}: 파일 크기가 10MB를 초과합니다.`);
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            uploadedFiles = [...uploadedFiles, ...validFiles];
+            updateFilePreview();
+        }
+        
+        function updateFilePreview() {
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = '';
+            
+            uploadedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.className = 'image-preview';
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    fileItem.appendChild(img);
+                } else {
+                    const icon = document.createElement('div');
+                    icon.textContent = '📄';
+                    icon.style.fontSize = '24px';
+                    fileItem.appendChild(icon);
+                }
+                
+                const fileName = document.createElement('div');
+                fileName.textContent = file.name;
+                fileName.style.fontSize = '14px';
+                fileItem.appendChild(fileName);
+                
+                const removeBtn = document.createElement('div');
+                removeBtn.className = 'file-remove';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = () => removeFile(index);
+                fileItem.appendChild(removeBtn);
+                
+                preview.appendChild(fileItem);
+            });
+        }
+        
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFilePreview();
+        }
+        
+        // 옵션 토글
+        function toggleOption(checkbox, optionId) {
+            const optionDiv = document.getElementById(optionId);
+            if (checkbox.checked) {
+                optionDiv.classList.add('active');
+            } else {
+                optionDiv.classList.remove('active');
+                optionDiv.querySelector('select').value = '0';
+            }
+        }
+        
+        // 가격 계산
+        function calculatePrice() {
+            let basePrice = 0;
+            let totalPrice = 0;
+            let breakdown = [];
+            
+            // 공간 크기별 기본 요금
+            const spaceSize = document.querySelector('[name="spaceSize"]').value;
+            switch(spaceSize) {
+                case '10': basePrice = 12000; break;
+                case '15': basePrice = 15000; break;
+                case '20': basePrice = 18000; break;
+                case '25': basePrice = 22000; break;
+                default: basePrice = 12000;
+            }
+            
+            totalPrice = basePrice;
+            breakdown.push({name: '기본 서비스', price: basePrice});
+            
+            // 추가 옵션 계산
+            const options = [
+                {checkbox: 'floorCleaning', select: 'floorSize', name: '바닥 쓸기'},
+                {checkbox: 'tableCleaning', select: 'tableCount', name: '테이블 닦기'},
+                {checkbox: 'dishWashing', select: 'dishAmount', name: '설거지'},
+                {checkbox: 'toiletCleaning', select: 'toiletType', name: '화장실 정리'},
+                {checkbox: 'recycling', select: 'recycleType', name: '분리수거'}
+            ];
+            
+            options.forEach(option => {
+                const checkbox = document.querySelector(`[name="${option.checkbox}"]`);
+                if (checkbox && checkbox.checked) {
+                    const select = document.querySelector(`[name="${option.select}"]`);
+                    const value = parseInt(select.value) || 0;
+                    if (value > 0) {
+                        totalPrice += value;
+                        breakdown.push({name: option.name, price: value});
+                    }
+                }
+            });
+            
+            // 긴급 요청 옵션
+            const urgencyOption = document.querySelector('[name="urgencyOption"]').value;
+            const urgencyNotice = document.getElementById('urgencyNotice');
+            
+            switch(urgencyOption) {
+                case 'urgent4':
+                    totalPrice += 10000;
+                    breakdown.push({name: '긴급 요청 (4시간 내)', price: 10000});
+                    urgencyNotice.style.display = 'block';
+                    urgencyNotice.className = 'urgency-notice';
+                    break;
+                case 'urgent2':
+                    totalPrice += 20000;
+                    breakdown.push({name: '긴급 요청 (2시간 내)', price: 20000});
+                    urgencyNotice.style.display = 'block';
+                    urgencyNotice.className = 'urgency-notice high';
+                    break;
+                case 'immediate':
+                    totalPrice += 30000;
+                    breakdown.push({name: '즉시 요청 (30분 내)', price: 30000});
+                    urgencyNotice.style.display = 'block';
+                    urgencyNotice.className = 'urgency-notice high';
+                    urgencyNotice.innerHTML = '<strong>⚠️ 즉시 요청 안내</strong><br>즉시 요청은 매칭 가능성이 제한적이며, 추가 요금이 높습니다. 가급적 여유를 두고 예약해주세요.';
+                    break;
+                default:
+                    urgencyNotice.style.display = 'none';
+            }
+            
+            // 정기 할인 적용
+            const regularService = document.querySelector('[name="regularService"]').value;
+            let discount = 0;
+            if (regularService === 'package30') {
+                discount = Math.floor(basePrice * 0.1);
+                breakdown.push({name: '30회권 할인 (10%)', price: -discount});
+            }
+            totalPrice -= discount;
+            
+            // 화면 업데이트
+            document.getElementById('totalPrice').textContent = totalPrice.toLocaleString() + '원';
+            
+            // 가격 내역 업데이트
+            let breakdownHTML = '';
+            breakdown.forEach(item => {
+                const priceText = item.price < 0 ? 
+                    item.price.toLocaleString() + '원' : 
+                    '+' + item.price.toLocaleString() + '원';
+                breakdownHTML += `
+                    <div class="price-item">
+                        <span>${item.name}</span>
+                        <span>${item.name === '기본 서비스' ? item.price.toLocaleString() + '원' : priceText}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('priceBreakdown').innerHTML = breakdownHTML;
+        }
+        
+        // 계약서 미리보기 생성
+        function generateContractPreview() {
+            const form = document.getElementById('contractForm');
+            const formData = new FormData(form);
+            
+            // 계약번호 생성
+            const contractNumber = 'LINK-' + new Date().getFullYear() + 
+                                 (new Date().getMonth() + 1).toString().padStart(2, '0') +
+                                 new Date().getDate().toString().padStart(2, '0') + '-' +
+                                 Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            
+            // 선택된 서비스 목록
+            let services = ['가구 및 비품 원위치 정리', '쓰레기통 비우기', '소모품 리필', '간단한 정리정돈', '전열기구 및 조명 점검', '작업 전후 사진 촬영'];
+            
+            const options = [
+                {checkbox: 'floorCleaning', select: 'floorSize', name: '바닥 쓸기'},
+                {checkbox: 'tableCleaning', select: 'tableCount', name: '테이블 닦기'},
+                {checkbox: 'dishWashing', select: 'dishAmount', name: '설거지'},
+                {checkbox: 'toiletCleaning', select: 'toiletType', name: '화장실 정리'},
+                {checkbox: 'recycling', select: 'recycleType', name: '분리수거'}
+            ];
+            
+            options.forEach(option => {
+                const checkbox = document.querySelector(`[name="${option.checkbox}"]`);
+                if (checkbox && checkbox.checked) {
+                    const select = document.querySelector(`[name="${option.select}"]`);
+                    if (select.value !== '0') {
+                        services.push(option.name + ' - ' + select.options[select.selectedIndex].text);
+                    }
+                }
+            });
+            
+            const totalPrice = document.getElementById('totalPrice').textContent;
+            
+            // 서명 이미지 가져오기
+            const userSignatureImg = userCanvas.toDataURL();
+            
+            // 계약서 HTML 생성
+            const contractHTML = `
+                <div style="max-width: 800px; margin: 0 auto; padding: 40px; background: white;">
+                    <h1 style="text-align: center; margin-bottom: 30px;">Linky 무인공간 정리 서비스 계약서</h1>
+                    <p style="text-align: center; color: #6b7280; margin-bottom: 40px;">계약번호: ${contractNumber}</p>
+                    
+                    <h3 style="margin: 30px 0 20px;">계약 당사자</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; width: 30%;">서비스 이용자</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                                사업장명: ${formData.get('businessName')}<br>
+                                사업자등록번호: ${formData.get('businessNumber')}<br>
+                                담당자: ${formData.get('contactName')}<br>
+                                연락처: ${formData.get('phone')}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">서비스 제공자</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                                상호: Linky<br>
+                                사업자등록번호: 123-45-67890<br>
+                                대표자: 홍길동<br>
+                                연락처: 1588-0000
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <h3 style="margin: 30px 0 20px;">서비스 내용</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; width: 30%;">서비스 주소</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${formData.get('address')}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">공간 크기</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="spaceSize"] option:checked').text}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; vertical-align: top;">서비스 항목</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                                ${services.map(s => '• ' + s).join('<br>')}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">서비스 시간대</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${timeSelection.start !== null && timeSelection.end !== null ? `${timeSelection.start}:00 ~ ${timeSelection.end}:00` : '지정하지 않음'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">긴급 요청</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="urgencyOption"] option:checked').text}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">이용 형태</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${document.querySelector('[name="regularService"] option:checked').text}</td>
+                        </tr>
+                        ${formData.get('additionalNotes') ? `
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">기타 사항</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${formData.get('additionalNotes')}</td>
+                        </tr>
+                        ` : ''}
+                        ${formData.get('referenceUrl') ? `
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">참고 URL</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb;">${formData.get('referenceUrl')}</td>
+                        </tr>
+                        ` : ''}
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb;">서비스 요금</td>
+                            <td style="padding: 10px; border: 1px solid #e5e7eb; font-weight: bold; color: #22c55e;">${totalPrice}</td>
+                        </tr>
+                    </table>
+                    
+                    <h3 style="margin: 30px 0 20px;">약관</h3>
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px; font-size: 14px; line-height: 1.8;">
+                        <p><strong>제1조 (서비스 수준)</strong><br>
+                        작업은 지정 시간 이전에 완료되며, 체크리스트 기준으로 품질을 보증합니다.</p>
+                        
+                        <p><strong>제2조 (책임과 보상)</strong><br>
+                        서비스 제공 중 발생한 손해는 실손해 배상을 원칙으로 합니다.</p>
+                        
+                        <p><strong>제3조 (취소 및 환불)</strong><br>
+                        24시간 전 100%, 4-24시간 전 50%, 4시간 이내는 환불이 불가합니다.</p>
+                        
+                        <p><strong>제4조 (개인정보 보호)</strong><br>
+                        수집된 개인정보는 서비스 제공 목적으로만 사용되며, 제3자에게 제공되지 않습니다.</p>
+                        
+                        <p><strong>제5조 (긴급 요청 서비스)</strong><br>
+                        긴급 요청 시 추가 요금이 발생하며, 파트너 매칭이 제한될 수 있습니다.<br>
+                        - 4시간 내: +10,000원<br>
+                        - 2시간 내: +20,000원<br>
+                        - 30분 내: +30,000원</p>
+                    </div>
+                    
+                    <div style="margin-
