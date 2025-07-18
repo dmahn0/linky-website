@@ -34,17 +34,50 @@
     <meta property="og:site_name" content="Linky">
     <meta property="og:locale" content="ko_KR">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="firebase-config.js"></script>
+    <!-- Supabase 직접 초기화 -->
+    <script>
+        // Supabase 클라이언트 직접 생성
+        const supabaseUrl = 'https://mzihuflrbspvyjknxlad.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16aWh1ZmxyYnNwdnlqa254bGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4MTk3ODgsImV4cCI6MjA2ODM5NTc4OH0.UDwv6eknjWwmbZ9WsRioi3J23_1az9O1pJFlnKgQ88s';
+        
+        // SDK 로드 즉시 초기화
+        function waitForSupabase() {
+            if (window.supabase && window.supabase.createClient) {
+                window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                console.log('Supabase 초기화 완료');
+                
+                // Firebase 호환 객체도 생성
+                window.auth = {
+                    currentUser: null,
+                    onAuthStateChanged: function(callback) {
+                        if (!window.supabaseClient) return;
+                        
+                        window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
+                            this.currentUser = user;
+                            callback(user);
+                        });
+                        
+                        const { data: { subscription } } = window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                            this.currentUser = session?.user || null;
+                            callback(session?.user || null);
+                        });
+                        
+                        return () => subscription?.unsubscribe();
+                    }
+                };
+            } else {
+                setTimeout(waitForSupabase, 100);
+            }
+        }
+        
+        waitForSupabase();
+    </script>
     
     <!-- 인증 모달 -->
-    <script src="auth-modal.js"></script>
+    <script src="auth-modal.js" defer></script>
     
     <style>
         * {
@@ -530,8 +563,8 @@
                     <div class="login-required">
                         <a href="#" onclick="trackButtonClick('nav_business_info'); window.location.href='./business/';">공간 사업자</a>
                         <a href="#" onclick="alert('추후 오픈 예정입니다.'); return false;" style="color: #9ca3af;">직영 공간 🚧</a>
-                        <a href="#" onclick="alert('추후 오픈 예정입니다.'); return false;" style="color: #9ca3af;">교육/컨설팅 🚧</a>
-                        <a href="#" onclick="alert('추후 오픈 예정입니다.'); return false;" style="color: #9ca3af;">시설 관리 🚧</a>
+                        <a href="#" onclick="trackButtonClick('nav_education'); window.location.href='./education/';">교육/컨설팅</a>
+                        <a href="#" onclick="trackButtonClick('nav_facility'); window.location.href='./facility/';">시설 관리</a>
                         <a href="#" onclick="trackButtonClick('nav_partner_info'); window.location.href='./partners/';">파트너 지원</a>
                         <a href="#" class="btn btn-outline" style="padding: 8px 16px; margin-right: 10px;" onclick="authModal.openLogin();">로그인</a>
                         <a href="#" class="btn btn-primary" style="padding: 8px 16px;" onclick="authModal.openSignupSelect();">시작하기</a>
@@ -596,12 +629,8 @@
                         <p style="color: #1f2937; font-weight: bold;">45%+</p>
                     </div>
                 </div>
-                <div style="background: #fbbf24; color: #92400e; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 15px; display: inline-block;">
-                    🚧 추후 오픈 예정
-                </div>
-                <br>
-                <a href="/education/" class="btn" style="font-size: 18px; padding: 15px 30px; background: #e5e7eb; color: #6b7280; cursor: not-allowed;">
-                    교육 프로그램 (준비 중)
+                <a href="./education/" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;" onclick="trackButtonClick('education_cta');">
+                    교육 프로그램 자세히 보기
                 </a>
             </div>
         </div>
@@ -694,12 +723,8 @@
                         <p style="color: #1f2937; font-weight: bold;">월 80,000원</p>
                     </div>
                 </div>
-                <div style="background: #fbbf24; color: #92400e; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 15px; display: inline-block;">
-                    🚧 추후 오픈 예정
-                </div>
-                <br>
-                <a href="/facility/" class="btn" style="font-size: 18px; padding: 15px 30px; background: #e5e7eb; color: #6b7280; cursor: not-allowed;">
-                    부가서비스 (준비 중)
+                <a href="./facility/" class="btn btn-primary" style="font-size: 18px; padding: 15px 30px;" onclick="trackButtonClick('facility_cta');">
+                    시설 관리 서비스 자세히 보기
                 </a>
             </div>
         </div>
@@ -743,8 +768,8 @@
                 첫 이용 시 10% 할인 쿠폰을 드립니다
             </p>
             <div class="hero-buttons">
-                <a href="/.business/" class="btn btn-white" onclick="trackButtonClick('cta_business');">사업자 시작하기</a>
-                <a href="/.partners/" class="btn btn-outline" onclick="trackButtonClick('cta_partner');">파트너 지원하기</a>
+                <a href="./business/" class="btn btn-white" onclick="trackButtonClick('cta_business');">사업자 시작하기</a>
+                <a href="./partners/" class="btn btn-outline" onclick="trackButtonClick('cta_partner');">파트너 지원하기</a>
             </div>
             <div class="hero-buttons" style="margin-top: 15px;">
                 <a href="#" class="btn btn-outline" style="padding: 16px 60px;" onclick="trackButtonClick('cta_signup'); authModal.openSignupSelect();">회원가입</a>
@@ -776,18 +801,19 @@
                 <div class="footer-column">
                     <h4>서비스</h4>
                     <ul>
-                        <li><a href="#">서비스 소개</a></li>
-                        <li><a href="#">이용 방법</a></li>
-                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="./business/">공간 사업자</a></li>
+                        <li><a href="./partners/">파트너 지원</a></li>
+                        <li><a href="./education/">교육/컨설팅</a></li>
+                        <li><a href="./facility/">시설 관리</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
-                    <h4>파트너</h4>
+                    <h4>리소스</h4>
                     <ul>
-                        <li><a href="./partners.html">파트너 지원</a></li>
-                        <li><a href="#">파트너 혜택</a></li>
-                        <li><a href="#">교육 프로그램</a></li>
-                        <li><a href="#">수익 계산기</a></li>
+                        <li><a href="#features">서비스 소개</a></li>
+                        <li><a href="#process">이용 방법</a></li>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">고객 지원</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">

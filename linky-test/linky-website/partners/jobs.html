@@ -373,6 +373,14 @@
             text-align: center;
             padding: 80px 20px;
         }
+        
+        .loading-state p {
+            /* 텍스트가 회전하지 않도록 명시적으로 설정 */
+            transform: none !important;
+            animation: none !important;
+            position: static;
+            margin: 0;
+        }
 
         .spinner {
             width: 40px;
@@ -382,6 +390,8 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
+            /* 스피너만 회전하도록 분리 */
+            display: inline-block;
         }
 
         @keyframes spin {

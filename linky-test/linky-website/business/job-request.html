@@ -551,6 +551,7 @@
         let userSpaces = [];
         let selectedSpaceId = null;
         let totalPrice = 12000;
+        let db = null; // Firestore 인스턴스
 
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', function() {
@@ -571,14 +572,16 @@
 
             // Firebase 초기화 대기
             setTimeout(() => {
-                if (typeof auth !== 'undefined') {
+                if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+                    db = firebase.firestore();
+                    const auth = firebase.auth();
                     auth.onAuthStateChanged((user) => {
                         if (user) {
                             checkBusinessUser(user);
                         } else {
-                            // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로)
-                            const currentPage = window.location.pathname.split('/').pop();
-                            window.location.href = `index.html?redirect=${encodeURIComponent(currentPage)}`;
+                            // 로그인되지 않은 경우 대시보드로 리다이렉트
+                            console.log('로그인되지 않은 사용자 - 대시보드로 이동');
+                            window.location.href = 'dashboard.html';
                         }
                     });
                 } else {
@@ -600,9 +603,10 @@
                         return;
                     }
                 }
-                // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로)
-                const currentPage = window.location.pathname.split('/').pop();
-                window.location.href = `index.html?redirect=${encodeURIComponent(currentPage)}`;
+                // 비즈니스 계정이 아닌 경우 대시보드로 리다이렉트
+                console.log('비즈니스 계정이 아님 - 대시보드로 이동');
+                alert('비즈니스 계정만 작업을 요청할 수 있습니다.');
+                window.location.href = 'dashboard.html';
             } catch (error) {
                 console.error('사용자 확인 오류:', error);
                 alert('사용자 확인 중 오류가 발생했습니다.');

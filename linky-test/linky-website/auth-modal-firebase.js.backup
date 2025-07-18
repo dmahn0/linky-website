@@ -32,44 +32,22 @@ class AuthModal {
         
         .modal-content {
           background-color: #fefefe;
-          margin: 20px auto;
+          margin: 5% auto;
           padding: 30px;
           border: none;
           border-radius: 12px;
           width: 90%;
           max-width: 500px;
-          max-height: 90vh;
-          overflow-y: auto;
           position: relative;
           box-shadow: 0 4px 20px rgba(0,0,0,0.1);
           animation: slideIn 0.3s;
         }
         
-        /* 스크롤바 스타일링 */
-        .modal-content::-webkit-scrollbar {
-          width: 8px;
-        }
-        
-        .modal-content::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-        
-        .modal-content::-webkit-scrollbar-thumb {
-          background: #22c55e;
-          border-radius: 4px;
-        }
-        
-        .modal-content::-webkit-scrollbar-thumb:hover {
-          background: #16a34a;
-        }
-        
         .modal-close {
           color: #aaa;
-          position: fixed;
-          right: calc(50% - 230px);
-          top: 40px;
-          z-index: 1001;
+          position: absolute;
+          right: 20px;
+          top: 20px;
           font-size: 28px;
           font-weight: bold;
           cursor: pointer;
@@ -96,27 +74,6 @@ class AuthModal {
           from { transform: translateY(-50px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-        
-        /* 반응형 디자인 */
-        @media (max-width: 768px) {
-          .modal-content {
-            width: 95%;
-            padding: 20px;
-            margin: 10px auto;
-            max-height: 95vh;
-          }
-          
-          .modal-close {
-            right: 15px;
-            top: 25px;
-            position: fixed;
-          }
-          
-          .two-column {
-            grid-template-columns: 1fr !important;
-            gap: 15px;
-          }
-        }
       </style>
     `;
     
@@ -124,7 +81,7 @@ class AuthModal {
       <!-- 로그인/회원가입 선택 모달 -->
       <div id="authSelectModal" class="modal">
         <div class="modal-content" style="max-width: 400px;">
-          <span class="modal-close" onclick="event.stopPropagation(); authModal.close();">&times;</span>
+          <span class="modal-close" onclick="authModal.close()">&times;</span>
           <h3 class="modal-title">Linky 시작하기</h3>
           <p style="margin-bottom: 30px; color: #6b7280; text-align: center;">
             어떤 서비스를 이용하시겠어요?
@@ -156,7 +113,7 @@ class AuthModal {
       <!-- 회원가입 모달 -->
       <div id="signupModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
-          <span class="modal-close" onclick="event.stopPropagation(); authModal.close();">&times;</span>
+          <span class="modal-close" onclick="authModal.close()">&times;</span>
           <div id="signupContent">
             <!-- 동적으로 내용이 변경됩니다 -->
           </div>
@@ -166,10 +123,10 @@ class AuthModal {
       <!-- 로그인 모달 -->
       <div id="loginModal" class="modal">
         <div class="modal-content" style="max-width: 400px;">
-          <span class="modal-close" onclick="event.stopPropagation(); authModal.close();">&times;</span>
+          <span class="modal-close" onclick="authModal.close()">&times;</span>
           <h3 class="modal-title">로그인</h3>
           
-          <form id="loginForm" onsubmit="event.preventDefault();">
+          <form id="loginForm">
             <div class="form-group">
               <label class="form-label">이메일</label>
               <input type="email" name="email" class="form-input" placeholder="이메일을 입력하세요" required>
@@ -206,16 +163,9 @@ class AuthModal {
       this.handleLogin(e);
     });
     
-    // 모달 외부 클릭 시 닫기 (모달 배경 클릭 시에만)
+    // 모달 외부 클릭 시 닫기
     window.addEventListener('click', (e) => {
-      if (e.target.classList.contains('modal') && e.target === e.currentTarget) {
-        this.close();
-      }
-    });
-    
-    // ESC 키로 모달 닫기
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.currentModal) {
+      if (e.target.classList.contains('modal')) {
         this.close();
       }
     });
@@ -273,7 +223,7 @@ class AuthModal {
           기본 정보를 입력해주세요
         </p>
         
-        <form id="signupStep1Form" onsubmit="event.preventDefault();">
+        <form id="signupStep1Form">
           <div class="form-group">
             <label class="form-label">이름 *</label>
             <input type="text" name="name" class="form-input" placeholder="이름을 입력하세요" required>
@@ -304,7 +254,7 @@ class AuthModal {
           </button>
           
           <div style="text-align: center; margin-top: 15px;">
-            <a href="#" onclick="event.preventDefault(); authModal.openLogin();" style="color: #22c55e; text-decoration: none;">
+            <a href="#" onclick="authModal.openLogin()" style="color: #22c55e; text-decoration: none;">
               이미 계정이 있으신가요? 로그인
             </a>
           </div>
@@ -324,7 +274,7 @@ class AuthModal {
           사업장 정보를 입력해주세요
         </p>
         
-        <form id="signupStep2Form" onsubmit="event.preventDefault();">
+        <form id="signupStep2Form">
           <div class="form-group">
             <label class="form-label">사업장명 *</label>
             <input type="text" name="businessName" class="form-input" placeholder="사업장명을 입력하세요" required>
@@ -420,7 +370,7 @@ class AuthModal {
           활동 정보를 입력해주세요
         </p>
         
-        <form id="signupStep2Form" onsubmit="event.preventDefault();">
+        <form id="signupStep2Form">
           <div class="form-group">
             <label class="form-label">거주 지역 (구 단위) *</label>
             <input type="text" name="residence" class="form-input" placeholder="예: 강남구, 서초구" required>
@@ -605,8 +555,8 @@ class AuthModal {
       
       console.log('회원가입 데이터:', userData);
       
-      // Supabase 인증 및 사용자 생성
-      const result = await this.supabaseSignUp(userData);
+      // Firebase 인증 및 사용자 생성
+      const result = await FirebaseAuth.signUp(userData.email, userData.password, userData);
       
       console.log('회원가입 결과:', result);
       
@@ -726,7 +676,7 @@ class AuthModal {
       const formData = new FormData(form);
       const { email, password } = Object.fromEntries(formData.entries());
       
-      const result = await this.supabaseSignIn(email, password);
+      const result = await FirebaseAuth.signIn(email, password);
       
       if (result.success) {
         this.close();
@@ -800,116 +750,6 @@ class AuthModal {
   reset() {
     this.currentStep = 1;
     this.formData = {};
-  }
-
-  // Supabase 회원가입
-  async supabaseSignUp(userData) {
-    try {
-      // supabaseClient가 정의되어 있는지 확인
-      if (typeof supabaseClient === 'undefined') {
-        console.error('supabaseClient가 정의되지 않았습니다.');
-        alert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.');
-        return { success: false, error: 'Supabase client not initialized' };
-      }
-      
-      // 1. Supabase Auth에 사용자 생성
-      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-        email: userData.email,
-        password: userData.password,
-        options: {
-          data: {
-            name: userData.name,
-            type: userData.type
-          }
-        }
-      });
-
-      if (authError) throw authError;
-
-      // 2. users 테이블에 사용자 정보 저장
-      if (authData.user) {
-        const userRecord = {
-          uid: authData.user.id,
-          email: userData.email,
-          name: userData.name,
-          phone: userData.phone,
-          type: userData.type,
-          status: 'pending',
-          created_at: new Date().toISOString()
-        };
-
-        // 사업자 추가 정보
-        if (userData.type === 'business') {
-          userRecord.business = {
-            businessName: userData.businessName,
-            businessNumber: userData.businessNumber,
-            businessType: userData.businessType,
-            businessContact: userData.businessContact
-          };
-        }
-
-        // 파트너 추가 정보
-        if (userData.type === 'partner') {
-          userRecord.partner = {
-            realName: userData.realName,
-            birthdate: userData.birthdate,
-            gender: userData.gender,
-            transportation: userData.transportation,
-            experience: userData.experience,
-            preferredArea: userData.preferredArea,
-            level: 'bronze'
-          };
-        }
-
-        const { error: dbError } = await supabaseClient
-          .from('users')
-          .insert([userRecord]);
-
-        if (dbError) {
-          console.error('DB 저장 오류:', dbError);
-          // Auth 사용자 삭제 (롤백)
-          await supabaseClient.auth.admin.deleteUser(authData.user.id);
-          throw dbError;
-        }
-      }
-
-      return { success: true, user: authData.user };
-    } catch (error) {
-      console.error('회원가입 오류:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  // Supabase 로그인
-  async supabaseSignIn(email, password) {
-    try {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
-
-      // 사용자 정보 조회
-      const { data: userData, error: userError } = await supabaseClient
-        .from('users')
-        .select('*')
-        .eq('uid', data.user.id)
-        .single();
-
-      if (userError) {
-        console.error('사용자 정보 조회 오류:', userError);
-      }
-
-      return { 
-        success: true, 
-        user: data.user,
-        userData: userData
-      };
-    } catch (error) {
-      console.error('로그인 오류:', error);
-      return { success: false, error: error.message };
-    }
   }
 }
 
