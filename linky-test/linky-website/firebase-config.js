@@ -272,7 +272,11 @@ const FirebaseAuth = {
       }
       
       console.log('로그인 성공:', user.uid);
-      return { success: true, user };
+      
+      // Firestore에서 사용자 전체 정보 가져오기
+      const userFullData = userDoc.exists ? userDoc.data() : { uid: user.uid, email: user.email };
+      
+      return { success: true, user: userFullData };
     } catch (error) {
       console.error('로그인 오류:', error);
       

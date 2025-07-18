@@ -14,7 +14,70 @@ class AuthModal {
   
   // 모달 HTML 생성
   createModalHTML() {
-    const modalHTML = `
+    // 모달 스타일 추가
+    const modalStyles = `
+      <style>
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgba(0,0,0,0.4);
+          animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+          background-color: #fefefe;
+          margin: 5% auto;
+          padding: 30px;
+          border: none;
+          border-radius: 12px;
+          width: 90%;
+          max-width: 500px;
+          position: relative;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+          animation: slideIn 0.3s;
+        }
+        
+        .modal-close {
+          color: #aaa;
+          position: absolute;
+          right: 20px;
+          top: 20px;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+        
+        .modal-close:hover,
+        .modal-close:focus {
+          color: #000;
+        }
+        
+        .modal-title {
+          font-size: 24px;
+          font-weight: bold;
+          margin-bottom: 20px;
+          text-align: center;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+          from { transform: translateY(-50px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      </style>
+    `;
+    
+    const modalHTML = modalStyles + `
       <!-- 로그인/회원가입 선택 모달 -->
       <div id="authSelectModal" class="modal">
         <div class="modal-content" style="max-width: 400px;">
@@ -118,10 +181,17 @@ class AuthModal {
   
   // 로그인 모달 열기
   openLogin() {
+    console.log('openLogin 호출됨');
     this.close();
     this.currentModal = 'loginModal';
-    document.getElementById('loginModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    const loginModal = document.getElementById('loginModal');
+    if (loginModal) {
+      loginModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      console.log('로그인 모달 표시됨');
+    } else {
+      console.error('로그인 모달을 찾을 수 없습니다');
+    }
   }
   
   // 회원가입 모달 열기
@@ -532,7 +602,15 @@ class AuthModal {
           // 백업 방법: alert 사용
           alert('회원가입이 완료되었습니다!\n관리자 승인 후 서비스를 이용하실 수 있습니다.');
           this.close();
-          window.location.reload();
+          // 메인 페이지로 이동
+          const currentPath = window.location.pathname;
+          if (currentPath.includes('/business/')) {
+            window.location.href = '../index.html';
+          } else if (currentPath.includes('/partners/')) {
+            window.location.href = '../index.html';
+          } else {
+            window.location.href = 'index.html';
+          }
         }
         
       } else {
@@ -603,10 +681,43 @@ class AuthModal {
       if (result.success) {
         this.close();
         this.reset();
-        // 페이지 새로고침
-        setTimeout(() => {
+        
+        // 사용자 타입에 따른 리다이렉트
+        const user = result.user;
+        console.log('로그인 성공, 사용자 정보:', user);
+        console.log('사용자 타입:', user.type);
+        
+        // 현재 경로 확인
+        const currentPath = window.location.pathname;
+        const isInBusinessDir = currentPath.includes('/business/');
+        const isInPartnersDir = currentPath.includes('/partners/');
+        
+        console.log('현재 경로:', currentPath);
+        console.log('Business 디렉토리:', isInBusinessDir);
+        console.log('Partners 디렉토리:', isInPartnersDir);
+        
+        if (user.type === 'business') {
+          // 사업자는 대시보드로
+          if (isInBusinessDir) {
+            window.location.href = 'dashboard.html';
+          } else if (isInPartnersDir) {
+            window.location.href = '../business/dashboard.html';
+          } else {
+            window.location.href = 'business/dashboard.html';
+          }
+        } else if (user.type === 'partner') {
+          // 파트너는 파트너 페이지로
+          if (isInPartnersDir) {
+            window.location.reload();
+          } else if (isInBusinessDir) {
+            window.location.href = '../partners/index.html';
+          } else {
+            window.location.href = 'partners/index.html';
+          }
+        } else {
+          // 기타 경우 페이지 새로고침
           window.location.reload();
-        }, 500);
+        }
       } else {
         alert('로그인에 실패했습니다: ' + result.error);
       }

@@ -460,8 +460,9 @@
             // 인증 확인
             const { isAuthenticated, user } = await checkAuthStatus();
             if (!isAuthenticated || user.type !== 'business') {
-                alert('사업자 로그인이 필요합니다.');
-                window.location.href = '../index.html';
+                // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로)
+                const currentPage = window.location.pathname.split('/').pop();
+                window.location.href = `index.html?redirect=${encodeURIComponent(currentPage)}`;
                 return;
             }
             

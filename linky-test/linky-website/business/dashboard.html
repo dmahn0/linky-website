@@ -316,6 +316,9 @@
     <!-- 푸터 컴포넌트 -->
     <div id="footer-root"></div>
     
+    <!-- 인증 모달 -->
+    <script src="../auth-modal.js"></script>
+    
     <!-- 공통 스크립트 -->
     <script src="../js/auth-utils.js"></script>
     <script src="../components/header.js"></script>
@@ -323,9 +326,12 @@
     
     <script>
         let currentUser = null;
+        let authModal;
         
         // 페이지 초기화
         document.addEventListener('DOMContentLoaded', async function() {
+            // authModal 인스턴스 생성
+            authModal = new AuthModal();
             // 헤더 초기화
             new HeaderComponent({
                 showBusinessMenu: true,
@@ -338,8 +344,9 @@
             // 인증 확인
             const { isAuthenticated, user } = await checkAuthStatus();
             if (!isAuthenticated || user.type !== 'business') {
-                alert('사업자 로그인이 필요합니다.');
-                window.location.href = '../index.html';
+                // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로)
+                const currentPath = window.location.pathname + window.location.search;
+                window.location.href = `index.html?redirect=${encodeURIComponent('dashboard.html')}`;
                 return;
             }
             

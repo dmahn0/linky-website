@@ -97,10 +97,10 @@
         }
 
         .hero-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            display: flex;
+            justify-content: center;
             align-items: center;
+            min-height: 500px;
         }
 
         .hero-text {
@@ -108,11 +108,11 @@
         }
 
         .hero-title {
-            font-size: 52px;
+            font-size: 56px;
             font-weight: bold;
             margin-bottom: 20px;
             color: #1f2937;
-            line-height: 1.2;
+            line-height: 1.3;
         }
 
         .hero-highlight {
@@ -120,9 +120,9 @@
         }
 
         .hero-subtitle {
-            font-size: 20px;
+            font-size: 22px;
             color: #6b7280;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             line-height: 1.6;
         }
 
@@ -741,12 +741,13 @@
                     
                     <!-- 로그인 후 메뉴 -->
                     <div class="auth-required" style="display: none;">
-                        <a href="space-registration.html" class="btn btn-secondary" style="padding: 10px 20px; margin-right: 10px;">공간 등록</a>
-                        <a href="job-request.html" class="btn btn-primary" style="padding: 10px 20px; margin-right: 10px;">정리 요청</a>
-                        <a href="job-list.html" style="margin-right: 15px;">작업 현황</a>
-                        <a href="billing.html" style="margin-right: 15px;">정산 관리</a>
-                        <span class="user-name" style="margin-right: 15px; color: #374151;">사용자님</span>
-                        <a href="#" class="btn btn-secondary" style="padding: 8px 16px;" onclick="handleLogout();">로그아웃</a>
+                        <a href="dashboard.html" class="btn btn-primary" style="padding: 10px 20px; margin-right: 10px;">
+                            대시보드로 이동
+                        </a>
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 10px; margin-left: 15px;">
+                            <span class="user-name" style="color: #374151;">사용자님</span>
+                            <a href="#" style="color: #6b7280;" onclick="handleLogout();">로그아웃</a>
+                        </div>
                     </div>
                 </nav>
                 <button class="mobile-menu-btn">☰</button>
@@ -757,44 +758,32 @@
     <!-- 히어로 섹션 -->
     <section class="hero-section">
         <div class="section-container">
-            <div class="hero-content">
-                <div class="hero-text animate-fade-in">
-                    <div class="badge">🎯 공간 운영자 전용</div>
+            <!-- 로그인 전 히어로 -->
+            <div class="hero-content login-required">
+                <div class="hero-text animate-fade-in" style="text-align: center; max-width: 800px; margin: 0 auto;">
                     <h1 class="hero-title">
-                        정리 때문에<br>
-                        <span class="hero-highlight">시간과 돈</span>을<br>
-                        낭비하고 계신가요?
+                        무인공간 관리의 새로운 기준<br>
+                        <span class="hero-highlight">Linky Business</span>
                     </h1>
                     <p class="hero-subtitle">
-                        직접 정리하느라 시간을 낭비하거나<br>
-                        비싼 청소업체 비용에 부담을 느끼신다면,<br>
-                        Linky가 해답입니다.
+                        스터디룸, 파티룸, 무인매장의 일상 정리를<br>
+                        검증된 파트너가 대신 해드립니다
                     </p>
-                    <div class="hero-stats">
-                        <div class="stat-item">
-                            <div class="stat-number">60%</div>
-                            <div class="stat-label">예상 비용 절감</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">12,000원</div>
-                            <div class="stat-label">기본 요금</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <a href="#" class="btn btn-primary" onclick="authModal.openSignupSelect(); trackEvent('hero_cta_click');">
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 40px;">
+                        <a href="space-registration.html" class="btn btn-primary auth-required" style="display: none; font-size: 18px; padding: 15px 30px;">
+                            공간 등록하기 →
+                        </a>
+                        <a href="#" class="btn btn-primary login-required" onclick="authModal.openSignup('business'); trackEvent('hero_cta_click');" style="font-size: 18px; padding: 15px 30px;">
                             무료로 시작하기 →
                         </a>
-                        <a href="#" class="btn btn-secondary" onclick="authModal.openLogin(); trackEvent('hero_login_click');">
-                            로그인
+                        <a href="#features" class="btn btn-secondary" style="font-size: 18px; padding: 15px 30px;">
+                            서비스 알아보기
                         </a>
-                    </div>
-                </div>
-                <div class="hero-image">
-                    <div class="img-frame">
-                        <img src="../linky_sample1.jpg" alt="깔끔한 공간" loading="lazy">
                     </div>
                 </div>
             </div>
+            
+            <!-- 로그인 후에는 대시보드로 자동 이동 -->
         </div>
     </section>
 
@@ -820,11 +809,11 @@
                     </p>
                 </div>
                 <div class="problem-card">
-                    <div class="problem-icon">🤷</div>
-                    <h3 class="problem-title">신뢰할 수 없는 품질</h3>
+                    <div class="problem-icon">⏰</div>
+                    <h3 class="problem-title">불규칙한 스케줄</h3>
                     <p class="problem-desc">
-                        매번 다른 사람이 와서<br>
-                        일정한 품질을 기대하기 어렵습니다
+                        원하는 시간에 맞춰<br>
+                        정리 서비스를 받기 어렵습니다
                     </p>
                 </div>
             </div>
@@ -894,7 +883,7 @@
                     맞춤형 서비스 옵션을 선택하고<br>
                     예상 비용을 미리 확인해보세요
                 </p>
-                <a href="/business/contract" class="btn btn-primary" onclick="trackEvent('solution_contract_click')">
+                <a href="contract.html" class="btn btn-primary" onclick="trackEvent('solution_contract_click')">
                     계약서 작성하기 →
                 </a>
             </div>
@@ -1204,7 +1193,7 @@
                         <li><a href="#solution">솔루션 소개</a></li>
                         <li><a href="#service-detail">서비스 상세</a></li>
                         <li><a href="#pricing">요금 안내</a></li>
-                        <li><a href="/business/contract">계약서 작성</a></li>
+                        <li><a href="contract.html">계약서 작성</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
@@ -1235,6 +1224,17 @@
     <script src="../js/auth-utils.js"></script>
     
     <script>
+        // authModal 인스턴스 생성
+        let authModal;
+        
+        // 페이지 로드 완료 시 실행
+        window.addEventListener('load', function() {
+            console.log('페이지 로드 완료');
+            // authModal 인스턴스 생성 및 전역 변수로 설정
+            window.authModal = new AuthModal();
+            console.log('authModal 인스턴스 생성됨:', window.authModal);
+        });
+        
         // 로그아웃 처리
         async function handleLogout() {
             const result = await FirebaseAuth.signOut();
@@ -1243,32 +1243,85 @@
             }
         }
 
-        // 인증 상태 확인
+        // 인증 상태 확인 및 자동 리다이렉트
         document.addEventListener('DOMContentLoaded', function() {
-            checkAuthStatus().then(({ isAuthenticated, user }) => {
-                if (isAuthenticated && user) {
-                    // 사업자 로그인 시 대시보드로 리다이렉트
-                    if (user.type === 'business') {
-                        window.location.href = 'dashboard.html';
-                        return;
+            // URL 파라미터 확인 (리다이렉트 URL)
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect') || 'dashboard.html';
+            
+            // Firebase 인증 상태 변경 감지
+            firebase.auth().onAuthStateChanged(async (firebaseUser) => {
+                if (firebaseUser) {
+                    try {
+                        // Firestore에서 사용자 정보 가져오기
+                        const userDoc = await firebase.firestore().collection('users').doc(firebaseUser.uid).get();
+                        
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            console.log('현재 로그인된 사용자:', userData);
+                            
+                            // 사업자인 경우 
+                            if (userData.type === 'business' && userData.status === 'approved') {
+                                // URL에 'stay' 파라미터가 있으면 자동 리다이렉트 하지 않음
+                                const shouldStay = urlParams.get('stay') === 'true';
+                                
+                                if (!shouldStay) {
+                                    // 리다이렉트 중 메시지 표시
+                                    document.body.innerHTML = `
+                                        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f8f9fa;">
+                                            <div style="text-align: center;">
+                                                <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
+                                                <h2 style="font-size: 24px; color: #1f2937; margin-bottom: 10px;">환영합니다, ${userData.name || '사업자'}님!</h2>
+                                                <p style="color: #6b7280;">대시보드로 이동 중입니다.</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                    
+                                    // 대시보드로 리다이렉트
+                                    setTimeout(() => {
+                                        window.location.href = redirectUrl;
+                                    }, 1000);
+                                } else {
+                                    // 현재 페이지에 머물면서 로그인 상태 UI 표시
+                                    console.log('자동 리다이렉트 스킵 (stay=true)');
+                                    // 로그인 상태 메뉴 표시
+                                    document.querySelectorAll('.login-required').forEach(el => {
+                                        el.style.display = 'none';
+                                    });
+                                    document.querySelectorAll('.auth-required').forEach(el => {
+                                        el.style.display = 'flex';
+                                    });
+                                    
+                                    // 사용자 이름 표시
+                                    const userName = userData.name || userData.email || '사용자';
+                                    document.querySelectorAll('.user-name').forEach(el => {
+                                        el.textContent = userName + '님';
+                                    });
+                                }
+                            } else if (userData.type === 'partner') {
+                                // 파트너는 파트너 페이지로
+                                window.location.href = '../partners/index.html';
+                            } else if (userData.status === 'pending') {
+                                // 승인 대기 중인 경우
+                                console.log('승인 대기 중인 사용자');
+                                document.querySelectorAll('.login-required').forEach(el => {
+                                    el.style.display = el.classList.contains('hero-content') ? 'grid' : 'block';
+                                });
+                                alert('현재 관리자 승인 대기 중입니다. 승인 후 서비스를 이용하실 수 있습니다.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('사용자 정보 조회 오류:', error);
                     }
-                    
-                    // 로그인 상태에 따른 UI 업데이트
+                } else {
+                    // 로그인하지 않은 경우 UI 표시
+                    console.log('로그인되지 않은 사용자');
                     document.querySelectorAll('.login-required').forEach(el => {
-                        el.style.display = 'none';
-                    });
-                    document.querySelectorAll('.auth-required').forEach(el => {
-                        el.style.display = 'flex';
-                    });
-                    
-                    // 사용자 이름 표시
-                    const userName = user.name || user.email || '사용자';
-                    document.querySelectorAll('.user-name').forEach(el => {
-                        el.textContent = userName + '님';
+                        el.style.display = el.classList.contains('hero-content') ? 'grid' : 'block';
                     });
                 }
             });
-        });
+        })
     </script>
 
     <script>

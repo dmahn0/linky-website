@@ -630,9 +630,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             auth.onAuthStateChanged(function(user) {
                 if (!user) {
-                    // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
-                    alert('로그인이 필요합니다.');
-                    window.location.href = '../index.html';
+                    // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로)
+                    const currentPage = window.location.pathname.split('/').pop();
+                    window.location.href = `index.html?redirect=${encodeURIComponent(currentPage)}`;
                 }
             });
         });
