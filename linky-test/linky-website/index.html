@@ -244,57 +244,6 @@
             line-height: 1.6;
         }
 
-        /* 가격 섹션 */
-        .pricing-section {
-            padding: 80px 0;
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .pricing-card {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .pricing-card.featured {
-            border-color: #22c55e;
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
-        }
-
-        .pricing-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .pricing-price {
-            font-size: 36px;
-            font-weight: bold;
-            color: #22c55e;
-            margin-bottom: 20px;
-        }
-
-        .pricing-features {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-
-        .pricing-features li {
-            padding: 10px 0;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
         /* 프로세스 섹션 */
         .process-section {
             padding: 80px 0;
@@ -516,12 +465,8 @@
                 font-size: 28px;
             }
 
-            .features-grid, .pricing-grid {
+            .features-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .pricing-card.featured {
-                transform: none;
             }
         }
 
@@ -575,7 +520,6 @@
                 <a href="#" class="logo">🔗 Linky</a>
                 <nav class="nav-menu">
                     <a href="#features">서비스 소개</a>
-                    <a href="#pricing">요금안내</a>
                     <a href="#process">이용방법</a>
                     <a href="/business" onclick="trackButtonClick('nav_business');" class="business-menu" style="display: none;">내 공간</a>
                     <a href="/partners.html" onclick="trackButtonClick('nav_partner');" class="partner-menu" style="display: none;">작업 목록</a>
@@ -757,39 +701,6 @@
         </div>
     </section>
 
-    <!-- 가격 섹션 -->
-    <section id="pricing" class="pricing-section">
-        <div class="section-container">
-            <h2 class="section-title">합리적인 요금 체계</h2>
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <h3 class="pricing-title">기본 정리</h3>
-                    <div class="pricing-price">12,000원~</div>
-                    <ul class="pricing-features">
-                        <li>✓ 15평 이하 공간</li>
-                        <li>✓ 기본 정리정돈</li>
-                        <li>✓ 쓰레기 수거</li>
-                        <li>✓ 소모품 보충</li>
-                        <li>✓ 계약서 작성 지원</li>
-                        <li>✓ 서비스 수준 보장</li>
-                    </ul>
-                    <a href="business/" class="btn btn-primary" style="width: 100%;" onclick="trackButtonClick('pricing_basic');">사업자 시작하기</a>
-                </div>
-                <div class="pricing-card featured">
-                    <div class="badge" style="margin-bottom: 10px;">인기</div>
-                    <h3 class="pricing-title">정기 정리</h3>
-                    <div class="pricing-price">10,800원~</div>
-                    <ul class="pricing-features">
-                        <li>✓ 기본 정리 모든 혜택</li>
-                        <li>✓ 10% 할인 적용</li>
-                        <li>✓ 우수 파트너 선배정</li>
-                        <li>✓ 우선 예약 가능</li>
-                    </ul>
-                    <a href="business/" class="btn btn-primary" style="width: 100%;" onclick="trackButtonClick('pricing_regular');">사업자 시작하기</a>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- 프로세스 섹션 -->
     <section id="process" class="process-section">
@@ -859,7 +770,6 @@
                     <h4>서비스</h4>
                     <ul>
                         <li><a href="#">서비스 소개</a></li>
-                        <li><a href="#">요금 안내</a></li>
                         <li><a href="#">이용 방법</a></li>
                         <li><a href="#">자주 묻는 질문</a></li>
                     </ul>
@@ -919,7 +829,7 @@
 
         // 스크롤 애니메이션
         function handleScroll() {
-            const elements = document.querySelectorAll('.feature-card, .pricing-card, .process-step');
+            const elements = document.querySelectorAll('.feature-card, .process-step');
             
             elements.forEach(element => {
                 const rect = element.getBoundingClientRect();

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RYYX6LYN2B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파트너 대시보드 - Linky Partners</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase 설정 -->
+    <script src="../firebase-config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #22c55e;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            color: #666;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #e5e7eb;
+        }
+
+        /* 대시보드 컨테이너 */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .welcome-section {
+            margin-bottom: 40px;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        /* 통계 카드 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: #dcfce7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            color: #22c55e;
+            margin-top: 8px;
+        }
+
+        /* 업무 섹션 */
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .view-all-btn {
+            color: #22c55e;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .view-all-btn:hover {
+            color: #16a34a;
+        }
+
+        /* 업무 리스트 */
+        .job-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .job-item {
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .job-item:hover {
+            background: #f9fafb;
+            border-color: #22c55e;
+        }
+
+        .job-info {
+            flex: 1;
+        }
+
+        .job-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .job-details {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .job-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-in-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        /* 수익 차트 */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* 빠른 액션 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: #22c55e;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* 모바일 대응 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .dashboard-container {
+                padding: 20px 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        /* 로딩 상태 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+
+        .empty-state img {
+            width: 120px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo">🔗 Linky Partners</a>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="active">대시보드</a>
+                <a href="jobs.html">업무 목록</a>
+                <a href="earnings.html">정산 내역</a>
+                <a href="profile.html">프로필</a>
+            </nav>
+            <div class="user-info">
+                <span class="user-name" id="userName">파트너님</span>
+                <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 대시보드 컨텐츠 -->
+    <div class="dashboard-container">
+        <!-- 환영 메시지 -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">안녕하세요, <span id="partnerName">파트너</span>님! 👋</h1>
+            <p class="welcome-subtitle">오늘도 좋은 하루 되세요!</p>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-label">이번 주 완료 업무</div>
+                <div class="stat-value" id="weeklyJobs">0</div>
+                <div class="stat-change">+20% 지난주 대비</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-label">이번 주 예상 수익</div>
+                <div class="stat-value" id="weeklyEarnings">₩0</div>
+                <div class="stat-change">+15% 지난주 대비</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-label">평균 평점</div>
+                <div class="stat-value" id="avgRating">4.8</div>
+                <div class="stat-change">우수 파트너</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-label">이번 달 순위</div>
+                <div class="stat-value" id="monthlyRank">상위 10%</div>
+                <div class="stat-change">최고 기록 갱신!</div>
+            </div>
+        </div>
+
+        <!-- 대기 중인 업무 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">새로운 업무 요청</h2>
+                <a href="jobs.html" class="view-all-btn">전체보기 →</a>
+            </div>
+            <div class="job-list" id="pendingJobs">
+                <div class="loading">업무 목록을 불러오는 중...</div>
+            </div>
+        </div>
+
+        <!-- 진행 중인 업무 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">진행 중인 업무</h2>
+                <a href="jobs.html?status=in-progress" class="view-all-btn">전체보기 →</a>
+            </div>
+            <div class="job-list" id="inProgressJobs">
+                <div class="loading">업무 목록을 불러오는 중...</div>
+            </div>
+        </div>
+
+        <!-- 수익 차트 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">주간 수익 현황</h2>
+                <a href="earnings.html" class="view-all-btn">상세보기 →</a>
+            </div>
+            <div class="chart-container">
+                <canvas id="earningsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 빠른 액션 -->
+        <div class="section">
+            <h2 class="section-title">빠른 메뉴</h2>
+            <div class="quick-actions">
+                <a href="jobs.html" class="action-btn">
+                    <div>📋 업무 찾기</div>
+                </a>
+                <a href="earnings.html" class="action-btn">
+                    <div>💰 정산 확인</div>
+                </a>
+                <a href="profile.html" class="action-btn">
+                    <div>👤 프로필 수정</div>
+                </a>
+                <a href="support.html" class="action-btn">
+                    <div>💬 고객 지원</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // 로그아웃 처리
+        async function handleLogout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                try {
+                    await firebase.auth().signOut();
+                    window.location.href = '../index.html';
+                } catch (error) {
+                    console.error('로그아웃 오류:', error);
+                    alert('로그아웃 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        // 대시보드 데이터 로드
+        async function loadDashboardData() {
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // 사용자 정보 표시
+                const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    document.getElementById('userName').textContent = userData.name || '파트너님';
+                    document.getElementById('partnerName').textContent = userData.name || '파트너';
+                }
+
+                // 통계 데이터 로드 (예시 데이터)
+                document.getElementById('weeklyJobs').textContent = '12';
+                document.getElementById('weeklyEarnings').textContent = '₩144,000';
+
+                // 대기 중인 업무 로드
+                loadPendingJobs();
+                // 진행 중인 업무 로드
+                loadInProgressJobs();
+                // 수익 차트 로드
+                loadEarningsChart();
+
+            } catch (error) {
+                console.error('대시보드 데이터 로드 오류:', error);
+            }
+        }
+
+        // 대기 중인 업무 로드
+        async function loadPendingJobs() {
+            const container = document.getElementById('pendingJobs');
+            
+            // 예시 데이터
+            const jobs = [
+                {
+                    id: '1',
+                    title: '강남역 스터디카페 정리',
+                    location: '강남구 역삼동',
+                    time: '오후 2:00',
+                    price: '₩18,000'
+                },
+                {
+                    id: '2',
+                    title: '홍대 파티룸 청소',
+                    location: '마포구 서교동',
+                    time: '오후 6:00',
+                    price: '₩25,000'
+                }
+            ];
+
+            if (jobs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>현재 대기 중인 업무가 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = jobs.map(job => `
+                <div class="job-item" onclick="location.href='job-detail.html?id=${job.id}'">
+                    <div class="job-info">
+                        <div class="job-title">${job.title}</div>
+                        <div class="job-details">${job.location} · ${job.time} · ${job.price}</div>
+                    </div>
+                    <div class="job-status status-available">수락 가능</div>
+                </div>
+            `).join('');
+        }
+
+        // 진행 중인 업무 로드
+        async function loadInProgressJobs() {
+            const container = document.getElementById('inProgressJobs');
+            
+            // 예시 데이터
+            const jobs = [
+                {
+                    id: '3',
+                    title: '논현동 스터디룸 정리',
+                    location: '강남구 논현동',
+                    time: '오후 1:00',
+                    status: '이동 중'
+                }
+            ];
+
+            if (jobs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>현재 진행 중인 업무가 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = jobs.map(job => `
+                <div class="job-item" onclick="location.href='job-detail.html?id=${job.id}'">
+                    <div class="job-info">
+                        <div class="job-title">${job.title}</div>
+                        <div class="job-details">${job.location} · ${job.time}</div>
+                    </div>
+                    <div class="job-status status-in-progress">${job.status}</div>
+                </div>
+            `).join('');
+        }
+
+        // 수익 차트 로드
+        function loadEarningsChart() {
+            const ctx = document.getElementById('earningsChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['월', '화', '수', '목', '금', '토', '일'],
+                    datasets: [{
+                        label: '일별 수익',
+                        data: [36000, 48000, 24000, 60000, 48000, 72000, 84000],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₩' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 인증 상태 확인
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                loadDashboardData();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

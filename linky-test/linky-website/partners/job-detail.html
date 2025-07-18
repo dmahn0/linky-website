@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RYYX6LYN2B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>업무 상세 - Linky Partners</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase 설정 -->
+    <script src="../firebase-config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #22c55e;
+        }
+
+        /* 메인 컨테이너 */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 뒤로가기 버튼 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+
+        .back-button:hover {
+            color: #22c55e;
+        }
+
+        /* 업무 상세 카드 */
+        .job-detail-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .job-header {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+        }
+
+        .job-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .job-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .job-status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-in-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        /* 업무 정보 섹션 */
+        .info-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .price-value {
+            font-size: 32px;
+            color: #22c55e;
+        }
+
+        /* 상세 설명 */
+        .description-section {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .description-text {
+            line-height: 1.6;
+            color: #4b5563;
+        }
+
+        /* 체크리스트 */
+        .checklist {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            color: #4b5563;
+        }
+
+        .check-icon {
+            color: #22c55e;
+            font-size: 18px;
+        }
+
+        /* 지도 섹션 */
+        .map-section {
+            margin-bottom: 32px;
+        }
+
+        .map-container {
+            height: 300px;
+            background: #e5e7eb;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #6b7280;
+        }
+
+        /* 액션 버튼 */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+            min-width: 120px;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* 진행 상태 섹션 */
+        .progress-section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-weight: bold;
+            color: #9ca3af;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle.active {
+            background: #22c55e;
+            color: white;
+        }
+
+        .step-circle.completed {
+            background: #22c55e;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+
+        .progress-step:last-child .progress-line {
+            display: none;
+        }
+
+        .progress-line.completed {
+            background: #22c55e;
+        }
+
+        /* 사진 업로드 섹션 */
+        .photo-upload-section {
+            margin-top: 24px;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .photo-item {
+            aspect-ratio: 1;
+            background: #f3f4f6;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px dashed #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .photo-item:hover {
+            border-color: #22c55e;
+            background: #f9fafb;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            color: #9ca3af;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* 모바일 대응 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .job-detail-card {
+                padding: 24px 16px;
+            }
+
+            .job-title {
+                font-size: 24px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-secondary {
+                width: 100%;
+            }
+
+            .progress-steps {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .progress-line {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../index.html" class="logo">🔗 Linky Partners</a>
+            <nav class="nav-menu">
+                <a href="dashboard.html">대시보드</a>
+                <a href="jobs.html" class="active">업무 목록</a>
+                <a href="earnings.html">정산 내역</a>
+                <a href="profile.html">프로필</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="main-container">
+        <!-- 뒤로가기 -->
+        <a href="jobs.html" class="back-button">
+            <span>←</span> 업무 목록으로 돌아가기
+        </a>
+
+        <!-- 업무 상세 정보 -->
+        <div class="job-detail-card" id="jobDetail">
+            <div class="job-header">
+                <div class="job-title-row">
+                    <h1 class="job-title" id="jobTitle">업무 정보를 불러오는 중...</h1>
+                    <span class="job-status-badge status-available" id="jobStatus">로딩 중</span>
+                </div>
+                <div class="job-meta">
+                    <div class="meta-item">
+                        <span>📍</span>
+                        <span id="jobLocation">위치 정보 로딩 중</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>📅</span>
+                        <span id="jobDateTime">일시 정보 로딩 중</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>⏱️</span>
+                        <span id="jobDuration">소요시간 정보 로딩 중</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 업무 정보 -->
+            <div class="info-section">
+                <h2 class="section-title">업무 정보</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">예상 수익</div>
+                        <div class="info-value price-value" id="jobPrice">₩0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">업무 유형</div>
+                        <div class="info-value" id="jobType">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">공간 크기</div>
+                        <div class="info-value" id="spaceSize">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">연락처</div>
+                        <div class="info-value" id="contactInfo">수락 후 확인 가능</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상세 설명 -->
+            <div class="description-section">
+                <h2 class="section-title">업무 상세</h2>
+                <p class="description-text" id="jobDescription">업무 상세 정보를 불러오는 중...</p>
+                
+                <h3 style="font-size: 16px; font-weight: 600; margin-top: 20px; margin-bottom: 12px;">체크리스트</h3>
+                <ul class="checklist" id="jobChecklist">
+                    <li class="checklist-item">
+                        <span class="check-icon">✓</span>
+                        <span>체크리스트를 불러오는 중...</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 위치 정보 -->
+            <div class="map-section">
+                <h2 class="section-title">위치</h2>
+                <div class="map-container">
+                    <div class="map-placeholder">
+                        <span>📍 지도가 여기에 표시됩니다</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="action-buttons" id="actionButtons">
+                <button class="btn btn-primary" id="acceptBtn" onclick="acceptJob()">업무 수락하기</button>
+                <button class="btn btn-secondary" onclick="history.back()">취소</button>
+            </div>
+        </div>
+
+        <!-- 진행 상태 (업무 수락 후 표시) -->
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <h2 class="section-title">진행 상태</h2>
+            <div class="progress-steps">
+                <div class="progress-step">
+                    <div class="step-circle completed" id="step1">1</div>
+                    <div class="step-label">업무 수락</div>
+                    <div class="progress-line completed"></div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle" id="step2">2</div>
+                    <div class="step-label">현장 도착</div>
+                    <div class="progress-line"></div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle" id="step3">3</div>
+                    <div class="step-label">업무 진행</div>
+                    <div class="progress-line"></div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-circle" id="step4">4</div>
+                    <div class="step-label">업무 완료</div>
+                </div>
+            </div>
+
+            <!-- 현재 단계별 액션 -->
+            <div id="stepActions">
+                <!-- 동적으로 생성됨 -->
+            </div>
+
+            <!-- 사진 업로드 (업무 시작/완료 시) -->
+            <div class="photo-upload-section" id="photoSection" style="display: none;">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">작업 사진</h3>
+                <p style="color: #6b7280; font-size: 14px;">작업 전/후 사진을 업로드해주세요</p>
+                <div class="photo-grid" id="photoGrid">
+                    <div class="photo-item" onclick="selectPhoto()">
+                        <span class="upload-icon">📷</span>
+                        <span class="upload-text">사진 추가</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentJob = null;
+        let currentStep = 1;
+
+        // 페이지 로드 시 업무 정보 가져오기
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('id');
+            
+            if (jobId) {
+                loadJobDetail(jobId);
+            } else {
+                alert('잘못된 접근입니다.');
+                window.location.href = 'jobs.html';
+            }
+        };
+
+        // 업무 상세 정보 로드
+        async function loadJobDetail(jobId) {
+            try {
+                // 예시 데이터 (실제로는 Firestore에서 가져옴)
+                const jobData = {
+                    id: jobId,
+                    title: '강남역 스터디카페 정리',
+                    location: '서울 강남구 역삼동 123-45',
+                    date: '2024년 1월 15일 (월)',
+                    time: '오후 2:00 - 3:00',
+                    duration: '1시간',
+                    price: 18000,
+                    type: '스터디카페',
+                    spaceSize: '30평',
+                    status: 'available',
+                    description: '스터디카페 내부 전체 정리가 필요합니다. 테이블 정리, 쓰레기 처리, 바닥 청소를 포함한 기본 정리 서비스입니다.',
+                    checklist: [
+                        '테이블 및 의자 정리',
+                        '쓰레기통 비우기 (분리수거)',
+                        '바닥 청소 (간단)',
+                        '화이트보드 지우기',
+                        '조명 및 에어컨 확인'
+                    ]
+                };
+
+                currentJob = jobData;
+                displayJobDetail(jobData);
+
+                // 진행 중인 업무인 경우 진행 상태 표시
+                if (jobData.status === 'in-progress') {
+                    showProgressSection();
+                }
+
+            } catch (error) {
+                console.error('업무 정보 로드 실패:', error);
+                alert('업무 정보를 불러올 수 없습니다.');
+            }
+        }
+
+        // 업무 상세 정보 표시
+        function displayJobDetail(job) {
+            document.getElementById('jobTitle').textContent = job.title;
+            document.getElementById('jobLocation').textContent = job.location;
+            document.getElementById('jobDateTime').textContent = `${job.date} ${job.time}`;
+            document.getElementById('jobDuration').textContent = `예상 소요시간: ${job.duration}`;
+            document.getElementById('jobPrice').textContent = `₩${job.price.toLocaleString()}`;
+            document.getElementById('jobType').textContent = job.type;
+            document.getElementById('spaceSize').textContent = job.spaceSize;
+            document.getElementById('jobDescription').textContent = job.description;
+
+            // 상태 뱃지 업데이트
+            const statusBadge = document.getElementById('jobStatus');
+            if (job.status === 'available') {
+                statusBadge.textContent = '수락 가능';
+                statusBadge.className = 'job-status-badge status-available';
+            } else if (job.status === 'in-progress') {
+                statusBadge.textContent = '진행 중';
+                statusBadge.className = 'job-status-badge status-in-progress';
+            }
+
+            // 체크리스트 표시
+            const checklistEl = document.getElementById('jobChecklist');
+            checklistEl.innerHTML = job.checklist.map(item => `
+                <li class="checklist-item">
+                    <span class="check-icon">✓</span>
+                    <span>${item}</span>
+                </li>
+            `).join('');
+
+            // 진행 중인 업무면 버튼 비활성화
+            if (job.status === 'in-progress') {
+                document.getElementById('acceptBtn').disabled = true;
+                document.getElementById('acceptBtn').textContent = '진행 중인 업무';
+            }
+        }
+
+        // 업무 수락
+        function acceptJob() {
+            if (confirm('이 업무를 수락하시겠습니까?\n\n수락 후에는 취소가 어려울 수 있습니다.')) {
+                // 업무 상태 업데이트 (실제로는 Firestore 업데이트)
+                currentJob.status = 'in-progress';
+                
+                alert('업무가 수락되었습니다!\n지정된 시간에 현장으로 이동해주세요.');
+                
+                // 진행 상태 섹션 표시
+                showProgressSection();
+                
+                // 버튼 업데이트
+                document.getElementById('acceptBtn').disabled = true;
+                document.getElementById('acceptBtn').textContent = '진행 중인 업무';
+                document.getElementById('jobStatus').textContent = '진행 중';
+                document.getElementById('jobStatus').className = 'job-status-badge status-in-progress';
+                
+                // 연락처 표시
+                document.getElementById('contactInfo').textContent = '010-1234-5678';
+            }
+        }
+
+        // 진행 상태 섹션 표시
+        function showProgressSection() {
+            document.getElementById('progressSection').style.display = 'block';
+            updateStepActions();
+        }
+
+        // 단계별 액션 업데이트
+        function updateStepActions() {
+            const actionsEl = document.getElementById('stepActions');
+            
+            switch(currentStep) {
+                case 1:
+                    actionsEl.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p style="color: #6b7280; margin-bottom: 16px;">현장에 도착하면 '도착 확인' 버튼을 눌러주세요.</p>
+                            <button class="btn btn-primary" onclick="confirmArrival()">도착 확인</button>
+                        </div>
+                    `;
+                    break;
+                case 2:
+                    actionsEl.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p style="color: #6b7280; margin-bottom: 16px;">작업을 시작하기 전 사진을 촬영해주세요.</p>
+                            <button class="btn btn-primary" onclick="startWork()">작업 시작</button>
+                        </div>
+                    `;
+                    document.getElementById('photoSection').style.display = 'block';
+                    break;
+                case 3:
+                    actionsEl.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p style="color: #6b7280; margin-bottom: 16px;">작업을 완료하고 사진을 촬영해주세요.</p>
+                            <button class="btn btn-primary" onclick="completeWork()">작업 완료</button>
+                        </div>
+                    `;
+                    break;
+                case 4:
+                    actionsEl.innerHTML = `
+                        <div style="text-align: center; padding: 20px; background: #dcfce7; border-radius: 12px;">
+                            <h3 style="color: #166534; margin-bottom: 8px;">✅ 업무가 완료되었습니다!</h3>
+                            <p style="color: #166534;">수고하셨습니다. 수익은 정산일에 지급됩니다.</p>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        // 도착 확인
+        function confirmArrival() {
+            if (confirm('현장에 도착하셨나요?')) {
+                currentStep = 2;
+                document.getElementById('step2').classList.add('active');
+                document.querySelector('.progress-step:nth-child(1) .progress-line').classList.add('completed');
+                updateStepActions();
+            }
+        }
+
+        // 작업 시작
+        function startWork() {
+            if (confirm('작업을 시작하시겠습니까?\n\n작업 전 사진을 먼저 촬영해주세요.')) {
+                currentStep = 3;
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step2').classList.add('completed');
+                document.getElementById('step3').classList.add('active');
+                document.querySelector('.progress-step:nth-child(2) .progress-line').classList.add('completed');
+                updateStepActions();
+            }
+        }
+
+        // 작업 완료
+        function completeWork() {
+            if (confirm('작업을 완료하셨나요?\n\n작업 후 사진을 촬영했는지 확인해주세요.')) {
+                currentStep = 4;
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step3').classList.add('completed');
+                document.getElementById('step4').classList.add('completed');
+                document.querySelector('.progress-step:nth-child(3) .progress-line').classList.add('completed');
+                updateStepActions();
+                
+                // 상태 업데이트
+                document.getElementById('jobStatus').textContent = '완료됨';
+                document.getElementById('jobStatus').className = 'job-status-badge status-completed';
+            }
+        }
+
+        // 사진 선택 (실제 구현 시 파일 업로드)
+        function selectPhoto() {
+            alert('사진 업로드 기능은 준비 중입니다.');
+        }
+    </script>
+</body>
+</html>

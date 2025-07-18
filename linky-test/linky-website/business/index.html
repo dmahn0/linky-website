@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
     
     <!-- Firebase 설정 -->
     <script src="../firebase-config.js"></script>
@@ -894,9 +895,49 @@
     <section id="pricing" class="pricing-section">
         <div class="section-container">
             <h2 class="section-title">투명한 요금 체계</h2>
+            <p style="text-align: center; font-size: 64px; font-weight: bold; color: #22c55e; margin-bottom: 60px;">
+                12,000원부터 시작
+            </p>
             
-            <!-- 가격 비교표 -->
-            <div class="pricing-comparison">
+            <!-- 요금제 카드 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 60px;">
+                <!-- 베이직 카드 -->
+                <div style="background: white; border-radius: 16px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
+                    <h3 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">베이직</h3>
+                    <div>
+                        <p style="font-size: 36px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">12,000원</p>
+                        <p style="font-size: 16px; color: #6b7280;">15평 이하 기준</p>
+                        <p style="font-size: 14px; color: #6b7280; margin-top: 10px;">10평 추가마다 +4,000원</p>
+                    </div>
+                </div>
+                
+                <!-- 스탠다드 카드 -->
+                <div style="background: #dcfce7; border-radius: 16px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; position: relative;">
+                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #22c55e; color: white; padding: 8px 24px; border-radius: 20px; font-size: 14px; font-weight: bold;">
+                        인기
+                    </div>
+                    <h3 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">스탠다드</h3>
+                    <div>
+                        <p style="font-size: 36px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">18,000원</p>
+                        <p style="font-size: 16px; color: #6b7280;">15평 이하 기준</p>
+                        <p style="font-size: 14px; color: #6b7280; margin-top: 10px;">10평 추가마다 +6,000원</p>
+                    </div>
+                </div>
+                
+                <!-- 애프터파티 카드 -->
+                <div style="background: white; border-radius: 16px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
+                    <h3 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">애프터파티</h3>
+                    <div>
+                        <p style="font-size: 36px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">30,000원</p>
+                        <p style="font-size: 16px; color: #6b7280;">15평 이하 기준</p>
+                        <p style="font-size: 14px; color: #6b7280; margin-top: 10px;">10평 추가마다 +12,000원</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 서비스 상세 비교표 -->
+            <div class="pricing-comparison" style="margin-top: 60px;">
+                <h3 style="font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 30px;">서비스 상세 비교</h3>
                 <table class="pricing-table">
                     <thead>
                         <tr>
@@ -907,36 +948,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>15평 이하</td>
-                            <td>12,000원</td>
-                            <td>18,000원</td>
-                            <td>30,000원</td>
-                        </tr>
-                        <tr>
-                            <td>25평 이하</td>
-                            <td>16,000원</td>
-                            <td>24,000원</td>
-                            <td>42,000원</td>
-                        </tr>
-                        <tr>
-                            <td>+10평 당</td>
-                            <td>+4,000원</td>
-                            <td>+6,000원</td>
-                            <td>+12,000원</td>
-                        </tr>
-                        <tr>
-                            <td>가구 정리</td>
-                            <td><span class="check-mark">✓</span></td>
-                            <td><span class="check-mark">✓</span></td>
-                            <td><span class="check-mark">✓</span></td>
-                        </tr>
-                        <tr>
-                            <td>테이블 닦기</td>
-                            <td>✓</td>
-                            <td>✓</td>
-                            <td>✓</td>
-                        </tr>
                         <tr>
                             <td>바닥 청소</td>
                             <td>간단</td>
@@ -951,20 +962,32 @@
                         </tr>
                         <tr>
                             <td>설거지</td>
-                            <td><span class="x-mark">✗</span></td>
+                            <td><span style="color: #9ca3af;">—</span></td>
                             <td>6인분</td>
                             <td>무제한</td>
                         </tr>
                         <tr>
+                            <td>가구 정리</td>
+                            <td><span class="check-mark">✓</span></td>
+                            <td><span class="check-mark">✓</span></td>
+                            <td><span class="check-mark">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>테이블 닦기</td>
+                            <td><span class="check-mark">✓</span></td>
+                            <td><span class="check-mark">✓</span></td>
+                            <td><span class="check-mark">✓</span></td>
+                        </tr>
+                        <tr>
                             <td>음식물 쓰레기</td>
-                            <td><span class="x-mark">✗</span></td>
-                            <td><span class="x-mark">✗</span></td>
+                            <td><span style="color: #9ca3af;">—</span></td>
+                            <td><span style="color: #9ca3af;">—</span></td>
                             <td><span class="check-mark">✓</span></td>
                         </tr>
                         <tr>
                             <td>화장실</td>
-                            <td><span class="x-mark">✗</span></td>
-                            <td><span class="x-mark">✗</span></td>
+                            <td><span style="color: #9ca3af;">—</span></td>
+                            <td><span style="color: #9ca3af;">—</span></td>
                             <td><span class="check-mark">✓</span></td>
                         </tr>
                     </tbody>
@@ -1224,15 +1247,19 @@
     <script src="../js/auth-utils.js"></script>
     
     <script>
-        // authModal 인스턴스 생성
-        let authModal;
+        // authModal 인스턴스 생성 (중복 선언 방지)
+        if (typeof authModal === 'undefined') {
+            var authModal;
+        }
         
         // 페이지 로드 완료 시 실행
         window.addEventListener('load', function() {
             console.log('페이지 로드 완료');
             // authModal 인스턴스 생성 및 전역 변수로 설정
-            window.authModal = new AuthModal();
-            console.log('authModal 인스턴스 생성됨:', window.authModal);
+            if (!window.authModal) {
+                window.authModal = new AuthModal();
+                console.log('authModal 인스턴스 생성됨:', window.authModal);
+            }
         });
         
         // 로그아웃 처리
@@ -1247,7 +1274,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // URL 파라미터 확인 (리다이렉트 URL)
             const urlParams = new URLSearchParams(window.location.search);
-            const redirectUrl = urlParams.get('redirect') || 'dashboard.html';
+            const redirectUrl = urlParams.get('redirect') || '/business/dashboard.html';
             
             // Firebase 인증 상태 변경 감지
             firebase.auth().onAuthStateChanged(async (firebaseUser) => {
@@ -1262,10 +1289,11 @@
                             
                             // 사업자인 경우 
                             if (userData.type === 'business' && userData.status === 'approved') {
-                                // URL에 'stay' 파라미터가 있으면 자동 리다이렉트 하지 않음
-                                const shouldStay = urlParams.get('stay') === 'true';
+                                console.log('비즈니스 계정 확인:', userData);
+                                console.log('현재 경로:', window.location.pathname);
                                 
-                                if (!shouldStay) {
+                                // 현재 페이지가 business/index.html이고 dashboard가 아닌 경우에만 리다이렉트
+                                if (!window.location.pathname.includes('dashboard')) {
                                     // 리다이렉트 중 메시지 표시
                                     document.body.innerHTML = `
                                         <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f8f9fa;">
@@ -1277,26 +1305,10 @@
                                         </div>
                                     `;
                                     
-                                    // 대시보드로 리다이렉트
-                                    setTimeout(() => {
-                                        window.location.href = redirectUrl;
-                                    }, 1000);
-                                } else {
-                                    // 현재 페이지에 머물면서 로그인 상태 UI 표시
-                                    console.log('자동 리다이렉트 스킵 (stay=true)');
-                                    // 로그인 상태 메뉴 표시
-                                    document.querySelectorAll('.login-required').forEach(el => {
-                                        el.style.display = 'none';
-                                    });
-                                    document.querySelectorAll('.auth-required').forEach(el => {
-                                        el.style.display = 'flex';
-                                    });
-                                    
-                                    // 사용자 이름 표시
-                                    const userName = userData.name || userData.email || '사용자';
-                                    document.querySelectorAll('.user-name').forEach(el => {
-                                        el.textContent = userName + '님';
-                                    });
+                                    // 대시보드로 즉시 리다이렉트
+                                    console.log('대시보드로 리다이렉트 중...');
+                                    window.location.href = '/linky-website/business/dashboard.html';
+                                    return; // 추가 실행 방지
                                 }
                             } else if (userData.type === 'partner') {
                                 // 파트너는 파트너 페이지로

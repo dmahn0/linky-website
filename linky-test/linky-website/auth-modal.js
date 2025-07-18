@@ -697,22 +697,18 @@ class AuthModal {
         console.log('Partners 디렉토리:', isInPartnersDir);
         
         if (user.type === 'business') {
-          // 사업자는 대시보드로
-          if (isInBusinessDir) {
-            window.location.href = 'dashboard.html';
-          } else if (isInPartnersDir) {
-            window.location.href = '../business/dashboard.html';
-          } else {
-            window.location.href = 'business/dashboard.html';
-          }
+          // 사업자는 대시보드로 즉시 이동
+          console.log('비즈니스 계정 로그인 성공, 대시보드로 이동');
+          window.location.href = '/linky-website/business/dashboard.html';
+          return; // 추가 코드 실행 방지
         } else if (user.type === 'partner') {
           // 파트너는 파트너 페이지로
           if (isInPartnersDir) {
             window.location.reload();
           } else if (isInBusinessDir) {
-            window.location.href = '../partners/index.html';
+            window.location.href = '../partners/';
           } else {
-            window.location.href = 'partners/index.html';
+            window.location.href = 'partners/';
           }
         } else {
           // 기타 경우 페이지 새로고침
