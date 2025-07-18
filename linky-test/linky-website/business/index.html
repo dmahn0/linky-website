@@ -696,6 +696,21 @@
             animation: fadeIn 0.6s ease-out;
         }
 
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+            }
+        }
+
         /* 뱃지 */
         .badge {
             display: inline-block;
@@ -728,7 +743,7 @@
     <header class="header">
         <div class="section-container">
             <div class="header-content">
-                <a href="/" class="logo">🔗 Linky for Business</a>
+                <a href="index.html" class="logo">🔗 Linky for Business</a>
                 <nav class="nav-menu">
                     <a href="#problem">문제점</a>
                     <a href="#solution">솔루션</a>
@@ -742,10 +757,7 @@
                     
                     <!-- 로그인 후 메뉴 -->
                     <div class="auth-required" style="display: none;">
-                        <a href="dashboard.html" class="btn btn-primary" style="padding: 10px 20px; margin-right: 10px;">
-                            대시보드로 이동
-                        </a>
-                        <div class="user-menu" style="display: flex; align-items: center; gap: 10px; margin-left: 15px;">
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 10px;">
                             <span class="user-name" style="color: #374151;">사용자님</span>
                             <a href="#" style="color: #6b7280;" onclick="handleLogout();">로그아웃</a>
                         </div>
@@ -784,7 +796,20 @@
                 </div>
             </div>
             
-            <!-- 로그인 후에는 대시보드로 자동 이동 -->
+            <!-- 로그인 후 대시보드 버튼 -->
+            <div class="hero-content auth-required" style="display: none;">
+                <div style="text-align: center; padding: 80px 20px;">
+                    <h1 class="hero-title" style="margin-bottom: 30px;">
+                        환영합니다, <span class="hero-highlight" id="businessName">사업자</span>님!
+                    </h1>
+                    <p class="hero-subtitle" style="margin-bottom: 50px;">
+                        대시보드에서 공간 관리를 시작하세요
+                    </p>
+                    <a href="dashboard.html" class="btn btn-primary" style="font-size: 24px; padding: 20px 60px; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3); animation: pulse 2s infinite;">
+                        대시보드로 이동 →
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1307,8 +1332,17 @@
                                     
                                     // 대시보드로 즉시 리다이렉트
                                     console.log('대시보드로 리다이렉트 중...');
-                                    window.location.href = '/linky-website/business/dashboard.html';
+                                    try {
+                                        window.location.href = 'dashboard.html';
+                                    } catch (error) {
+                                        console.error('리다이렉트 실패:', error);
+                                        // 리다이렉트 실패 시 대시보드 버튼 표시
+                                        showDashboardButton(userData);
+                                    }
                                     return; // 추가 실행 방지
+                                } else {
+                                    // 이미 대시보드에 있거나 리다이렉트하지 않는 경우
+                                    showDashboardButton(userData);
                                 }
                             } else if (userData.type === 'partner') {
                                 // 파트너는 파트너 페이지로
@@ -1344,6 +1378,29 @@
                     'event_category': 'business_page',
                     'event_label': eventName
                 });
+            }
+        }
+
+        // 대시보드 버튼 표시 함수
+        function showDashboardButton(userData) {
+            // 로그인 관련 UI 숨기기/표시
+            document.querySelectorAll('.login-required').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.auth-required').forEach(el => {
+                el.style.display = el.classList.contains('hero-content') ? 'block' : 'flex';
+            });
+            
+            // 사용자 이름 표시
+            const userName = userData.name || userData.email || '사업자';
+            document.querySelectorAll('.user-name').forEach(el => {
+                el.textContent = userName + '님';
+            });
+            
+            // 히어로 섹션의 사용자 이름 업데이트
+            const businessNameEl = document.getElementById('businessName');
+            if (businessNameEl) {
+                businessNameEl.textContent = userName;
             }
         }
 

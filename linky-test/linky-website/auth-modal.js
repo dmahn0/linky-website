@@ -699,7 +699,14 @@ class AuthModal {
         if (user.type === 'business') {
           // 사업자는 대시보드로 즉시 이동
           console.log('비즈니스 계정 로그인 성공, 대시보드로 이동');
-          window.location.href = '/linky-website/business/dashboard.html';
+          
+          // 현재 경로에 따라 상대 경로 결정
+          const currentPath = window.location.pathname;
+          if (currentPath.includes('/business/')) {
+            window.location.href = 'dashboard.html';
+          } else {
+            window.location.href = 'business/dashboard.html';
+          }
           return; // 추가 코드 실행 방지
         } else if (user.type === 'partner') {
           // 파트너는 파트너 페이지로
