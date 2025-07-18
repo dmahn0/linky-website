@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 시스템 검증</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+        <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    
     
     <style>
         body {
@@ -204,8 +204,8 @@
         </div>
     </div>
 
-    <!-- Firebase 설정 -->
-    <script src="firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="supabase-config.js"></script>
     <script src="js/utils.js"></script>
     <script>
         let testResults = {
@@ -227,10 +227,10 @@
                 }
                 
                 // Auth 테스트
-                const authTest = firebase.auth().currentUser !== undefined;
+                const authTest = auth.currentUser !== undefined;
                 
                 // Firestore 테스트
-                await firebase.firestore().collection('test').limit(1).get();
+                await db.collection('test').limit(1).get();
                 
                 testResults.firebase = true;
                 
@@ -280,7 +280,7 @@
                     const email = testEmails[i];
                     const type = accountTypes[i];
                     
-                    const snapshot = await firebase.firestore().collection('users')
+                    const snapshot = await db.collection('users')
                         .where('email', '==', email)
                         .get();
                     
@@ -327,9 +327,9 @@
             
             try {
                 const [usersSnapshot, spacesSnapshot, jobsSnapshot] = await Promise.all([
-                    firebase.firestore().collection('users').get(),
-                    firebase.firestore().collection('spaces').get(),
-                    firebase.firestore().collection('jobs').get()
+                    db.collection('users').get(),
+                    db.collection('spaces').get(),
+                    db.collection('jobs').get()
                 ]);
                 
                 // 데이터 카운트
@@ -414,7 +414,7 @@
             
             try {
                 // 1. 사업자 계정 확인
-                const businessSnapshot = await firebase.firestore().collection('users')
+                const businessSnapshot = await db.collection('users')
                     .where('email', '==', 'business@test.com')
                     .where('type', '==', 'business')
                     .where('status', '==', 'approved')
@@ -432,7 +432,7 @@
                 const businessId = businessSnapshot.docs[0].id;
                 
                 // 2. 공간 존재 확인
-                const spacesSnapshot = await firebase.firestore().collection('spaces')
+                const spacesSnapshot = await db.collection('spaces')
                     .where('ownerId', '==', businessId)
                     .where('status', '==', 'active')
                     .get();
@@ -454,7 +454,7 @@
                 });
                 
                 // 4. 파트너 계정 확인
-                const partnerSnapshot = await firebase.firestore().collection('users')
+                const partnerSnapshot = await db.collection('users')
                     .where('type', '==', 'partner')
                     .where('status', '==', 'approved')
                     .get();
@@ -465,7 +465,7 @@
                 });
                 
                 // 5. 기존 작업 확인
-                const jobsSnapshot = await firebase.firestore().collection('jobs')
+                const jobsSnapshot = await db.collection('jobs')
                     .where('businessId', '==', businessId)
                     .get();
                 
@@ -518,7 +518,7 @@
         // 페이지 로드 시 자동 테스트 실행
         window.addEventListener('load', function() {
             setTimeout(() => {
-                if (typeof firebase !== 'undefined') {
+                if (typeof window.supabaseClient !== 'undefined') {
                     testFirebaseConnection();
                 }
             }, 1000);

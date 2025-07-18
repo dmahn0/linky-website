@@ -13,13 +13,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky Partners - 무인공간 정리 전문가</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     
     <!-- 공통 스타일 -->
     <link rel="stylesheet" href="../css/common.css">
@@ -982,6 +980,58 @@
                     });
                 }
             });
+        });
+        
+        // 인증 상태 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            // Supabase 인증 상태 변경 감지
+            if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        try {
+                            // Supabase에서 사용자 정보 가져오기
+                            const userDoc = await db.collection('users').doc(user.id).get();
+                            
+                            if (userDoc.exists) {
+                                const userData = userDoc.data();
+                                console.log('현재 로그인된 사용자:', userData);
+                                
+                                // 파트너인 경우
+                                if (userData.type === 'partner' && userData.status === 'approved') {
+                                    // 로그인 버튼 숨기고 대시보드 버튼 표시
+                                    document.querySelectorAll('.login-required').forEach(el => {
+                                        el.style.display = 'none';
+                                    });
+                                    document.querySelectorAll('.auth-required').forEach(el => {
+                                        el.style.display = 'inline-block';
+                                    });
+                                } else if (userData.type === 'business') {
+                                    // 비즈니스 사용자는 비즈니스 페이지로
+                                    window.location.href = '../business/index.html';
+                                }
+                            }
+                        } catch (error) {
+                            console.error('사용자 정보 조회 오류:', error);
+                        }
+                    } else {
+                        // 로그인하지 않은 경우
+                        console.log('로그인되지 않은 사용자');
+                        document.querySelectorAll('.login-required').forEach(el => {
+                            el.style.display = 'inline-block';
+                        });
+                        document.querySelectorAll('.auth-required').forEach(el => {
+                            el.style.display = 'none';
+                        });
+                    }
+                });
+            } else {
+                // Supabase가 아직 로드되지 않은 경우, 잠시 후 다시 시도
+                setTimeout(() => {
+                    if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
+                        window.location.reload();
+                    }
+                }, 1000);
+            }
         });
     </script>
 </body>

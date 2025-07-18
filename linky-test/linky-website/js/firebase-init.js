@@ -20,7 +20,7 @@ async function initializeSystemConfig() {
         immediate: 30000   // 즉시
       },
       commission: 0.2,     // 20% 수수료
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: new Date().toISOString()
     });
     
     // 시스템 설정
@@ -33,7 +33,7 @@ async function initializeSystemConfig() {
         weekday: { start: '09:00', end: '22:00' },
         weekend: { start: '10:00', end: '20:00' }
       },
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: new Date().toISOString()
     });
     
     console.log('시스템 설정 초기화 완료');
@@ -64,8 +64,8 @@ async function createAdminAccount(email, password) {
         push: true,
         marketing: true
       },
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     });
     
     // 관리자 권한 설정 (Custom Claims는 서버에서 설정해야 함)
@@ -112,8 +112,8 @@ async function createTestData() {
         push: true,
         marketing: false
       },
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     
     // 테스트 파트너 생성
@@ -158,8 +158,8 @@ async function createTestData() {
         push: true,
         marketing: false
       },
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     
     // 테스트 공간 생성
@@ -215,8 +215,8 @@ async function createTestData() {
         thisMonthJobs: 0,
         averageRating: 0
       },
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     
     console.log('테스트 데이터 생성 준비 완료');

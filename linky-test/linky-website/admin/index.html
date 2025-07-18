@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 관리자 대시보드</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     
     <style>
         * {
@@ -674,8 +671,8 @@
         </main>
     </div>
 
-    <!-- Firebase 설정 및 스크립트 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 및 스크립트 -->
+    <script src="../supabase-config.js"></script>
     <script src="../js/utils.js"></script>
     <script>
         // 전역 변수
@@ -885,7 +882,7 @@
             try {
                 await db.collection('users').doc(userId).update({
                     status: 'approved',
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    updatedAt: new Date().toISOString()
                 });
                 alert('회원이 승인되었습니다.');
                 loadUsers();
@@ -902,7 +899,7 @@
                 try {
                     await db.collection('users').doc(userId).update({
                         status: 'rejected',
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        updatedAt: new Date().toISOString()
                     });
                     alert('회원이 거부되었습니다.');
                     loadUsers();
@@ -986,7 +983,7 @@
                     const promises = Array.from(selected).map(checkbox => 
                         db.collection('users').doc(checkbox.value).update({
                             status: 'approved',
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            updatedAt: new Date().toISOString()
                         })
                     );
                     await Promise.all(promises);
@@ -1013,7 +1010,7 @@
                     const promises = Array.from(selected).map(checkbox => 
                         db.collection('users').doc(checkbox.value).update({
                             status: 'rejected',
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            updatedAt: new Date().toISOString()
                         })
                     );
                     await Promise.all(promises);

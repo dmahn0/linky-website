@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 작업 현황</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+        <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    
+    
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     
     <style>
         * {
@@ -549,9 +549,9 @@
             try {
                 await db.collection('jobs').doc(jobId).update({
                     status: 'cancelled',
-                    cancelledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    cancelledAt: new Date().toISOString(),
                     cancelReason: '고객 요청',
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    updatedAt: new Date().toISOString()
                 });
 
                 showAlert('작업이 취소되었습니다.', 'success');

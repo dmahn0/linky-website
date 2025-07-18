@@ -14,13 +14,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky 파트너 - 자유로운 시간에 수익 창출</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+        <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="firebase-config.js"></script>
+    
+    
+    <!-- Supabase 설정 -->
+    <script src="supabase-config.js"></script>
     
     <!-- 공통 스타일 -->
     <link rel="stylesheet" href="css/common.css">
@@ -740,7 +740,7 @@
                 await db.collection('jobs').doc(jobId).update({
                     partnerId: currentUser.uid,
                     status: 'matched',
-                    'matching.acceptedAt': firebase.firestore.FieldValue.serverTimestamp()
+                    'matching.acceptedAt': new Date().toISOString()
                 });
                 
                 alert('작업이 수락되었습니다!');

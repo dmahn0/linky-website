@@ -422,6 +422,11 @@ class AuthModal {
         
         <form id="signupStep2Form" onsubmit="event.preventDefault();">
           <div class="form-group">
+            <label class="form-label">실명 *</label>
+            <input type="text" name="realName" class="form-input" placeholder="실명을 입력하세요" required>
+          </div>
+          
+          <div class="form-group">
             <label class="form-label">거주 지역 (구 단위) *</label>
             <input type="text" name="residence" class="form-input" placeholder="예: 강남구, 서초구" required>
           </div>
@@ -733,7 +738,7 @@ class AuthModal {
         this.reset();
         
         // 사용자 타입에 따른 리다이렉트
-        const user = result.user;
+        const user = result.userData || result.user; // userData가 있으면 우선 사용
         console.log('로그인 성공, 사용자 정보:', user);
         console.log('사용자 타입:', user.type);
         
@@ -842,21 +847,20 @@ class AuthModal {
         if (userData.type === 'business') {
           userRecord.business = {
             businessName: userData.businessName,
-            businessNumber: userData.businessNumber,
-            businessType: userData.businessType,
-            businessContact: userData.businessContact
+            businessNumber: userData.businessNumber || '', // 사업자등록번호는 선택사항
+            businessAddress: userData.businessAddress,
+            businessType: userData.businessType
           };
         }
 
         // 파트너 추가 정보
         if (userData.type === 'partner') {
           userRecord.partner = {
-            realName: userData.realName,
-            birthdate: userData.birthdate,
-            gender: userData.gender,
-            transportation: userData.transportation,
-            experience: userData.experience,
-            preferredArea: userData.preferredArea,
+            realName: userData.realName || userData.name, // realName이 없으면 name 사용
+            residence: userData.residence,
+            workAreas: userData.workAreas || [],
+            availableTimes: userData.availableTimes || [],
+            transportation: userData.transportation || 'public',
             level: 'bronze'
           };
         }

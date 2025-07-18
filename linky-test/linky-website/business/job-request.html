@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 정리 서비스 요청</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     
     <style>
         * {
@@ -572,9 +569,9 @@
 
             // Firebase 초기화 대기
             setTimeout(() => {
-                if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
-                    db = firebase.firestore();
-                    const auth = firebase.auth();
+                if (typeof window.supabaseClient !== 'undefined' && window.auth && window.db) {
+                    db = db;
+                    const auth = auth;
                     auth.onAuthStateChanged((user) => {
                         if (user) {
                             checkBusinessUser(user);
@@ -846,7 +843,7 @@
                     },
                     
                     matching: {
-                        requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        requestedAt: new Date().toISOString(),
                         notifiedPartners: [],
                         rejectedBy: [],
                         acceptedAt: null,
@@ -868,8 +865,8 @@
                         reviewedAt: null
                     },
                     
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
                 };
 
                 // Firestore에 작업 요청 저장

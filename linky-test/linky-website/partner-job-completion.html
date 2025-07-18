@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>작업 완료 보고 - Linky Partners</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+        <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="firebase-config.js"></script>
+    
+    
+    
+    <!-- Supabase 설정 -->
+    <script src="supabase-config.js"></script>
     
     <!-- 공통 스타일 -->
     <link rel="stylesheet" href="css/common.css">
@@ -647,7 +647,7 @@
         
         // 사진 업로드
         async function uploadPhotos() {
-            const storage = firebase.storage();
+            const storage = storage;
             const photoUrls = [];
             
             for (const type of ['before', 'after', 'additional']) {
@@ -703,14 +703,14 @@
                     completion: {
                         partnerId: currentUser.uid,
                         partnerName: currentUser.name,
-                        completedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        completedAt: new Date().toISOString(),
                         checklist: Array.from(checkboxes).map((cb, index) => ({
                             item: cb.nextElementSibling.textContent,
                             completed: cb.checked
                         })),
                         photos: uploadedPhotos,
                         notes: document.getElementById('completionNotes').value.trim(),
-                        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        submittedAt: new Date().toISOString()
                     }
                 };
                 

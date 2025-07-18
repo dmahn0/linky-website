@@ -573,6 +573,7 @@
                     <!-- 로그인 후 메뉴 -->
                     <div class="auth-required" style="display: none;">
                         <span class="user-name" style="margin-right: 15px; color: #374151;">사용자님</span>
+                        <a href="#" class="btn btn-primary dashboard-btn" style="padding: 8px 16px; margin-right: 10px; display: none;">대시보드</a>
                         <a href="#" class="btn btn-outline" style="padding: 8px 16px;" onclick="handleLogout();">로그아웃</a>
                     </div>
                 </nav>
@@ -590,12 +591,20 @@
             <p class="hero-subtitle animate-fade-in">
                 스터디룸, 모임공간, 무인매장 정리를 쉽고 빠르게 맡기세요
             </p>
-            <div class="hero-buttons animate-fade-in">
+            <!-- 로그인 전 버튼 -->
+            <div class="hero-buttons animate-fade-in login-required">
                 <a href="./business/" class="btn btn-white" onclick="trackButtonClick('hero_business');">공간 사업자로 시작하기</a>
                 <a href="./partners/" class="btn btn-outline" onclick="trackButtonClick('hero_partner');">정리 파트너로 지원하기</a>
             </div>
-            <div class="hero-buttons animate-fade-in" style="margin-top: 15px;">
+            <div class="hero-buttons animate-fade-in login-required" style="margin-top: 15px;">
                 <a href="#" class="btn btn-outline" style="padding: 16px 60px;" onclick="trackButtonClick('hero_signup'); authModal.openSignupSelect();">회원가입</a>
+            </div>
+            
+            <!-- 로그인 후 버튼 -->
+            <div class="hero-buttons animate-fade-in auth-required" style="display: none;">
+                <a href="#" class="btn btn-white dashboard-btn-hero" style="padding: 20px 80px; font-size: 20px; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);">
+                    대시보드로 이동 →
+                </a>
             </div>
     </section>
 
@@ -848,10 +857,13 @@
 
         // 로그아웃 처리
         async function handleLogout() {
-            const result = await FirebaseAuth.signOut();
-            if (result.success) {
-                // 로그아웃 성공 시 페이지 새로고침하거나 홈으로 이동
-                window.location.reload();
+            if (typeof auth !== 'undefined' && auth.signOut) {
+                try {
+                    await auth.signOut();
+                    window.location.reload();
+                } catch (error) {
+                    console.error('로그아웃 오류:', error);
+                }
             }
         }
 
@@ -879,6 +891,86 @@
         
         // 초기 실행
         handleScroll();
+        
+        // 인증 상태 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded - auth 확인:', typeof auth);
+            console.log('DOMContentLoaded - db 확인:', typeof db);
+            console.log('DOMContentLoaded - supabaseClient 확인:', typeof supabaseClient);
+            
+            // Supabase 인증 상태 변경 감지
+            if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
+                console.log('auth.onAuthStateChanged 호출');
+                auth.onAuthStateChanged(async (user) => {
+                    console.log('인증 상태 변경됨, user:', user);
+                    if (user) {
+                        try {
+                            // Supabase에서 사용자 정보 가져오기
+                            const userDoc = await db.collection('users').doc(user.id).get();
+                            
+                            if (userDoc.exists) {
+                                const userData = userDoc.data();
+                                console.log('현재 로그인된 사용자:', userData);
+                                
+                                // 로그인 UI 숨기고 로그아웃 UI 표시
+                                document.querySelectorAll('.login-required').forEach(el => {
+                                    el.style.display = 'none';
+                                });
+                                document.querySelectorAll('.auth-required').forEach(el => {
+                                    el.style.display = el.classList.contains('hero-buttons') ? 'flex' : 'flex';
+                                });
+                                
+                                // 사용자 이름 표시
+                                const userName = userData.name || userData.email || '사용자';
+                                document.querySelectorAll('.user-name').forEach(el => {
+                                    el.textContent = userName + '님';
+                                });
+                                
+                                // 대시보드 버튼 URL 설정
+                                const dashboardBtn = document.querySelector('.dashboard-btn');
+                                const dashboardBtnHero = document.querySelector('.dashboard-btn-hero');
+                                
+                                if (userData.type === 'business') {
+                                    if (dashboardBtn) {
+                                        dashboardBtn.href = './business/dashboard.html';
+                                        dashboardBtn.style.display = 'inline-block';
+                                    }
+                                    if (dashboardBtnHero) {
+                                        dashboardBtnHero.href = './business/dashboard.html';
+                                    }
+                                } else if (userData.type === 'partner') {
+                                    if (dashboardBtn) {
+                                        dashboardBtn.href = './partners/dashboard.html';
+                                        dashboardBtn.style.display = 'inline-block';
+                                    }
+                                    if (dashboardBtnHero) {
+                                        dashboardBtnHero.href = './partners/dashboard.html';
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error('사용자 정보 조회 오류:', error);
+                        }
+                    } else {
+                        // 로그인하지 않은 경우
+                        console.log('로그인되지 않은 사용자');
+                        document.querySelectorAll('.login-required').forEach(el => {
+                            el.style.display = el.classList.contains('hero-buttons') ? 'flex' : 'flex';
+                        });
+                        document.querySelectorAll('.auth-required').forEach(el => {
+                            el.style.display = 'none';
+                        });
+                    }
+                });
+            } else {
+                // Supabase가 아직 로드되지 않은 경우, 잠시 후 다시 시도
+                setTimeout(() => {
+                    if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
+                        window.location.reload();
+                    }
+                }, 1000);
+            }
+        });
 
         // 모바일 메뉴 토글
         document.querySelector('.mobile-menu-btn').addEventListener('click', function() {

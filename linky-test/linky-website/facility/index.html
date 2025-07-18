@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 시설물 관리 서비스</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         * {
@@ -947,8 +945,8 @@
         </div>
     </section>
 
-    <!-- Firebase 설정 및 스크립트 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 및 스크립트 -->
+    <script src="../supabase-config.js"></script>
     <script>
         // 신청 모달 열기
         function openApplicationModal(serviceType) {
@@ -1006,7 +1004,7 @@
                     inquiry: formData.get('inquiry'),
                     status: 'pending',
                     createdAt: new Date().toISOString(),
-                    submittedAt: firebase.firestore?.FieldValue?.serverTimestamp() || new Date()
+                    submittedAt: new Date().toISOString() || new Date()
                 };
 
                 // Firebase가 초기화되었다면 Firestore에 저장

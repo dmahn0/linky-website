@@ -238,7 +238,7 @@ class LinkyFirebase {
         try {
             const updateData = {
                 status,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: new Date().toISOString(),
                 ...additionalData
             };
 
@@ -263,8 +263,8 @@ class LinkyFirebase {
             await jobRef.update({
                 partnerId: partnerId,
                 status: 'matched',
-                'matching.acceptedAt': firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                'matching.acceptedAt': new Date().toISOString(),
+                updatedAt: new Date().toISOString()
             });
 
             return true;

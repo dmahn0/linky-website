@@ -13,14 +13,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 공간 관리자를 위한 스마트한 정리 솔루션</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     <style>
         * {
             margin: 0;
@@ -696,21 +693,6 @@
             animation: fadeIn 0.6s ease-out;
         }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 15px 40px rgba(34, 197, 94, 0.4);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
-            }
-        }
-
         /* 뱃지 */
         .badge {
             display: inline-block;
@@ -743,7 +725,7 @@
     <header class="header">
         <div class="section-container">
             <div class="header-content">
-                <a href="index.html" class="logo">🔗 Linky for Business</a>
+                <a href="/" class="logo">🔗 Linky for Business</a>
                 <nav class="nav-menu">
                     <a href="#problem">문제점</a>
                     <a href="#solution">솔루션</a>
@@ -757,7 +739,10 @@
                     
                     <!-- 로그인 후 메뉴 -->
                     <div class="auth-required" style="display: none;">
-                        <div class="user-menu" style="display: flex; align-items: center; gap: 10px;">
+                        <a href="dashboard.html" class="btn btn-primary" style="padding: 10px 20px; margin-right: 10px;">
+                            대시보드로 이동
+                        </a>
+                        <div class="user-menu" style="display: flex; align-items: center; gap: 10px; margin-left: 15px;">
                             <span class="user-name" style="color: #374151;">사용자님</span>
                             <a href="#" style="color: #6b7280;" onclick="handleLogout();">로그아웃</a>
                         </div>
@@ -796,20 +781,7 @@
                 </div>
             </div>
             
-            <!-- 로그인 후 대시보드 버튼 -->
-            <div class="hero-content auth-required" style="display: none;">
-                <div style="text-align: center; padding: 80px 20px;">
-                    <h1 class="hero-title" style="margin-bottom: 30px;">
-                        환영합니다, <span class="hero-highlight" id="businessName">사업자</span>님!
-                    </h1>
-                    <p class="hero-subtitle" style="margin-bottom: 50px;">
-                        대시보드에서 공간 관리를 시작하세요
-                    </p>
-                    <a href="dashboard.html" class="btn btn-primary" style="font-size: 24px; padding: 20px 60px; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3); animation: pulse 2s infinite;">
-                        대시보드로 이동 →
-                    </a>
-                </div>
-            </div>
+            <!-- 로그인 후에는 대시보드로 자동 이동 -->
         </div>
     </section>
 
@@ -849,7 +821,7 @@
     <!-- 솔루션 섹션 -->
     <section id="solution" class="solution-section">
         <div class="section-container">
-            <h2 class="section-title">Linky가 제공하는 스마트한 해결책</h2>
+            <h2 class="section-title">Linky가 제공하는 토탈 솔루션</h2>
             <div class="solution-grid">
                 <div class="solution-card">
                     <div class="solution-icon">⚡</div>
@@ -919,41 +891,41 @@
     <!-- 가격 섹션 -->
     <section id="pricing" class="pricing-section">
         <div class="section-container">
-            <h2 class="section-title">투명한 요금 체계</h2>
-            <p style="text-align: center; font-size: 64px; font-weight: bold; color: #22c55e; margin-bottom: 60px;">
+            <h2 class="section-title">합리적인 요금 체계</h2>
+            <p style="text-align: center; font-size: 43px; font-weight: bold; color: #22c55e; margin-bottom: 30px;">
                 12,000원부터 시작
             </p>
             
             <!-- 요금제 카드 -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 60px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-bottom: 60px;">
                 <!-- 베이직 카드 -->
-                <div style="background: white; border-radius: 16px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
-                    <h3 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">베이직</h3>
-                    <div>
-                        <p style="font-size: 36px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">12,000원</p>
+                <div style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
+                    <h3 style="font-size: 28px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">베이직</h3>
+                    <div style="margin-bottom: 30px;">
+                        <p style="font-size: 48px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">12,000원</p>
                         <p style="font-size: 16px; color: #6b7280;">15평 이하 기준</p>
                         <p style="font-size: 14px; color: #6b7280; margin-top: 10px;">10평 추가마다 +4,000원</p>
                     </div>
                 </div>
                 
                 <!-- 스탠다드 카드 -->
-                <div style="background: #dcfce7; border-radius: 16px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; position: relative;">
+                <div style="background: #dcfce7; border-radius: 16px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; position: relative;">
                     <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #22c55e; color: white; padding: 8px 24px; border-radius: 20px; font-size: 14px; font-weight: bold;">
                         인기
                     </div>
-                    <h3 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">스탠다드</h3>
-                    <div>
-                        <p style="font-size: 36px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">18,000원</p>
+                    <h3 style="font-size: 28px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">스탠다드</h3>
+                    <div style="margin-bottom: 30px;">
+                        <p style="font-size: 48px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">18,000원</p>
                         <p style="font-size: 16px; color: #6b7280;">15평 이하 기준</p>
                         <p style="font-size: 14px; color: #6b7280; margin-top: 10px;">10평 추가마다 +6,000원</p>
                     </div>
                 </div>
                 
                 <!-- 애프터파티 카드 -->
-                <div style="background: white; border-radius: 16px; padding: 40px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
-                    <h3 style="font-size: 32px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">애프터파티</h3>
-                    <div>
-                        <p style="font-size: 36px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">30,000원</p>
+                <div style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
+                    <h3 style="font-size: 28px; font-weight: bold; color: #1f2937; margin-bottom: 20px;">애프터파티</h3>
+                    <div style="margin-bottom: 30px;">
+                        <p style="font-size: 48px; font-weight: bold; color: #22c55e; margin-bottom: 10px;">30,000원</p>
                         <p style="font-size: 16px; color: #6b7280;">15평 이하 기준</p>
                         <p style="font-size: 14px; color: #6b7280; margin-top: 10px;">10평 추가마다 +12,000원</p>
                     </div>
@@ -1272,26 +1244,26 @@
     <script src="../js/auth-utils.js"></script>
     
     <script>
-        // authModal 인스턴스 생성 (중복 선언 방지)
-        if (typeof authModal === 'undefined') {
-            var authModal;
-        }
+        // authModal 인스턴스 생성
+        let authModal;
         
         // 페이지 로드 완료 시 실행
         window.addEventListener('load', function() {
             console.log('페이지 로드 완료');
             // authModal 인스턴스 생성 및 전역 변수로 설정
-            if (!window.authModal) {
-                window.authModal = new AuthModal();
-                console.log('authModal 인스턴스 생성됨:', window.authModal);
-            }
+            window.authModal = new AuthModal();
+            console.log('authModal 인스턴스 생성됨:', window.authModal);
         });
         
         // 로그아웃 처리
         async function handleLogout() {
-            const result = await FirebaseAuth.signOut();
-            if (result.success) {
-                window.location.reload();
+            if (typeof auth !== 'undefined' && auth.signOut) {
+                try {
+                    await auth.signOut();
+                    window.location.reload();
+                } catch (error) {
+                    console.error('로그아웃 오류:', error);
+                }
             }
         }
 
@@ -1299,14 +1271,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             // URL 파라미터 확인 (리다이렉트 URL)
             const urlParams = new URLSearchParams(window.location.search);
-            const redirectUrl = urlParams.get('redirect') || '/business/dashboard.html';
+            const redirectUrl = urlParams.get('redirect') || 'dashboard.html';
             
-            // Firebase 인증 상태 변경 감지
-            firebase.auth().onAuthStateChanged(async (firebaseUser) => {
-                if (firebaseUser) {
-                    try {
-                        // Firestore에서 사용자 정보 가져오기
-                        const userDoc = await firebase.firestore().collection('users').doc(firebaseUser.uid).get();
+            // Supabase 인증 상태 변경 감지
+            if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        try {
+                            // Supabase에서 사용자 정보 가져오기
+                            const userDoc = await db.collection('users').doc(user.id).get();
                         
                         if (userDoc.exists) {
                             const userData = userDoc.data();
@@ -1314,11 +1287,10 @@
                             
                             // 사업자인 경우 
                             if (userData.type === 'business' && userData.status === 'approved') {
-                                console.log('비즈니스 계정 확인:', userData);
-                                console.log('현재 경로:', window.location.pathname);
+                                // URL에 'stay' 파라미터가 있으면 자동 리다이렉트 하지 않음
+                                const shouldStay = urlParams.get('stay') === 'true';
                                 
-                                // 현재 페이지가 business/index.html이고 dashboard가 아닌 경우에만 리다이렉트
-                                if (!window.location.pathname.includes('dashboard')) {
+                                if (!shouldStay) {
                                     // 리다이렉트 중 메시지 표시
                                     document.body.innerHTML = `
                                         <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f8f9fa;">
@@ -1330,19 +1302,26 @@
                                         </div>
                                     `;
                                     
-                                    // 대시보드로 즉시 리다이렉트
-                                    console.log('대시보드로 리다이렉트 중...');
-                                    try {
-                                        window.location.href = 'dashboard.html';
-                                    } catch (error) {
-                                        console.error('리다이렉트 실패:', error);
-                                        // 리다이렉트 실패 시 대시보드 버튼 표시
-                                        showDashboardButton(userData);
-                                    }
-                                    return; // 추가 실행 방지
+                                    // 대시보드로 리다이렉트
+                                    setTimeout(() => {
+                                        window.location.href = redirectUrl;
+                                    }, 1000);
                                 } else {
-                                    // 이미 대시보드에 있거나 리다이렉트하지 않는 경우
-                                    showDashboardButton(userData);
+                                    // 현재 페이지에 머물면서 로그인 상태 UI 표시
+                                    console.log('자동 리다이렉트 스킵 (stay=true)');
+                                    // 로그인 상태 메뉴 표시
+                                    document.querySelectorAll('.login-required').forEach(el => {
+                                        el.style.display = 'none';
+                                    });
+                                    document.querySelectorAll('.auth-required').forEach(el => {
+                                        el.style.display = 'flex';
+                                    });
+                                    
+                                    // 사용자 이름 표시
+                                    const userName = userData.name || userData.email || '사용자';
+                                    document.querySelectorAll('.user-name').forEach(el => {
+                                        el.textContent = userName + '님';
+                                    });
                                 }
                             } else if (userData.type === 'partner') {
                                 // 파트너는 파트너 페이지로
@@ -1367,6 +1346,14 @@
                     });
                 }
             });
+            } else {
+                // Supabase가 아직 로드되지 않은 경우, 잠시 후 다시 시도
+                setTimeout(() => {
+                    if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
+                        window.location.reload();
+                    }
+                }, 1000);
+            }
         })
     </script>
 
@@ -1378,29 +1365,6 @@
                     'event_category': 'business_page',
                     'event_label': eventName
                 });
-            }
-        }
-
-        // 대시보드 버튼 표시 함수
-        function showDashboardButton(userData) {
-            // 로그인 관련 UI 숨기기/표시
-            document.querySelectorAll('.login-required').forEach(el => {
-                el.style.display = 'none';
-            });
-            document.querySelectorAll('.auth-required').forEach(el => {
-                el.style.display = el.classList.contains('hero-content') ? 'block' : 'flex';
-            });
-            
-            // 사용자 이름 표시
-            const userName = userData.name || userData.email || '사업자';
-            document.querySelectorAll('.user-name').forEach(el => {
-                el.textContent = userName + '님';
-            });
-            
-            // 히어로 섹션의 사용자 이름 업데이트
-            const businessNameEl = document.getElementById('businessName');
-            if (businessNameEl) {
-                businessNameEl.textContent = userName;
             }
         }
 

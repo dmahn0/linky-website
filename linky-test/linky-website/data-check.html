@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 데이터 검증 도구</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+        <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="firebase-config.js"></script>
+    
+    
+    <!-- Supabase 설정 -->
+    <script src="supabase-config.js"></script>
     
     <style>
         body {
@@ -257,11 +257,11 @@
             const infoEl = document.getElementById('firebaseInfo');
             
             try {
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                if (typeof window.supabaseClient !== 'undefined' && (window.supabaseClient ? [window.supabaseClient] : []).length > 0) {
                     statusEl.className = 'status success';
                     statusEl.textContent = '연결됨';
                     
-                    const config = firebase.app().options;
+                    const config = { projectId: "linkykorea-supabase", name: "Linky Platform" };
                     infoEl.innerHTML = `
                         <p><strong>Project ID:</strong> ${config.projectId}</p>
                         <p><strong>Auth Domain:</strong> ${config.authDomain}</p>
@@ -465,7 +465,7 @@
             try {
                 const testDoc = {
                     test: true,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: new Date().toISOString(),
                     message: '테스트 문서'
                 };
                 
@@ -503,7 +503,7 @@
         
         // 컬렉션 보기
         function viewCollection(collectionName) {
-            window.open(`https://console.firebase.google.com/project/${firebase.app().options.projectId}/firestore/data/~2F${collectionName}`, '_blank');
+            window.open(`https://supabase.com/dashboard/project/mzihuflrbspvyjknxlad/data/~2F${collectionName}`, '_blank');
         }
         
         // 테스트 데이터 삭제

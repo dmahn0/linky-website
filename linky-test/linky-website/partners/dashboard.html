@@ -13,14 +13,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>파트너 대시보드 - Linky Partners</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     
     <style>
         * {
@@ -461,7 +458,7 @@
         async function handleLogout() {
             if (confirm('로그아웃 하시겠습니까?')) {
                 try {
-                    await firebase.auth().signOut();
+                    await auth.signOut();
                     window.location.href = '../index.html';
                 } catch (error) {
                     console.error('로그아웃 오류:', error);
@@ -473,14 +470,14 @@
         // 대시보드 데이터 로드
         async function loadDashboardData() {
             try {
-                const user = firebase.auth().currentUser;
+                const user = auth.currentUser;
                 if (!user) {
                     window.location.href = 'index.html';
                     return;
                 }
 
                 // 사용자 정보 표시
-                const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                const userDoc = await db.collection('users').doc(user.uid).get();
                 if (userDoc.exists) {
                     const userData = userDoc.data();
                     document.getElementById('userName').textContent = userData.name || '파트너님';
@@ -620,7 +617,7 @@
         }
 
         // 인증 상태 확인
-        firebase.auth().onAuthStateChanged((user) => {
+        auth.onAuthStateChanged((user) => {
             if (user) {
                 loadDashboardData();
             } else {

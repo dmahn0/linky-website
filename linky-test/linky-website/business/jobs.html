@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linky - 작업 현황</title>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     
     <style>
         * {
@@ -597,8 +595,8 @@
         </form>
     </div>
 
-    <!-- Firebase 설정 -->
-    <script src="../firebase-config.js"></script>
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
     <script src="../js/utils.js"></script>
     <script>
         // 전역 변수
@@ -1022,7 +1020,7 @@
                 pricing: pricing,
                 
                 matching: {
-                    requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    requestedAt: new Date().toISOString(),
                     notifiedPartners: [],
                     rejectedBy: [],
                     acceptedAt: null,
@@ -1044,8 +1042,8 @@
                     reviewedAt: null
                 },
                 
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
                 completedAt: null,
                 cancelledAt: null,
                 cancelReason: null
