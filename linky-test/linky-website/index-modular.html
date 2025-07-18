@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RYYX6LYN2B');
+    </script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky - 무인공간 정리 서비스 플랫폼</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase 설정 -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <!-- 페이지별 스타일 -->
+    <style>
+        /* 히어로 섹션 */
+        .hero-section {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 24px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeIn 0.8s ease-out 0.4s backwards;
+        }
+
+        .hero-buttons .btn {
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+
+        /* 특징 섹션 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        /* 가격 섹션 */
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pricing-card:hover {
+            border-color: #22c55e;
+            transform: translateY(-5px);
+        }
+
+        .pricing-card.featured {
+            border-color: #22c55e;
+            position: relative;
+        }
+
+        .pricing-card.featured::before {
+            content: "인기";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #22c55e;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #22c55e;
+            margin: 20px 0;
+        }
+
+        /* 프로세스 섹션 */
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .process-step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: #22c55e;
+            color: white;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 60px;
+            margin-bottom: 20px;
+        }
+
+        /* CTA 섹션 */
+        .cta-section {
+            background: #f8fafc;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 컴포넌트 -->
+    <div id="header-root"></div>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero-section">
+        <div class="section-container">
+            <h1 class="hero-title">무인공간 정리의 새로운 시작</h1>
+            <p class="hero-subtitle">전문 파트너가 찾아가는 맞춤형 정리 서비스</p>
+            <div class="hero-buttons">
+                <button class="btn" style="background: white; color: #22c55e;" onclick="authModal.openSignupSelect()">
+                    시작하기
+                </button>
+                <a href="#features" class="btn btn-outline" style="border-color: white; color: white;">
+                    더 알아보기
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 특징 섹션 -->
+    <section id="features" class="section">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">왜 Linky인가요?</h2>
+                <p class="section-subtitle">스터디카페, 파티룸 운영자를 위한 최적의 솔루션</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>합리적인 가격</h3>
+                    <p>기존 청소 서비스 대비 60% 저렴한 가격으로 이용하세요</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>빠른 매칭</h3>
+                    <p>평균 30분 내 파트너 매칭으로 즉시 해결</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3>검증된 파트너</h3>
+                    <p>신원 확인과 교육을 마친 믿을 수 있는 파트너</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 가격 섹션 -->
+    <section id="pricing" class="section" style="background: #f8fafc;">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">투명한 가격</h2>
+                <p class="section-subtitle">숨겨진 비용 없이 명확한 가격으로 이용하세요</p>
+            </div>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>기본 정리</h3>
+                    <div class="price">12,000원</div>
+                    <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                        <li>✓ 기본 정리정돈</li>
+                        <li>✓ 쓰레기 처리</li>
+                        <li>✓ 소모품 보충</li>
+                        <li>✓ 사진 인증</li>
+                    </ul>
+                    <button class="btn btn-outline btn-full" onclick="authModal.openSignupSelect()">
+                        시작하기
+                    </button>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <h3>기본 + 바닥</h3>
+                    <div class="price">15,000원</div>
+                    <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                        <li>✓ 기본 정리 포함</li>
+                        <li>✓ 바닥 청소</li>
+                        <li>✓ 15평 이하</li>
+                        <li>✓ 완료 보고서</li>
+                    </ul>
+                    <button class="btn btn-primary btn-full" onclick="authModal.openSignupSelect()">
+                        시작하기
+                    </button>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>풀 패키지</h3>
+                    <div class="price">20,000원</div>
+                    <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                        <li>✓ 모든 서비스 포함</li>
+                        <li>✓ 화장실 청소</li>
+                        <li>✓ 설거지 포함</li>
+                        <li>✓ 우선 매칭</li>
+                    </ul>
+                    <button class="btn btn-outline btn-full" onclick="authModal.openSignupSelect()">
+                        시작하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 프로세스 섹션 -->
+    <section id="process" class="section">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">간단한 이용 방법</h2>
+                <p class="section-subtitle">복잡한 절차 없이 바로 시작하세요</p>
+            </div>
+            
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3>회원가입</h3>
+                    <p>간단한 정보 입력으로 바로 시작</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3>공간 등록</h3>
+                    <p>관리가 필요한 공간 정보 입력</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3>서비스 요청</h3>
+                    <p>원하는 시간에 정리 서비스 요청</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3>완료 확인</h3>
+                    <p>사진으로 결과 확인 후 결제</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA 섹션 -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2 class="section-title">지금 바로 시작하세요</h2>
+            <p class="section-subtitle" style="margin-bottom: 30px;">
+                첫 이용 고객님께 20% 할인 혜택을 드립니다
+            </p>
+            <button class="btn btn-primary" style="font-size: 20px; padding: 15px 40px;" onclick="authModal.openSignupSelect()">
+                무료로 시작하기
+            </button>
+        </div>
+    </section>
+
+    <!-- 푸터 컴포넌트 -->
+    <div id="footer-root"></div>
+
+    <!-- 인증 모달 -->
+    <script src="auth-modal.js"></script>
+    
+    <!-- 공통 스크립트 -->
+    <script src="js/utils.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/auth-utils.js"></script>
+    <script src="components/header.js"></script>
+    <script src="components/footer.js"></script>
+    
+    <!-- 페이지별 스크립트 -->
+    <script>
+        // 헤더와 푸터 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 헤더 컴포넌트 초기화
+            window.headerComponent = new HeaderComponent({
+                currentPage: 'home'
+            });
+            
+            // 푸터 컴포넌트 초기화
+            new FooterComponent();
+            
+            // 부드러운 스크롤
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // 스크롤 애니메이션
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // 애니메이션 대상 요소들
+            document.querySelectorAll('.feature-card, .pricing-card, .process-step').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

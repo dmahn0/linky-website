@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RYYX6LYN2B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky Partners - 무인공간 정리 전문가</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase 설정 -->
+    <script src="../firebase-config.js"></script>
+    
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    
+    <style>
+        /* 히어로 섹션 */
+        .hero-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .hero-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            color: #64748b;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-hero {
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: #10b981;
+            color: white;
+            border: 2px solid #10b981;
+        }
+        
+        .btn-primary:hover {
+            background: #059669;
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #10b981;
+            border: 2px solid #10b981;
+        }
+        
+        .btn-secondary:hover {
+            background: #10b981;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        }
+        
+        /* 수익 계산기 섹션 */
+        .calculator-section {
+            padding: 80px 0;
+            background: #fff5e6;
+        }
+        
+        .calculator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .calculator-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .calculator-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .calculator-form {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .slider-container {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #e5e7eb;
+            outline: none;
+            transition: background 0.3s;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        }
+        
+        .slider-value {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #10b981;
+        }
+        
+        .calculator-result {
+            background: #f0fdf4;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .result-label {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        
+        .result-amount {
+            font-size: 48px;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 5px;
+        }
+        
+        .result-sub {
+            font-size: 16px;
+            color: #64748b;
+        }
+        
+        /* 장점 섹션 */
+        .benefits-section {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        
+        .section-subtitle {
+            font-size: 18px;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .benefit-card {
+            background: #f8fafc;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .benefit-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .benefit-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-description {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        /* 프로세스 섹션 */
+        .process-section {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+        
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .process-step {
+            position: relative;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .process-number {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: #10b981;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .process-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: #10b981;
+        }
+        
+        .process-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .process-description {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        
+        /* 후기 섹션 */
+        .reviews-section {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .review-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 16px;
+            position: relative;
+        }
+        
+        .review-quote {
+            font-size: 48px;
+            color: #10b981;
+            opacity: 0.3;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        
+        .review-content {
+            font-size: 16px;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding-top: 20px;
+        }
+        
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: #e0f2fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #3b82f6;
+            font-size: 20px;
+        }
+        
+        .author-info {
+            flex: 1;
+        }
+        
+        .author-name {
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .author-meta {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .review-rating {
+            color: #fbbf24;
+            font-size: 18px;
+        }
+        
+        /* FAQ 섹션 */
+        .faq-section {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .faq-question {
+            padding: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .faq-question:hover {
+            background: #f8fafc;
+        }
+        
+        .faq-toggle {
+            font-size: 24px;
+            color: #64748b;
+            transition: transform 0.3s;
+        }
+        
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+        
+        .faq-answer {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s, padding 0.3s;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 0 25px 25px;
+            max-height: 500px;
+        }
+        
+        .faq-answer p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        /* CTA 섹션 */
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            text-align: center;
+            color: white;
+        }
+        
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .cta-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .cta-description {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-cta {
+            background: white;
+            color: #10b981;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 32px;
+            }
+            
+            .hero-subtitle {
+                font-size: 18px;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .section-title {
+                font-size: 28px;
+            }
+            
+            .benefits-grid,
+            .process-grid,
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calculator-card {
+                padding: 20px;
+            }
+            
+            .result-amount {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 컴포넌트 -->
+    <div id="header-root"></div>
+    
+    <!-- 히어로 섹션 -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                자유로운 시간에 원하는 만큼<br>
+                <span style="color: #10b981;">Linky 파트너</span>
+            </h1>
+            <p class="hero-subtitle">
+                무인공간 정리 전문가가 되어<br>
+                안정적인 부수입을 만들어보세요
+            </p>
+            <div class="hero-buttons">
+                <a href="partners-new.html" class="btn-hero btn-primary auth-required" style="display: none;">
+                    <span>파트너 대시보드</span>
+                    <span>→</span>
+                </a>
+                <a href="#" class="btn-hero btn-primary login-required" onclick="authModal.openSignup('partner')">
+                    <span>파트너 신청하기</span>
+                    <span>→</span>
+                </a>
+                <a href="#calculator" class="btn-hero btn-secondary">
+                    <span>수익 계산하기</span>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 수익 계산기 섹션 -->
+    <section id="calculator" class="calculator-section">
+        <div class="calculator-container">
+            <div class="calculator-card">
+                <h2 class="calculator-title">예상 수익 계산기</h2>
+                
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label class="form-label">주당 작업 일수</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="daysSlider" min="1" max="7" value="5">
+                            <span class="slider-value" id="daysValue">5일</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">일일 작업 건수</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="jobsSlider" min="1" max="10" value="4">
+                            <span class="slider-value" id="jobsValue">4건</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="calculator-result">
+                    <div class="result-label">예상 월 수익</div>
+                    <div class="result-amount" id="monthlyIncome">₩1,600,000</div>
+                    <div class="result-sub">건당 평균 ₩18,000 기준</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 장점 섹션 -->
+    <section id="benefits" class="benefits-section">
+        <div class="section-header">
+            <h2 class="section-title">Linky 파트너의 특별함</h2>
+            <p class="section-subtitle">
+                왜 많은 분들이 Linky 파트너로 활동하고 있을까요?
+            </p>
+        </div>
+        
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">⏰</div>
+                <h3 class="benefit-title">자유로운 시간</h3>
+                <p class="benefit-description">
+                    원하는 시간에 원하는 만큼만<br>
+                    나의 일정에 맞춰 일할 수 있습니다
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">💰</div>
+                <h3 class="benefit-title">안정적인 수익</h3>
+                <p class="benefit-description">
+                    건당 평균 18,000원의 수익으로<br>
+                    매달 안정적인 부수입을 만들 수 있습니다
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">📍</div>
+                <h3 class="benefit-title">가까운 거리</h3>
+                <p class="benefit-description">
+                    내 주변 5km 이내의 작업만 매칭되어<br>
+                    이동 시간과 비용을 절약할 수 있습니다
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">🛡️</div>
+                <h3 class="benefit-title">안전한 환경</h3>
+                <p class="benefit-description">
+                    검증된 무인공간에서만 작업하며<br>
+                    안전보험과 24시간 지원을 제공합니다
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">📱</div>
+                <h3 class="benefit-title">간편한 관리</h3>
+                <p class="benefit-description">
+                    모바일 앱으로 모든 작업을 관리하고<br>
+                    실시간으로 수익을 확인할 수 있습니다
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">🎯</div>
+                <h3 class="benefit-title">명확한 업무</h3>
+                <p class="benefit-description">
+                    표준화된 체크리스트로<br>
+                    누구나 쉽게 작업할 수 있습니다
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 프로세스 섹션 -->
+    <section class="process-section">
+        <div class="section-header">
+            <h2 class="section-title">간단한 시작 방법</h2>
+            <p class="section-subtitle">
+                복잡한 절차 없이 바로 시작하세요
+            </p>
+        </div>
+        
+        <div class="process-grid">
+            <div class="process-step">
+                <div class="process-number">1</div>
+                <div class="process-icon">📝</div>
+                <h3 class="process-title">파트너 신청</h3>
+                <p class="process-description">
+                    간단한 정보 입력으로<br>
+                    파트너 신청을 완료합니다
+                </p>
+            </div>
+            
+            <div class="process-step">
+                <div class="process-number">2</div>
+                <div class="process-icon">✅</div>
+                <h3 class="process-title">심사 및 교육</h3>
+                <p class="process-description">
+                    신원 확인 후<br>
+                    온라인 교육을 이수합니다
+                </p>
+            </div>
+            
+            <div class="process-step">
+                <div class="process-number">3</div>
+                <div class="process-icon">🚀</div>
+                <h3 class="process-title">활동 시작</h3>
+                <p class="process-description">
+                    승인 완료 후<br>
+                    바로 작업을 시작합니다
+                </p>
+            </div>
+            
+            <div class="process-step">
+                <div class="process-number">4</div>
+                <div class="process-icon">💵</div>
+                <h3 class="process-title">수익 정산</h3>
+                <p class="process-description">
+                    작업 완료 즉시<br>
+                    수익이 정산됩니다
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 후기 섹션 -->
+    <section class="reviews-section">
+        <div class="section-header">
+            <h2 class="section-title">파트너님들의 이야기</h2>
+            <p class="section-subtitle">
+                실제 파트너님들의 생생한 후기를 들어보세요
+            </p>
+        </div>
+        
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="review-quote">"</div>
+                <p class="review-content">
+                    회사 퇴근 후 저녁 시간을 활용해서 월 100만원 정도의 부수입을 만들고 있어요. 
+                    시간도 자유롭고 일도 어렵지 않아서 만족하며 일하고 있습니다.
+                </p>
+                <div class="review-author">
+                    <div class="author-avatar">김</div>
+                    <div class="author-info">
+                        <div class="author-name">김민수 파트너</div>
+                        <div class="author-meta">
+                            <span class="review-rating">⭐⭐⭐⭐⭐</span>
+                            <span>활동 8개월</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-card">
+                <div class="review-quote">"</div>
+                <p class="review-content">
+                    육아 때문에 풀타임 일을 못하는데, 아이 학교 보내고 나서 하루 3-4시간만 일해도 
+                    괜찮은 수입이 생겨서 경제적으로 큰 도움이 됩니다.
+                </p>
+                <div class="review-author">
+                    <div class="author-avatar">이</div>
+                    <div class="author-info">
+                        <div class="author-name">이지은 파트너</div>
+                        <div class="author-meta">
+                            <span class="review-rating">⭐⭐⭐⭐⭐</span>
+                            <span>활동 6개월</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-card">
+                <div class="review-quote">"</div>
+                <p class="review-content">
+                    대학생인데 수업 없는 날에만 일해도 월 150만원은 벌어요. 
+                    알바보다 시급도 좋고 자유로워서 친구들한테도 추천하고 있습니다.
+                </p>
+                <div class="review-author">
+                    <div class="author-avatar">박</div>
+                    <div class="author-info">
+                        <div class="author-name">박준호 파트너</div>
+                        <div class="author-meta">
+                            <span class="review-rating">⭐⭐⭐⭐⭐</span>
+                            <span>활동 1년</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQ 섹션 -->
+    <section class="faq-section">
+        <div class="section-header">
+            <h2 class="section-title">자주 묻는 질문</h2>
+        </div>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>파트너 신청 자격이 어떻게 되나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        만 20세 이상의 성인이라면 누구나 신청 가능합니다.
+                        다만, 신원 확인과 범죄 경력 조회를 거치며,
+                        온라인 교육을 이수하고 테스트를 통과해야 활동할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>수익은 언제, 어떻게 정산되나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        작업 완료 후 고객이 확인하면 즉시 앱에서 수익을 확인할 수 있습니다.
+                        정산은 주 단위로 진행되며, 매주 화요일에 지난 주 수익이
+                        등록하신 계좌로 입금됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>작업에 필요한 도구는 제공되나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        기본적인 청소 도구는 각 무인공간에 구비되어 있습니다.
+                        파트너님은 별도의 도구를 준비하실 필요가 없으며,
+                        필요시 앱을 통해 추가 물품을 요청할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>하루에 몇 건까지 작업할 수 있나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        작업 건수에는 제한이 없습니다.
+                        파트너님의 체력과 일정에 맞춰 자유롭게 조절할 수 있으며,
+                        평균적으로 하루 4-6건 정도 작업하시는 분들이 많습니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>작업 중 문제가 생기면 어떻게 하나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        24시간 파트너 지원센터를 운영하고 있습니다.
+                        앱 내 긴급 연락 버튼을 통해 즉시 도움을 받을 수 있으며,
+                        모든 파트너님께 안전보험이 적용됩니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA 섹션 -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">지금 바로 시작하세요</h2>
+            <p class="cta-description">
+                첫 달 보너스 10% 추가 지급! 지금 신청하세요
+            </p>
+            <div class="cta-buttons">
+                <a href="partners-new.html" class="btn-cta auth-required" style="display: none;">
+                    파트너 대시보드
+                </a>
+                <a href="#" class="btn-cta login-required" onclick="authModal.openSignup('partner')">
+                    파트너 신청하기
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 푸터 컴포넌트 -->
+    <div id="footer-root"></div>
+    
+    <!-- 인증 모달 -->
+    <div id="auth-modal-root"></div>
+    
+    <!-- 공통 스크립트 -->
+    <script src="../js/auth-utils.js"></script>
+    <script src="../components/header.js"></script>
+    <script src="../components/footer.js"></script>
+    <script src="../auth-modal.js"></script>
+    
+    <script>
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 헤더 초기화
+            window.headerComponent = new HeaderComponent({
+                showPartnerMenu: true
+            });
+            
+            // 푸터 초기화
+            new FooterComponent();
+            
+            // 인증 모달 초기화
+            window.authModal = new AuthModal();
+            
+            // 인증 상태 확인
+            await checkAuthStatus();
+        });
+        
+        // 수익 계산기
+        const daysSlider = document.getElementById('daysSlider');
+        const jobsSlider = document.getElementById('jobsSlider');
+        const daysValue = document.getElementById('daysValue');
+        const jobsValue = document.getElementById('jobsValue');
+        const monthlyIncome = document.getElementById('monthlyIncome');
+        
+        function updateCalculator() {
+            const days = parseInt(daysSlider.value);
+            const jobs = parseInt(jobsSlider.value);
+            const pricePerJob = 18000;
+            const weeksPerMonth = 4;
+            
+            const monthly = days * jobs * pricePerJob * weeksPerMonth;
+            
+            daysValue.textContent = `${days}일`;
+            jobsValue.textContent = `${jobs}건`;
+            monthlyIncome.textContent = `₩${monthly.toLocaleString()}`;
+        }
+        
+        daysSlider.addEventListener('input', updateCalculator);
+        jobsSlider.addEventListener('input', updateCalculator);
+        
+        // FAQ 토글
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const allItems = document.querySelectorAll('.faq-item');
+            
+            // 다른 모든 항목 닫기
+            allItems.forEach(item => {
+                if (item !== faqItem) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // 현재 항목 토글
+            faqItem.classList.toggle('active');
+        }
+        
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

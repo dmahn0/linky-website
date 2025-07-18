@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script 로드 체크</title>
+</head>
+<body>
+    <h1>Script 로드 상태 확인</h1>
+    <div id="result"></div>
+    
+    <script>
+        // 로드된 스크립트 확인
+        const scripts = Array.from(document.getElementsByTagName('script'));
+        const result = document.getElementById('result');
+        
+        result.innerHTML = '<h2>현재 로드된 스크립트:</h2><ul>';
+        
+        scripts.forEach((script, index) => {
+            if (script.src) {
+                result.innerHTML += `<li>${index + 1}. ${script.src}</li>`;
+            } else {
+                result.innerHTML += `<li>${index + 1}. [인라인 스크립트]</li>`;
+            }
+        });
+        
+        result.innerHTML += '</ul>';
+        
+        // 전역 변수 확인
+        result.innerHTML += '<h2>전역 변수 상태:</h2>';
+        result.innerHTML += `<p>typeof firebaseConfig: ${typeof firebaseConfig}</p>`;
+        result.innerHTML += `<p>typeof AuthModal: ${typeof AuthModal}</p>`;
+        result.innerHTML += `<p>typeof firebase: ${typeof firebase}</p>`;
+        result.innerHTML += `<p>typeof auth: ${typeof auth}</p>`;
+        result.innerHTML += `<p>typeof db: ${typeof db}</p>`;
+    </script>
+</body>
+</html>

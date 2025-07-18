@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky - 공간 등록</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase 설정 -->
+    <script src="../firebase-config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #f7fafc;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #1a202c;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .form-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .form-section h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #1a202c;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .photo-upload {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #f9fafb;
+            transition: border-color 0.2s;
+        }
+
+        .photo-upload:hover {
+            border-color: #3b82f6;
+        }
+
+        .photo-upload input[type="file"] {
+            display: none;
+        }
+
+        .photo-upload label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .photo-upload label:hover {
+            background: #2563eb;
+        }
+
+        .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .help-text {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 공간 등록</h1>
+            <p>새로운 공간을 등록하여 정리 서비스를 요청하세요</p>
+        </div>
+
+        <div class="alert" id="alertMessage"></div>
+
+        <form id="spaceRegistrationForm">
+            <!-- 기본 정보 -->
+            <div class="form-section">
+                <h2>🏠 기본 정보</h2>
+                
+                <div class="form-group">
+                    <label for="spaceName">공간명 <span class="required">*</span></label>
+                    <input type="text" id="spaceName" name="spaceName" required 
+                           placeholder="예: 강남 스터디룸 A호">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="spaceType">공간 유형 <span class="required">*</span></label>
+                        <select id="spaceType" name="spaceType" required>
+                            <option value="">선택해주세요</option>
+                            <option value="studyroom">스터디룸</option>
+                            <option value="partyroom">파티룸</option>
+                            <option value="unmanned">무인매장</option>
+                            <option value="office">사무실</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spaceSize">공간 크기 (평) <span class="required">*</span></label>
+                        <input type="number" id="spaceSize" name="spaceSize" required 
+                               placeholder="15" min="1" max="100">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="capacity">최대 수용인원 (명)</label>
+                    <input type="number" id="capacity" name="capacity" 
+                           placeholder="6" min="1" max="50">
+                </div>
+            </div>
+
+            <!-- 위치 정보 -->
+            <div class="form-section">
+                <h2>📍 위치 정보</h2>
+                
+                <div class="form-group">
+                    <label for="fullAddress">전체 주소 <span class="required">*</span></label>
+                    <input type="text" id="fullAddress" name="fullAddress" required 
+                           placeholder="서울시 강남구 논현동 123-45 논현빌딩 3층">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sido">시도 <span class="required">*</span></label>
+                        <select id="sido" name="sido" required>
+                            <option value="">선택해주세요</option>
+                            <option value="서울시">서울시</option>
+                            <option value="경기도">경기도</option>
+                            <option value="인천시">인천시</option>
+                            <option value="부산시">부산시</option>
+                            <option value="대구시">대구시</option>
+                            <option value="대전시">대전시</option>
+                            <option value="광주시">광주시</option>
+                            <option value="울산시">울산시</option>
+                            <option value="강원도">강원도</option>
+                            <option value="충청북도">충청북도</option>
+                            <option value="충청남도">충청남도</option>
+                            <option value="전라북도">전라북도</option>
+                            <option value="전라남도">전라남도</option>
+                            <option value="경상북도">경상북도</option>
+                            <option value="경상남도">경상남도</option>
+                            <option value="제주도">제주도</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sigungu">시군구 <span class="required">*</span></label>
+                        <input type="text" id="sigungu" name="sigungu" required 
+                               placeholder="강남구">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="detailAddress">상세 주소</label>
+                    <input type="text" id="detailAddress" name="detailAddress" 
+                           placeholder="논현빌딩 3층 301호">
+                </div>
+            </div>
+
+            <!-- 접근 정보 -->
+            <div class="form-section">
+                <h2>🚪 접근 정보</h2>
+                
+                <div class="form-group">
+                    <label for="entrancePassword">출입 비밀번호</label>
+                    <input type="text" id="entrancePassword" name="entrancePassword" 
+                           placeholder="1234">
+                    <div class="help-text">파트너가 출입할 때 필요한 비밀번호</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="accessInstructions">출입 방법</label>
+                    <textarea id="accessInstructions" name="accessInstructions" 
+                              placeholder="정문 비밀번호 입력 후 엘리베이터 3층, 301호로 들어오세요"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="parkingInfo">주차 정보</label>
+                        <input type="text" id="parkingInfo" name="parkingInfo" 
+                               placeholder="건물 지하 1층 (2시간 무료)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="publicTransport">대중교통 정보</label>
+                        <input type="text" id="publicTransport" name="publicTransport" 
+                               placeholder="강남역 5번 출구 도보 5분">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 시설 정보 -->
+            <div class="form-section">
+                <h2>🏗️ 시설 정보</h2>
+                
+                <div class="form-group">
+                    <label>보유 시설</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasToilet" name="amenities" value="toilet">
+                            <label for="hasToilet">화장실</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasSink" name="amenities" value="sink">
+                            <label for="hasSink">세면대</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasKitchen" name="amenities" value="kitchen">
+                            <label for="hasKitchen">주방/간이주방</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasAircon" name="amenities" value="aircon">
+                            <label for="hasAircon">에어컨</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasHeating" name="amenities" value="heating">
+                            <label for="hasHeating">난방</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasWifi" name="amenities" value="wifi">
+                            <label for="hasWifi">WiFi</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hasCCTV" name="amenities" value="cctv">
+                            <label for="hasCCTV">CCTV</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="openTime">운영 시작 시간</label>
+                        <input type="time" id="openTime" name="openTime" value="09:00">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="closeTime">운영 종료 시간</label>
+                        <input type="time" id="closeTime" name="closeTime" value="22:00">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 정리 서비스 설정 -->
+            <div class="form-section">
+                <h2>🧹 정리 서비스 설정</h2>
+                
+                <div class="form-group">
+                    <label for="prohibitedItems">처리 금지 물품</label>
+                    <textarea id="prohibitedItems" name="prohibitedItems" 
+                              placeholder="음식물쓰레기, 개인 소지품"></textarea>
+                    <div class="help-text">파트너가 처리하면 안 되는 물품들을 입력해주세요</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="specialRequests">특별 요청사항</label>
+                    <textarea id="specialRequests" name="specialRequests" 
+                              placeholder="회의 테이블 배치는 ㅁ자로 유지해주세요"></textarea>
+                </div>
+            </div>
+
+            <!-- 공간 사진 -->
+            <div class="form-section">
+                <h2>📸 공간 사진</h2>
+                
+                <div class="form-group">
+                    <label>공간 사진 업로드</label>
+                    <div class="photo-upload">
+                        <p>📷 공간 사진을 업로드해주세요</p>
+                        <p style="color: #6b7280; font-size: 14px; margin: 10px 0;">
+                            파트너가 공간을 쉽게 찾고 이해할 수 있도록 도와줍니다
+                        </p>
+                        <label for="spacePhotos">사진 선택</label>
+                        <input type="file" id="spacePhotos" name="spacePhotos" 
+                               accept="image/*" multiple>
+                    </div>
+                    <div class="photo-preview" id="photoPreview"></div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary" onclick="history.back()">취소</button>
+                <button type="submit" class="btn">
+                    <span class="btn-text">공간 등록하기</span>
+                    <span class="loading"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 사진 미리보기
+        document.getElementById('spacePhotos').addEventListener('change', function(e) {
+            const files = e.target.files;
+            const preview = document.getElementById('photoPreview');
+            preview.innerHTML = '';
+
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    preview.appendChild(img);
+                }
+            });
+        });
+
+        // 폼 제출 처리
+        document.getElementById('spaceRegistrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loading = submitBtn.querySelector('.loading');
+            const alertMessage = document.getElementById('alertMessage');
+
+            // 로그인 확인
+            const currentUser = FirebaseAuth.getCurrentUser();
+            if (!currentUser) {
+                showAlert('로그인이 필요합니다.', 'error');
+                return;
+            }
+
+            // 로딩 상태
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
+
+            try {
+                // 폼 데이터 수집
+                const formData = new FormData(e.target);
+                const spaceData = {
+                    ownerId: currentUser.uid,
+                    name: formData.get('spaceName'),
+                    type: formData.get('spaceType'),
+                    size: parseInt(formData.get('spaceSize')),
+                    capacity: parseInt(formData.get('capacity')) || null,
+                    
+                    address: {
+                        fullAddress: formData.get('fullAddress'),
+                        sido: formData.get('sido'),
+                        sigungu: formData.get('sigungu'),
+                        detail: formData.get('detailAddress') || ''
+                    },
+                    
+                    accessInfo: {
+                        entrancePassword: formData.get('entrancePassword') || '',
+                        specialInstructions: formData.get('accessInstructions') || '',
+                        parkingInfo: formData.get('parkingInfo') || '',
+                        publicTransport: formData.get('publicTransport') || ''
+                    },
+                    
+                    amenities: {
+                        hasToilet: formData.getAll('amenities').includes('toilet'),
+                        hasSink: formData.getAll('amenities').includes('sink'),
+                        hasKitchen: formData.getAll('amenities').includes('kitchen'),
+                        hasAircon: formData.getAll('amenities').includes('aircon'),
+                        hasHeating: formData.getAll('amenities').includes('heating'),
+                        hasWifi: formData.getAll('amenities').includes('wifi'),
+                        hasCCTV: formData.getAll('amenities').includes('cctv')
+                    },
+                    
+                    operatingHours: {
+                        openTime: formData.get('openTime') || '09:00',
+                        closeTime: formData.get('closeTime') || '22:00'
+                    },
+                    
+                    cleaningPreferences: {
+                        prohibitedItems: formData.get('prohibitedItems') || '',
+                        specialRequests: formData.get('specialRequests') || '',
+                        photoRequired: true
+                    },
+                    
+                    status: 'active',
+                    stats: {
+                        totalJobs: 0,
+                        thisMonthJobs: 0,
+                        averageRating: 0
+                    }
+                };
+
+                // 사진 업로드 처리 (향후 구현)
+                const photos = document.getElementById('spacePhotos').files;
+                if (photos.length > 0) {
+                    // TODO: Firebase Storage에 사진 업로드
+                    spaceData.photos = [];
+                }
+
+                // Firestore에 공간 정보 저장
+                const result = await FirebaseDB.createSpace(spaceData);
+                
+                if (result.success) {
+                    showAlert('공간이 성공적으로 등록되었습니다!', 'success');
+                    
+                    // 2초 후 사업자 대시보드로 이동
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    showAlert('공간 등록 중 오류가 발생했습니다: ' + result.error, 'error');
+                }
+
+            } catch (error) {
+                console.error('공간 등록 오류:', error);
+                showAlert('공간 등록 중 오류가 발생했습니다.', 'error');
+            } finally {
+                // 로딩 상태 해제
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        });
+
+        // 알림 표시 함수
+        function showAlert(message, type) {
+            const alertMessage = document.getElementById('alertMessage');
+            alertMessage.textContent = message;
+            alertMessage.className = `alert ${type}`;
+            alertMessage.style.display = 'block';
+            
+            // 5초 후 알림 숨기기
+            setTimeout(() => {
+                alertMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // 페이지 로드 시 로그인 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            auth.onAuthStateChanged(function(user) {
+                if (!user) {
+                    // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '../index.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

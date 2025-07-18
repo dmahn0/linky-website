@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky - 작업 상세 정보</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #f7fafc;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #6b7280;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #22c55e;
+        }
+
+        /* 메인 컨테이너 */
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .job-id {
+            font-size: 16px;
+            color: #6b7280;
+            font-family: monospace;
+        }
+
+        /* 상태 섹션 */
+        .status-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .status-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-description {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .status-timeline {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.3;
+        }
+
+        .timeline-step.completed {
+            opacity: 1;
+            color: #22c55e;
+        }
+
+        .timeline-step.current {
+            opacity: 1;
+            color: #3b82f6;
+        }
+
+        .timeline-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .timeline-step.completed .timeline-number {
+            background: #22c55e;
+            color: white;
+        }
+
+        .timeline-step.current .timeline-number {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .timeline-label {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* 정보 카드 */
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* 서비스 목록 */
+        .service-list {
+            list-style: none;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-name {
+            color: #374151;
+        }
+
+        .service-price {
+            font-weight: 600;
+            color: #22c55e;
+        }
+
+        /* 가격 요약 */
+        .price-summary {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .price-row.total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        /* 파트너 정보 */
+        .partner-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .partner-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .partner-details h4 {
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+
+        .partner-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* 사진 갤러리 */
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f3f4f6;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        /* 액션 버튼 */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        /* 상태별 스타일 */
+        .status-pending {
+            color: #f59e0b;
+        }
+
+        .status-matched {
+            color: #3b82f6;
+        }
+
+        .status-confirmed {
+            color: #8b5cf6;
+        }
+
+        .status-in_progress {
+            color: #f59e0b;
+        }
+
+        .status-completed {
+            color: #22c55e;
+        }
+
+        .status-cancelled {
+            color: #ef4444;
+        }
+
+        /* 로딩 */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            color: #6b7280;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #e5e7eb;
+            border-radius: 50%;
+            border-top-color: #22c55e;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-timeline {
+                gap: 10px;
+            }
+            
+            .timeline-label {
+                font-size: 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../" class="logo">🔗 Linky</a>
+            <div class="nav-links">
+                <a href="./index.html">대시보드</a>
+                <a href="./jobs.html">새 요청</a>
+                <button class="btn btn-secondary" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 컨테이너 -->
+    <div class="main-container">
+        <div id="loadingContainer" class="loading-container">
+            <span class="loading"></span>
+            작업 정보를 불러오는 중...
+        </div>
+
+        <div id="contentContainer" style="display: none;">
+            <!-- 페이지 헤더 -->
+            <div class="page-header">
+                <h1 class="page-title">작업 상세 정보</h1>
+                <div class="job-id" id="jobId">JOB-ID</div>
+            </div>
+
+            <!-- 상태 섹션 -->
+            <div class="status-section">
+                <div class="status-icon" id="statusIcon">⏳</div>
+                <h2 class="status-title" id="statusTitle">매칭 대기 중</h2>
+                <p class="status-description" id="statusDescription">파트너를 찾고 있습니다</p>
+                
+                <div class="status-timeline">
+                    <div class="timeline-step completed" id="timeline-requested">
+                        <div class="timeline-number">1</div>
+                        <div class="timeline-label">요청</div>
+                    </div>
+                    <div class="timeline-step" id="timeline-matched">
+                        <div class="timeline-number">2</div>
+                        <div class="timeline-label">매칭</div>
+                    </div>
+                    <div class="timeline-step" id="timeline-progress">
+                        <div class="timeline-number">3</div>
+                        <div class="timeline-label">진행</div>
+                    </div>
+                    <div class="timeline-step" id="timeline-completed">
+                        <div class="timeline-number">4</div>
+                        <div class="timeline-label">완료</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 일정 정보 -->
+            <div class="info-card">
+                <h3 class="card-title">📅 일정 정보</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">희망 날짜</span>
+                        <span class="info-value" id="requestedDate">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">희망 시간</span>
+                        <span class="info-value" id="requestedTime">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">긴급도</span>
+                        <span class="info-value" id="urgencyLevel">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">예상 소요시간</span>
+                        <span class="info-value" id="estimatedDuration">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 공간 정보 -->
+            <div class="info-card">
+                <h3 class="card-title">🏢 공간 정보</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">공간명</span>
+                        <span class="info-value" id="spaceName">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">크기</span>
+                        <span class="info-value" id="spaceSize">-</span>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label">주소</span>
+                        <span class="info-value" id="spaceAddress">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 서비스 정보 -->
+            <div class="info-card">
+                <h3 class="card-title">🛠️ 요청 서비스</h3>
+                <ul class="service-list" id="serviceList">
+                    <!-- 서비스 목록이 여기에 표시됩니다 -->
+                </ul>
+                
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>기본 서비스</span>
+                        <span id="basePrice">12,000원</span>
+                    </div>
+                    <div class="price-row">
+                        <span>추가 서비스</span>
+                        <span id="additionalPrice">0원</span>
+                    </div>
+                    <div class="price-row">
+                        <span>긴급 수수료</span>
+                        <span id="urgencyFee">0원</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>총 금액</span>
+                        <span id="totalPrice">12,000원</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 파트너 정보 (매칭된 경우만) -->
+            <div class="info-card" id="partnerCard" style="display: none;">
+                <h3 class="card-title">👤 담당 파트너</h3>
+                <div class="partner-info">
+                    <div class="partner-avatar" id="partnerAvatar">?</div>
+                    <div class="partner-details">
+                        <h4 id="partnerName">파트너명</h4>
+                        <div class="partner-rating">
+                            <span>⭐</span>
+                            <span id="partnerRating">0.0</span>
+                            <span>·</span>
+                            <span id="partnerJobs">0</span>건 완료
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 작업 사진 -->
+            <div class="info-card" id="photosCard" style="display: none;">
+                <h3 class="card-title">📸 작업 사진</h3>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px; color: #6b7280;">작업 전</h4>
+                    <div class="photo-gallery" id="beforePhotos">
+                        <div class="photo-item">
+                            <div class="photo-placeholder">사진 대기 중</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 10px; color: #6b7280;">작업 후</h4>
+                    <div class="photo-gallery" id="afterPhotos">
+                        <div class="photo-item">
+                            <div class="photo-placeholder">사진 대기 중</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 특별 요청사항 -->
+            <div class="info-card" id="customRequestsCard" style="display: none;">
+                <h3 class="card-title">💬 특별 요청사항</h3>
+                <div id="customRequests" style="color: #6b7280; line-height: 1.6;">
+                    요청사항이 없습니다.
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="action-buttons">
+                <button class="btn btn-outline" onclick="goBack()">목록으로</button>
+                <button class="btn btn-danger" id="cancelBtn" onclick="cancelJob()" style="display: none;">요청 취소</button>
+                <button class="btn btn-primary" id="contactBtn" onclick="contactPartner()" style="display: none;">파트너 연락</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase 설정 -->
+    <script src="../firebase-config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        let currentUser = null;
+        let jobData = null;
+        let spaceData = null;
+        let partnerData = null;
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('id');
+            
+            if (!jobId) {
+                alert('잘못된 접근입니다.');
+                window.location.href = './index.html';
+                return;
+            }
+
+            // Firebase 초기화 대기
+            setTimeout(() => {
+                if (typeof auth !== 'undefined') {
+                    auth.onAuthStateChanged((user) => {
+                        if (user) {
+                            checkUserAuth(user, jobId);
+                        } else {
+                            window.location.href = '../';
+                        }
+                    });
+                } else {
+                    console.error('Firebase 초기화 실패');
+                }
+            }, 1000);
+        });
+
+        // 사용자 인증 확인
+        async function checkUserAuth(user, jobId) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    if (userData.type === 'business' && userData.status === 'approved') {
+                        currentUser = { ...user, ...userData };
+                        await loadJobDetail(jobId);
+                        return;
+                    }
+                }
+                alert('권한이 없습니다.');
+                window.location.href = '../';
+            } catch (error) {
+                console.error('사용자 확인 오류:', error);
+                alert('사용자 정보 확인 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 작업 상세 정보 로드
+        async function loadJobDetail(jobId) {
+            try {
+                // 작업 정보 로드
+                const jobDoc = await db.collection('jobs').doc(jobId).get();
+                
+                if (!jobDoc.exists) {
+                    alert('존재하지 않는 작업입니다.');
+                    window.location.href = './index.html';
+                    return;
+                }
+
+                jobData = { id: jobDoc.id, ...jobDoc.data() };
+
+                // 권한 확인 (본인의 작업인지)
+                if (jobData.businessId !== currentUser.uid) {
+                    alert('접근 권한이 없습니다.');
+                    window.location.href = './index.html';
+                    return;
+                }
+
+                // 공간 정보 로드
+                if (jobData.spaceId) {
+                    const spaceDoc = await db.collection('spaces').doc(jobData.spaceId).get();
+                    if (spaceDoc.exists) {
+                        spaceData = spaceDoc.data();
+                    }
+                }
+
+                // 파트너 정보 로드 (매칭된 경우)
+                if (jobData.partnerId) {
+                    const partnerDoc = await db.collection('users').doc(jobData.partnerId).get();
+                    if (partnerDoc.exists) {
+                        partnerData = partnerDoc.data();
+                    }
+                }
+
+                // UI 업데이트
+                displayJobDetail();
+                
+                // 실시간 업데이트 리스너 설정
+                setupRealtimeListener(jobId);
+
+            } catch (error) {
+                console.error('작업 정보 로드 오류:', error);
+                alert('작업 정보를 불러오는데 실패했습니다.');
+            }
+        }
+
+        // 작업 상세 정보 표시
+        function displayJobDetail() {
+            // Job ID 표시
+            document.getElementById('jobId').textContent = jobData.jobId;
+
+            // 상태 업데이트
+            updateStatus();
+
+            // 일정 정보
+            if (jobData.schedule) {
+                document.getElementById('requestedDate').textContent = jobData.schedule.requestedDate || '-';
+                document.getElementById('requestedTime').textContent = jobData.schedule.requestedTime || '-';
+                document.getElementById('estimatedDuration').textContent = 
+                    `약 ${jobData.schedule.estimatedDuration || 30}분`;
+                
+                document.getElementById('urgencyLevel').textContent = 
+                    LinkyUtils.getUrgencyText(jobData.schedule.urgency);
+            }
+
+            // 공간 정보
+            if (spaceData) {
+                document.getElementById('spaceName').textContent = spaceData.name || '-';
+                document.getElementById('spaceSize').textContent = `${spaceData.size || 0}평`;
+                document.getElementById('spaceAddress').textContent = 
+                    spaceData.address?.fullAddress || '-';
+            }
+
+            // 서비스 정보
+            displayServices();
+
+            // 가격 정보
+            if (jobData.pricing) {
+                document.getElementById('basePrice').textContent = 
+                    LinkyUtils.formatPrice(jobData.pricing.basePrice);
+                document.getElementById('additionalPrice').textContent = 
+                    LinkyUtils.formatPrice(jobData.pricing.additionalServices);
+                document.getElementById('urgencyFee').textContent = 
+                    LinkyUtils.formatPrice(jobData.pricing.urgencyFee);
+                document.getElementById('totalPrice').textContent = 
+                    LinkyUtils.formatPrice(jobData.pricing.totalPrice);
+            }
+
+            // 파트너 정보 (매칭된 경우)
+            if (partnerData) {
+                displayPartnerInfo();
+            }
+
+            // 특별 요청사항
+            if (jobData.services?.customRequests) {
+                document.getElementById('customRequests').textContent = jobData.services.customRequests;
+                document.getElementById('customRequestsCard').style.display = 'block';
+            }
+
+            // 작업 사진 (진행 중이거나 완료된 경우)
+            if (jobData.status === 'in_progress' || jobData.status === 'completed') {
+                displayPhotos();
+            }
+
+            // 액션 버튼 업데이트
+            updateActionButtons();
+
+            // 로딩 완료
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('contentContainer').style.display = 'block';
+        }
+
+        // 상태 업데이트
+        function updateStatus() {
+            const statusConfig = {
+                pending: {
+                    icon: '⏳',
+                    title: '매칭 대기 중',
+                    description: '파트너를 찾고 있습니다'
+                },
+                matched: {
+                    icon: '🤝',
+                    title: '매칭 완료',
+                    description: '파트너가 배정되었습니다'
+                },
+                confirmed: {
+                    icon: '✅',
+                    title: '작업 확정',
+                    description: '파트너가 작업을 확정했습니다'
+                },
+                in_progress: {
+                    icon: '🔄',
+                    title: '작업 진행 중',
+                    description: '파트너가 작업을 진행하고 있습니다'
+                },
+                completed: {
+                    icon: '🎉',
+                    title: '작업 완료',
+                    description: '정리 작업이 완료되었습니다'
+                },
+                cancelled: {
+                    icon: '❌',
+                    title: '작업 취소',
+                    description: '작업이 취소되었습니다'
+                }
+            };
+
+            const config = statusConfig[jobData.status] || statusConfig.pending;
+            
+            document.getElementById('statusIcon').textContent = config.icon;
+            document.getElementById('statusTitle').textContent = config.title;
+            document.getElementById('statusDescription').textContent = config.description;
+
+            // 타임라인 업데이트
+            updateTimeline();
+        }
+
+        // 타임라인 업데이트
+        function updateTimeline() {
+            const steps = ['requested', 'matched', 'progress', 'completed'];
+            const statusMap = {
+                'pending': 0,
+                'matched': 1,
+                'confirmed': 1,
+                'in_progress': 2,
+                'completed': 3,
+                'cancelled': 0
+            };
+
+            const currentStep = statusMap[jobData.status] || 0;
+
+            steps.forEach((step, index) => {
+                const element = document.getElementById(`timeline-${step}`);
+                element.classList.remove('completed', 'current');
+                
+                if (index < currentStep) {
+                    element.classList.add('completed');
+                } else if (index === currentStep && jobData.status !== 'cancelled') {
+                    element.classList.add('current');
+                }
+            });
+        }
+
+        // 서비스 목록 표시
+        function displayServices() {
+            const serviceList = document.getElementById('serviceList');
+            const services = jobData.services || {};
+            
+            let html = '';
+            
+            if (services.basic?.selected) {
+                html += `
+                    <li class="service-item">
+                        <span class="service-name">기본 정리</span>
+                        <span class="service-price">${services.basic.price?.toLocaleString() || 0}원</span>
+                    </li>
+                `;
+            }
+            
+            if (services.floor?.selected) {
+                html += `
+                    <li class="service-item">
+                        <span class="service-name">바닥 청소</span>
+                        <span class="service-price">+${services.floor.price?.toLocaleString() || 0}원</span>
+                    </li>
+                `;
+            }
+            
+            if (services.dishes?.selected) {
+                html += `
+                    <li class="service-item">
+                        <span class="service-name">설거지</span>
+                        <span class="service-price">+${services.dishes.price?.toLocaleString() || 0}원</span>
+                    </li>
+                `;
+            }
+            
+            if (services.toilet?.selected) {
+                html += `
+                    <li class="service-item">
+                        <span class="service-name">화장실 청소</span>
+                        <span class="service-price">+${services.toilet.price?.toLocaleString() || 0}원</span>
+                    </li>
+                `;
+            }
+
+            serviceList.innerHTML = html;
+        }
+
+        // 파트너 정보 표시
+        function displayPartnerInfo() {
+            const partnerCard = document.getElementById('partnerCard');
+            
+            document.getElementById('partnerAvatar').textContent = 
+                partnerData.name?.charAt(0) || '?';
+            document.getElementById('partnerName').textContent = 
+                partnerData.name || '파트너';
+            document.getElementById('partnerRating').textContent = 
+                partnerData.partner?.performance?.rating?.toFixed(1) || '0.0';
+            document.getElementById('partnerJobs').textContent = 
+                partnerData.partner?.performance?.completedJobs || 0;
+            
+            partnerCard.style.display = 'block';
+        }
+
+        // 작업 사진 표시
+        function displayPhotos() {
+            const photosCard = document.getElementById('photosCard');
+            const beforePhotos = document.getElementById('beforePhotos');
+            const afterPhotos = document.getElementById('afterPhotos');
+            
+            // 작업 전 사진
+            if (jobData.evidence?.beforePhotos?.length > 0) {
+                beforePhotos.innerHTML = jobData.evidence.beforePhotos.map(photo => `
+                    <div class="photo-item">
+                        <img src="${photo.url}" alt="${photo.caption || '작업 전'}" 
+                             onclick="openImageModal('${photo.url}')">
+                    </div>
+                `).join('');
+            }
+            
+            // 작업 후 사진
+            if (jobData.evidence?.afterPhotos?.length > 0) {
+                afterPhotos.innerHTML = jobData.evidence.afterPhotos.map(photo => `
+                    <div class="photo-item">
+                        <img src="${photo.url}" alt="${photo.caption || '작업 후'}" 
+                             onclick="openImageModal('${photo.url}')">
+                    </div>
+                `).join('');
+            }
+            
+            photosCard.style.display = 'block';
+        }
+
+        // 액션 버튼 업데이트
+        function updateActionButtons() {
+            const cancelBtn = document.getElementById('cancelBtn');
+            const contactBtn = document.getElementById('contactBtn');
+            
+            // 취소 버튼 (pending 상태에서만 표시)
+            if (jobData.status === 'pending') {
+                cancelBtn.style.display = 'block';
+            } else {
+                cancelBtn.style.display = 'none';
+            }
+            
+            // 연락 버튼 (매칭된 이후 표시)
+            if (jobData.partnerId && jobData.status !== 'cancelled') {
+                contactBtn.style.display = 'block';
+            } else {
+                contactBtn.style.display = 'none';
+            }
+        }
+
+        // 실시간 업데이트 리스너 설정
+        function setupRealtimeListener(jobId) {
+            db.collection('jobs').doc(jobId).onSnapshot((doc) => {
+                if (doc.exists) {
+                    jobData = { id: doc.id, ...doc.data() };
+                    updateStatus();
+                    updateActionButtons();
+                    
+                    // 파트너가 새로 매칭된 경우
+                    if (jobData.partnerId && !partnerData) {
+                        loadPartnerData(jobData.partnerId);
+                    }
+                    
+                    // 사진이 업데이트된 경우
+                    if (jobData.status === 'in_progress' || jobData.status === 'completed') {
+                        displayPhotos();
+                    }
+                }
+            });
+        }
+
+        // 파트너 데이터 로드
+        async function loadPartnerData(partnerId) {
+            try {
+                const partnerDoc = await db.collection('users').doc(partnerId).get();
+                if (partnerDoc.exists) {
+                    partnerData = partnerDoc.data();
+                    displayPartnerInfo();
+                }
+            } catch (error) {
+                console.error('파트너 정보 로드 오류:', error);
+            }
+        }
+
+        // 작업 취소
+        async function cancelJob() {
+            if (!confirm('정말 작업을 취소하시겠습니까?')) return;
+            
+            try {
+                await db.collection('jobs').doc(jobData.id).update({
+                    status: 'cancelled',
+                    cancelReason: '고객 요청',
+                    cancelledAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                alert('작업이 취소되었습니다.');
+            } catch (error) {
+                console.error('작업 취소 오류:', error);
+                alert('작업 취소 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 파트너 연락
+        function contactPartner() {
+            if (!partnerData) {
+                alert('파트너 정보를 불러오는 중입니다.');
+                return;
+            }
+            
+            // 실제로는 메시징 시스템이나 전화 기능 구현
+            alert(`파트너 연락처: ${partnerData.phone || '정보 없음'}\n\n메시징 기능은 추후 업데이트 예정입니다.`);
+        }
+
+        // 이미지 모달 (추후 구현)
+        function openImageModal(imageUrl) {
+            window.open(imageUrl, '_blank');
+        }
+
+        // 목록으로 돌아가기
+        function goBack() {
+            window.location.href = './index.html';
+        }
+
+        // 로그아웃
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                window.location.href = '../';
+            } catch (error) {
+                console.error('로그아웃 오류:', error);
+            }
+        }
+    </script>
+</body>
+</html>

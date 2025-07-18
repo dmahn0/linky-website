@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- icon -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon-512x512.png" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#22c55e">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-RYYX6LYN2B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 페이지 기본 정보 -->
+    <title>Linky - 파티룸, 스튜디오, 스터디룸 정리</title>
+    <meta name="description" content="파티룸, 스튜디오, 스터디룸 정리. 이제 합리적인 가격으로 간편하게 이용하세요.">
+    
+    <!-- 카카오톡 미리보기 (Open Graph) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://linkykorea.com/">
+    <meta property="og:title" content="Linky - 파티룸, 스튜디오, 스터디룸 정리">
+    <meta property="og:description" content="파티룸, 스튜디오, 스터디룸 정리. 건당 12,000원부터 시작하는 합리적인 가격">
+    <meta property="og:image" content="https://linkykorea.com/og-main-v2.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Linky">
+    <meta property="og:locale" content="ko_KR">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+    
+    <!-- Firebase 설정 -->
+    <script src="firebase-config.js"></script>
+    
+    <!-- 인증 모달 -->
+    <script src="auth-modal.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #ffffff;
+        }
+
+        /* 컨테이너 */
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 헤더 */
+        .header {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: #2d3748;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #22c55e;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* 히어로 섹션 */
+        .hero-section {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-white {
+            background: white;
+            color: #22c55e;
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: #22c55e;
+        }
+
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        /* 특징 섹션 */
+        .features-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #1f2937;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: #dcfce7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        .feature-desc {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* 가격 섹션 */
+        .pricing-section {
+            padding: 80px 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pricing-card.featured {
+            border-color: #22c55e;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
+        }
+
+        .pricing-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .pricing-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #22c55e;
+            margin-bottom: 20px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .pricing-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        /* 프로세스 섹션 */
+        .process-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .process-step {
+            text-align: center;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: #22c55e;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .step-desc {
+            color: #6b7280;
+        }
+
+        /* CTA 섹션 */
+        .cta-section {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .cta-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* 푸터 */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 50px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h4 {
+            margin-bottom: 20px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column a {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: #22c55e;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 20px;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        /* 폼 스타일 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* 로딩 상태 */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero-title {
+                font-size: 32px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .features-grid, .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: none;
+            }
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* 뱃지 스타일 */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* 알림 배너 */
+        .notification-banner {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- 알림 배너 -->
+    <div class="notification-banner">
+        🎉 서비스 런칭 기념! 첫 이용 시 10% 할인 쿠폰 제공
+    </div>
+
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="section-container">
+            <div class="header-content">
+                <a href="#" class="logo">🔗 Linky</a>
+                <nav class="nav-menu">
+                    <a href="#features">서비스 소개</a>
+                    <a href="#pricing">요금안내</a>
+                    <a href="#process">이용방법</a>
+                    <a href="/business" onclick="trackButtonClick('nav_business');" class="business-menu" style="display: none;">내 공간</a>
+                    <a href="/partners.html" onclick="trackButtonClick('nav_partner');" class="partner-menu" style="display: none;">작업 목록</a>
+                    
+                    <!-- 로그인 전 메뉴 -->
+                    <div class="login-required">
+                        <a href="#" onclick="trackButtonClick('nav_business_info'); window.location.href='/business/index-modular.html';">공간 사업자</a>
+                        <a href="#" onclick="alert('추후 오픈 예정입니다.'); return false;" style="color: #9ca3af;">직영 공간 🚧</a>
+                        <a href="#" onclick="alert('추후 오픈 예정입니다.'); return false;" style="color: #9ca3af;">교육/컨설팅 🚧</a>
+                        <a href="#" onclick="alert('추후 오픈 예정입니다.'); return false;" style="color: #9ca3af;">시설 관리 🚧</a>
+                        <a href="#" onclick="trackButtonClick('nav_partner_info'); window.location.href='/partners.html';">파트너 지원</a>
+                        <a href="#" class="btn btn-outline" style="padding: 8px 16px; margin-right: 10px;" onclick="authModal.openLogin();">로그인</a>
+                        <a href="#" class="btn btn-primary" style="padding: 8px 16px;" onclick="authModal.openSignupSelect();">시작하기</a>
+                    </div>
+                    
+                    <!-- 로그인 후 메뉴 -->
+                    <div class="auth-required" style="display: none;">
+                        <span class="user-name" style="margin-right: 15px; color: #374151;">사용자님</span>
+                        <a href="#" class="btn btn-outline" style="padding: 8px 16px;" onclick="handleLogout();">로그아웃</a>
+                    </div>
+                </nav>
+                <button class="mobile-menu-btn">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero-section">
+        <div class="section-container">
+            <h1 class="hero-title animate-fade-in">
+                합리적 가격,확실한 정리
+            </h1>
+            <p class="hero-subtitle animate-fade-in">
+                스터디룸, 모임공간, 무인매장 정리를 쉽고 빠르게 맡기세요
+            </p>
+            <div class="hero-buttons animate-fade-in">
+                <a href="#" class="btn btn-white" onclick="trackButtonClick('hero_business'); authModal.openSignup('business');">공간 사업자로 시작하기</a>
+                <a href="#" class="btn btn-outline" onclick="trackButtonClick('hero_partner'); authModal.openSignup('partner');">정리 파트너로 지원하기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 교육/컨설팅 섹션 -->
+    <section class="features-section" style="background: #eff6ff;">
+        <div class="section-container">
+            <h2 class="section-title" style="color: #1e40af;">🎓 무인공간 운영 전문가 교육</h2>
+            <div style="max-width: 900px; margin: 0 auto; text-align: center; margin-bottom: 40px;">
+                <p style="font-size: 18px; color: #1e40af; margin-bottom: 30px;">
+                    5년간 직접 운영한 실전 노하우를 바탕으로 체계적인 교육과 1:1 컨설팅을 제공합니다
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #3b82f6; font-size: 18px; margin-bottom: 10px;">📚 기초 교육</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">월 2회 정기 강의</p>
+                        <p style="color: #1f2937; font-weight: bold;">99,000원</p>
+                    </div>
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #3b82f6; font-size: 18px; margin-bottom: 10px;">📈 고급 전략</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">수익 최적화 과정</p>
+                        <p style="color: #1f2937; font-weight: bold;">199,000원</p>
+                    </div>
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #3b82f6; font-size: 18px; margin-bottom: 10px;">🎯 1:1 컨설팅</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">맞춤형 현장 컨설팅</p>
+                        <p style="color: #1f2937; font-weight: bold;">500,000원</p>
+                    </div>
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #3b82f6; font-size: 18px; margin-bottom: 10px;">📊 성과</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">평균 매출 증가</p>
+                        <p style="color: #1f2937; font-weight: bold;">45%+</p>
+                    </div>
+                </div>
+                <div style="background: #fbbf24; color: #92400e; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 15px; display: inline-block;">
+                    🚧 추후 오픈 예정
+                </div>
+                <br>
+                <a href="/education/" class="btn" style="font-size: 18px; padding: 15px 30px; background: #e5e7eb; color: #6b7280; cursor: not-allowed;">
+                    교육 프로그램 (준비 중)
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 특징 섹션 -->
+    <section id="features" class="features-section">
+        <div class="section-container">
+            <h2 class="section-title">왜 Linky인가요?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⏰</div>
+                    <h3 class="feature-title"> 시간 절약</h3>
+                    <p class="feature-desc">
+                        간단한 정리와 청소에<br>
+                        이동시간 낭비는 이제 그만!
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3 class="feature-title">투명한 가격</h3>
+                    <p class="feature-desc">
+                        평수별 고정 요금제<br>
+                        건당 12,000원부터 합리적으로!
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <h3 class="feature-title">예약 건 증가  </h3>
+                    <p class="feature-desc">
+                        빠른 정리 매칭 덕분에 <br>
+                        다음 예약도 문제 없이!
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✅</div>
+                    <h3 class="feature-title">품질 보증</h3>
+                    <p class="feature-desc">
+                        작업 전후 사진 인증<br>
+                        서비스 수준 미달 시 환불 보장!
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📑</div>
+                    <h3 class="feature-title">간편하고 구체적인 계약</h3>
+                    <p class="feature-desc">
+                        몇 번의 클릭으로 만든 계약서로<br>
+                        업무 범위를 명확하게!
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌟</div>
+                    <h3 class="feature-title">검증된 파트너</h3>
+                    <p class="feature-desc">
+                        신원 확인 완료<br>
+                        평점 기반 우수 파트너 표기!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 소모품 & 부가서비스 섹션 -->
+    <section class="features-section" style="background: #f0fdf4;">
+        <div class="section-container">
+            <h2 class="section-title" style="color: #166534;">🛍️ 소모품 & 부가서비스</h2>
+            <div style="max-width: 1000px; margin: 0 auto; text-align: center; margin-bottom: 40px;">
+                <p style="font-size: 18px; color: #166534; margin-bottom: 30px;">
+                    정리 서비스와 함께 필요한 모든 소모품과 부가서비스를 원스톱으로 제공합니다
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #22c55e; font-size: 18px; margin-bottom: 10px;">🧻 소모품 배송</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">휴지, 물티슈, 쓰레기봉투</p>
+                        <p style="color: #1f2937; font-weight: bold;">월 정기배송</p>
+                    </div>
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #22c55e; font-size: 18px; margin-bottom: 10px;">🔧 긴급 수리</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">24시간 응급 출동</p>
+                        <p style="color: #1f2937; font-weight: bold;">건당 50,000원~</p>
+                    </div>
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #22c55e; font-size: 18px; margin-bottom: 10px;">📦 창고 관리</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">소모품 재고 관리</p>
+                        <p style="color: #1f2937; font-weight: bold;">월 30,000원</p>
+                    </div>
+                    <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <h4 style="color: #22c55e; font-size: 18px; margin-bottom: 10px;">📱 스마트 관리</h4>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">IoT 센서 + 앱</p>
+                        <p style="color: #1f2937; font-weight: bold;">월 80,000원</p>
+                    </div>
+                </div>
+                <div style="background: #fbbf24; color: #92400e; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 15px; display: inline-block;">
+                    🚧 추후 오픈 예정
+                </div>
+                <br>
+                <a href="/facility/" class="btn" style="font-size: 18px; padding: 15px 30px; background: #e5e7eb; color: #6b7280; cursor: not-allowed;">
+                    부가서비스 (준비 중)
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 가격 섹션 -->
+    <section id="pricing" class="pricing-section">
+        <div class="section-container">
+            <h2 class="section-title">합리적인 요금 체계</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3 class="pricing-title">기본 정리</h3>
+                    <div class="pricing-price">12,000원~</div>
+                    <ul class="pricing-features">
+                        <li>✓ 15평 이하 공간</li>
+                        <li>✓ 기본 정리정돈</li>
+                        <li>✓ 쓰레기 수거</li>
+                        <li>✓ 소모품 보충</li>
+                        <li>✓ 계약서 작성 지원</li>
+                        <li>✓ 서비스 수준 보장</li>
+                    </ul>
+                    <a href="business/" class="btn btn-primary" style="width: 100%;" onclick="trackButtonClick('pricing_basic');">사업자 시작하기</a>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="badge" style="margin-bottom: 10px;">인기</div>
+                    <h3 class="pricing-title">정기 정리</h3>
+                    <div class="pricing-price">10,800원~</div>
+                    <ul class="pricing-features">
+                        <li>✓ 기본 정리 모든 혜택</li>
+                        <li>✓ 10% 할인 적용</li>
+                        <li>✓ 우수 파트너 선배정</li>
+                        <li>✓ 우선 예약 가능</li>
+                    </ul>
+                    <a href="business/" class="btn btn-primary" style="width: 100%;" onclick="trackButtonClick('pricing_regular');">사업자 시작하기</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 프로세스 섹션 -->
+    <section id="process" class="process-section">
+        <div class="section-container">
+            <h2 class="section-title">간단한 이용 방법</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">요청하기</h3>
+                    <p class="step-desc">원하는 조건만 선택해<br>간편하게 요청하세요</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">매칭</h3>
+                    <p class="step-desc">가까운 파트너가<br>빠르게 매칭됩니다</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">정리 및 청소</h3>
+                    <p class="step-desc">사전 계획된 대로 <br>철저하게 진행</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">간편 결과 확인</h3>
+                    <p class="step-desc">전후 사진으로<br>간단히 확인하세요</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA 섹션 -->
+    <section class="cta-section">
+        <div class="section-container">
+            <h2 class="cta-title">지금 바로 시작하세요</h2>
+            <p class="cta-subtitle">
+                첫 이용 시 10% 할인 쿠폰을 드립니다
+            </p>
+            <div class="hero-buttons">
+                <a href="business/" class="btn btn-white" onclick="trackButtonClick('cta_business');">사업자 시작하기</a>
+                <a href="partners.html" class="btn btn-outline" onclick="trackButtonClick('cta_partner');">파트너 지원하기</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 개발자 도구 (개발 환경에서만 표시) -->
+    <div id="devTools" style="position: fixed; bottom: 20px; right: 20px; background: #22c55e; color: white; padding: 10px; border-radius: 8px; font-size: 12px; display: none;">
+        <a href="create-test-data.html" style="color: white; text-decoration: none;">🧪 테스트 데이터</a> |
+        <a href="test-validation.html" style="color: white; text-decoration: none;">🔍 시스템 검증</a> |
+        <a href="admin/" style="color: white; text-decoration: none;">👤 관리자</a>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="section-container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h4>Linky</h4>
+                    <p style="color: #9ca3af; margin-bottom: 20px;">
+                        무인공간 정리 서비스 플랫폼
+                    </p>
+                    <!-- <p style="color: #9ca3af;">
+                        고객센터: 1588-0000<br>
+                        평일 09:00 - 18:00
+                    </p> -->
+                </div>
+                <div class="footer-column">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="#">서비스 소개</a></li>
+                        <li><a href="#">요금 안내</a></li>
+                        <li><a href="#">이용 방법</a></li>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>파트너</h4>
+                    <ul>
+                        <li><a href="/partners.html">파트너 지원</a></li>
+                        <li><a href="#">파트너 혜택</a></li>
+                        <li><a href="#">교육 프로그램</a></li>
+                        <li><a href="#">수익 계산기</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>회사</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                        <li><a href="#">사업자정보</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Linkykorea. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase 인증 모달들은 auth-modal.js에서 동적으로 생성됩니다 -->
+
+    <!-- 유틸리티 스크립트 -->
+    <script src="js/utils.js"></script>
+    
+    <script>
+        // GA 이벤트 트래킹 함수
+        function trackButtonClick(buttonLabel) {
+            gtag('event', 'click', {
+                'event_category': 'engagement',
+                'event_label': buttonLabel
+            });
+        }
+
+        // 로그아웃 처리
+        async function handleLogout() {
+            const result = await FirebaseAuth.signOut();
+            if (result.success) {
+                // 로그아웃 성공 시 페이지 새로고침하거나 홈으로 이동
+                window.location.reload();
+            }
+        }
+
+        // 개발 환경에서 개발자 도구 표시
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            document.getElementById('devTools').style.display = 'block';
+        }
+
+        // 스크롤 애니메이션
+        function handleScroll() {
+            const elements = document.querySelectorAll('.feature-card, .pricing-card, .process-step');
+            
+            elements.forEach(element => {
+                const rect = element.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+                
+                if (isVisible && !element.classList.contains('animate-fade-in')) {
+                    element.classList.add('animate-fade-in');
+                }
+            });
+        }
+
+        // 스크롤 이벤트 리스너
+        window.addEventListener('scroll', handleScroll);
+        
+        // 초기 실행
+        handleScroll();
+
+        // 모바일 메뉴 토글
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            // GA 모바일 메뉴 이벤트
+            gtag('event', 'mobile_menu_toggle', {
+                'event_category': 'navigation',
+                'event_label': 'mobile_menu_click'
+            });
+            
+            const navMenu = document.querySelector('.nav-menu');
+            if (navMenu.style.display === 'flex') {
+                navMenu.style.display = 'none';
+            } else {
+                navMenu.style.display = 'flex';
+                navMenu.style.flexDirection = 'column';
+                navMenu.style.position = 'absolute';
+                navMenu.style.top = '100%';
+                navMenu.style.left = '0';
+                navMenu.style.right = '0';
+                navMenu.style.background = 'white';
+                navMenu.style.padding = '20px';
+                navMenu.style.boxShadow = '0 5px 20px rgba(0,0,0,0.1)';
+            }
+        });
+
+        // 부드러운 스크롤 (GA 트래킹 포함)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                // href가 #만 있는 경우 무시
+                if (href === '#' || href.length <= 1) {
+                    return;
+                }
+                
+                e.preventDefault();
+                
+                // GA 내부 링크 클릭 이벤트
+                const targetId = href.substring(1);
+                gtag('event', 'internal_link_click', {
+                    'event_category': 'navigation',
+                    'event_label': targetId
+                });
+                
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 페이지 로드 완료 이벤트
+        window.addEventListener('load', function() {
+            gtag('event', 'page_load_complete', {
+                'event_category': 'engagement',
+                'event_label': 'page_fully_loaded'
+            });
+        });
+
+        // 스크롤 depth 트래킹
+        let scrollDepthMarkers = [25, 50, 75, 100];
+        let scrollDepthTriggered = [];
+        
+        function trackScrollDepth() {
+            const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+            
+            scrollDepthMarkers.forEach(marker => {
+                if (scrollPercent >= marker && !scrollDepthTriggered.includes(marker)) {
+                    scrollDepthTriggered.push(marker);
+                    gtag('event', 'scroll_depth', {
+                        'event_category': 'engagement',
+                        'event_label': marker + '_percent',
+                        'value': marker
+                    });
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', trackScrollDepth);
+    </script>
+</body>
+</html>
