@@ -37,44 +37,8 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Supabase 직접 초기화 -->
-    <script>
-        // Supabase 클라이언트 직접 생성
-        const supabaseUrl = 'https://mzihuflrbspvyjknxlad.supabase.co';
-        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16aWh1ZmxyYnNwdnlqa254bGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4MTk3ODgsImV4cCI6MjA2ODM5NTc4OH0.UDwv6eknjWwmbZ9WsRioi3J23_1az9O1pJFlnKgQ88s';
-        
-        // SDK 로드 즉시 초기화
-        function waitForSupabase() {
-            if (window.supabase && window.supabase.createClient) {
-                window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
-                console.log('Supabase 초기화 완료');
-                
-                // Firebase 호환 객체도 생성
-                window.auth = {
-                    currentUser: null,
-                    onAuthStateChanged: function(callback) {
-                        if (!window.supabaseClient) return;
-                        
-                        window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
-                            this.currentUser = user;
-                            callback(user);
-                        });
-                        
-                        const { data: { subscription } } = window.supabaseClient.auth.onAuthStateChange((event, session) => {
-                            this.currentUser = session?.user || null;
-                            callback(session?.user || null);
-                        });
-                        
-                        return () => subscription?.unsubscribe();
-                    }
-                };
-            } else {
-                setTimeout(waitForSupabase, 100);
-            }
-        }
-        
-        waitForSupabase();
-    </script>
+    <!-- Supabase 설정 -->
+    <script src="supabase-config.js"></script>
     
     <!-- 인증 모달 -->
     <script src="auth-modal.js" defer></script>
@@ -898,58 +862,77 @@
             console.log('DOMContentLoaded - db 확인:', typeof db);
             console.log('DOMContentLoaded - supabaseClient 확인:', typeof supabaseClient);
             
-            // Supabase 인증 상태 변경 감지
-            if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
-                console.log('auth.onAuthStateChanged 호출');
-                auth.onAuthStateChanged(async (user) => {
-                    console.log('인증 상태 변경됨, user:', user);
-                    if (user) {
-                        try {
-                            // Supabase에서 사용자 정보 가져오기
-                            const userDoc = await db.collection('users').doc(user.id).get();
-                            
-                            if (userDoc.exists) {
-                                const userData = userDoc.data();
-                                console.log('현재 로그인된 사용자:', userData);
+            // 로그인 성공 이벤트 리스너
+            window.addEventListener('loginSuccess', async (event) => {
+                console.log('로그인 성공:', event.detail);
+                const userData = event.detail;
+                
+                // 사용자 타입에 따라 대시보드로 리다이렉트
+                setTimeout(() => {
+                    if (userData.type === 'business') {
+                        window.location.replace('./business/dashboard.html');
+                    } else if (userData.type === 'partner') {
+                        window.location.replace('./partners/dashboard.html');
+                    }
+                }, 1000);
+            });
+            
+            // 회원가입 성공 이벤트 리스너
+            window.addEventListener('signUpSuccess', async (event) => {
+                console.log('회원가입 성공:', event.detail);
+                const userData = event.detail;
+                
+                // 사용자 타입에 따라 대시보드로 리다이렉트
+                setTimeout(() => {
+                    if (userData.type === 'business') {
+                        window.location.replace('./business/dashboard.html');
+                    } else if (userData.type === 'partner') {
+                        window.location.replace('./partners/dashboard.html');
+                    }
+                }, 1000);
+            });
+            
+            // Supabase 인증 상태 변경 감지 - auth-utils.js의 checkAuthStatus 사용
+            if (typeof checkAuthStatus !== 'undefined') {
+                console.log('checkAuthStatus 호출');
+                checkAuthStatus().then(async ({ isAuthenticated, user: userData }) => {
+                    if (isAuthenticated && userData) {
+                        console.log('현재 로그인된 사용자:', userData);
                                 
-                                // 로그인 UI 숨기고 로그아웃 UI 표시
-                                document.querySelectorAll('.login-required').forEach(el => {
-                                    el.style.display = 'none';
-                                });
-                                document.querySelectorAll('.auth-required').forEach(el => {
-                                    el.style.display = el.classList.contains('hero-buttons') ? 'flex' : 'flex';
-                                });
-                                
-                                // 사용자 이름 표시
-                                const userName = userData.name || userData.email || '사용자';
-                                document.querySelectorAll('.user-name').forEach(el => {
-                                    el.textContent = userName + '님';
-                                });
-                                
-                                // 대시보드 버튼 URL 설정
-                                const dashboardBtn = document.querySelector('.dashboard-btn');
-                                const dashboardBtnHero = document.querySelector('.dashboard-btn-hero');
-                                
-                                if (userData.type === 'business') {
-                                    if (dashboardBtn) {
-                                        dashboardBtn.href = './business/dashboard.html';
-                                        dashboardBtn.style.display = 'inline-block';
-                                    }
-                                    if (dashboardBtnHero) {
-                                        dashboardBtnHero.href = './business/dashboard.html';
-                                    }
-                                } else if (userData.type === 'partner') {
-                                    if (dashboardBtn) {
-                                        dashboardBtn.href = './partners/dashboard.html';
-                                        dashboardBtn.style.display = 'inline-block';
-                                    }
-                                    if (dashboardBtnHero) {
-                                        dashboardBtnHero.href = './partners/dashboard.html';
-                                    }
-                                }
+                        // 로그인 UI 숨기고 로그아웃 UI 표시
+                        document.querySelectorAll('.login-required').forEach(el => {
+                            el.style.display = 'none';
+                        });
+                        document.querySelectorAll('.auth-required').forEach(el => {
+                            el.style.display = el.classList.contains('hero-buttons') ? 'flex' : 'flex';
+                        });
+                        
+                        // 사용자 이름 표시
+                        const userName = userData.name || userData.email || '사용자';
+                        document.querySelectorAll('.user-name').forEach(el => {
+                            el.textContent = userName + '님';
+                        });
+                        
+                        // 대시보드 버튼 URL 설정
+                        const dashboardBtn = document.querySelector('.dashboard-btn');
+                        const dashboardBtnHero = document.querySelector('.dashboard-btn-hero');
+                        
+                        if (userData.type === 'business') {
+                            if (dashboardBtn) {
+                                dashboardBtn.href = './business/dashboard.html';
+                                dashboardBtn.style.display = 'inline-block';
                             }
-                        } catch (error) {
-                            console.error('사용자 정보 조회 오류:', error);
+                            if (dashboardBtnHero) {
+                                dashboardBtnHero.href = './business/dashboard.html';
+                            }
+                        } else if (userData.type === 'partner') {
+                            if (dashboardBtn) {
+                                dashboardBtn.href = './partners/dashboard.html';
+                                dashboardBtn.style.display = 'inline-block';
+                            }
+                            if (dashboardBtnHero) {
+                                dashboardBtnHero.href = './partners/dashboard.html';
+                            }
                         }
                     } else {
                         // 로그인하지 않은 경우
@@ -963,9 +946,9 @@
                     }
                 });
             } else {
-                // Supabase가 아직 로드되지 않은 경우, 잠시 후 다시 시도
+                // auth-utils.js가 아직 로드되지 않은 경우, 잠시 후 다시 시도
                 setTimeout(() => {
-                    if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {
+                    if (typeof checkAuthStatus !== 'undefined') {
                         window.location.reload();
                     }
                 }, 1000);

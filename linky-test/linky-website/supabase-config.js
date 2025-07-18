@@ -13,10 +13,20 @@ function initializeSupabase() {
     if (typeof window !== 'undefined' && window.supabase) {
         const { createClient } = window.supabase;
         supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+        window.supabaseClient = supabaseClient; // 전역 변수로 즉시 설정
         console.log('Supabase 클라이언트 초기화 완료');
+        
+        // auth 객체의 supabaseClient 참조 업데이트
+        updateAuthFunctions();
     } else {
         console.error('Supabase SDK가 아직 로드되지 않았습니다.');
     }
+}
+
+// auth 함수들이 supabaseClient를 사용하도록 업데이트
+function updateAuthFunctions() {
+    // auth 객체가 초기화된 supabaseClient를 사용하도록 보장
+    console.log('Auth 함수 업데이트 완료');
 }
 
 // 즉시 시도
@@ -34,26 +44,34 @@ const auth = {
     
     // 인증 상태 변경 리스너
     onAuthStateChanged: function(callback) {
-        if (!supabaseClient) return;
+        const checkClient = () => {
+            if (!window.supabaseClient) {
+                console.log('Waiting for supabaseClient...');
+                setTimeout(() => checkClient(), 100);
+                return;
+            }
+            
+            // 초기 상태 확인
+            window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
+                this.currentUser = user;
+                callback(user);
+            });
+            
+            // 상태 변경 구독
+            const { data: { subscription } } = window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                this.currentUser = session?.user || null;
+                callback(session?.user || null);
+            });
+            
+            return () => subscription?.unsubscribe();
+        };
         
-        // 초기 상태 확인
-        supabaseClient.auth.getUser().then(({ data: { user } }) => {
-            this.currentUser = user;
-            callback(user);
-        });
-        
-        // 상태 변경 구독
-        const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((event, session) => {
-            this.currentUser = session?.user || null;
-            callback(session?.user || null);
-        });
-        
-        return () => subscription?.unsubscribe();
+        return checkClient();
     },
     
     // 회원가입
     createUserWithEmailAndPassword: async function(email, password) {
-        const { data, error } = await supabaseClient.auth.signUp({
+        const { data, error } = await window.supabaseClient.auth.signUp({
             email,
             password
         });
@@ -64,7 +82,7 @@ const auth = {
     
     // 로그인
     signInWithEmailAndPassword: async function(email, password) {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({
             email,
             password
         });
@@ -75,7 +93,7 @@ const auth = {
     
     // 로그아웃
     signOut: async function() {
-        const { error } = await supabaseClient.auth.signOut();
+        const { error } = await window.supabaseClient.auth.signOut();
         if (error) throw error;
         this.currentUser = null;
     }
@@ -92,7 +110,7 @@ const db = {
                     data.uid = auth.currentUser.id;
                 }
                 
-                const { data: result, error } = await supabaseClient
+                const { data: result, error } = await window.supabaseClient
                     .from(collectionName)
                     .insert([data])
                     .select()
@@ -107,7 +125,7 @@ const db = {
                 return {
                     // 문서 가져오기
                     get: async function() {
-                        const { data, error } = await supabaseClient
+                        const { data, error } = await window.supabaseClient
                             .from(collectionName)
                             .select('*')
                             .eq('id', docId)
@@ -123,7 +141,7 @@ const db = {
                     
                     // 문서 설정
                     set: async function(data, options = {}) {
-                        const { error } = await supabaseClient
+                        const { error } = await window.supabaseClient
                             .from(collectionName)
                             .upsert([{ ...data, id: docId }], {
                                 onConflict: 'id'
@@ -134,7 +152,7 @@ const db = {
                     
                     // 문서 업데이트
                     update: async function(data) {
-                        const { error } = await supabaseClient
+                        const { error } = await window.supabaseClient
                             .from(collectionName)
                             .update(data)
                             .eq('id', docId);
@@ -144,7 +162,7 @@ const db = {
                     
                     // 문서 삭제
                     delete: async function() {
-                        const { error } = await supabaseClient
+                        const { error } = await window.supabaseClient
                             .from(collectionName)
                             .delete()
                             .eq('id', docId);
@@ -156,7 +174,7 @@ const db = {
             
             // 쿼리
             where: function(field, operator, value) {
-                let query = supabaseClient.from(collectionName).select('*');
+                let query = window.supabaseClient.from(collectionName).select('*');
                 
                 switch(operator) {
                     case '==':
@@ -224,7 +242,7 @@ const storage = {
                 const fileName = `${Date.now()}_${file.name}`;
                 const filePath = `${path}/${fileName}`;
                 
-                const { data, error } = await supabaseClient.storage
+                const { data, error } = await window.supabaseClient.storage
                     .from('uploads')
                     .upload(filePath, file);
                     
@@ -233,7 +251,7 @@ const storage = {
                 return {
                     ref: {
                         getDownloadURL: async function() {
-                            const { data } = supabaseClient.storage
+                            const { data } = window.supabaseClient.storage
                                 .from('uploads')
                                 .getPublicUrl(filePath);
                             return data.publicUrl;
@@ -263,5 +281,5 @@ if (typeof window !== 'undefined') {
     window.db = db;
     window.storage = storage;
     window.firebase = firebase;
-    window.supabaseClient = supabaseClient;
+    // supabaseClient는 initializeSupabase에서 설정됨
 }

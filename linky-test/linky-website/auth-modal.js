@@ -660,11 +660,11 @@ class AuthModal {
           // 메인 페이지로 이동
           const currentPath = window.location.pathname;
           if (currentPath.includes('./business/')) {
-            window.location.href = '../index.html';
+            window.location.replace('../index.html');
           } else if (currentPath.includes('./partners/')) {
-            window.location.href = '../index.html';
+            window.location.replace('../index.html');
           } else {
-            window.location.href = 'index.html';
+            window.location.replace('index.html');
           }
         }
         
@@ -744,8 +744,8 @@ class AuthModal {
         
         // 현재 경로 확인
         const currentPath = window.location.pathname;
-        const isInBusinessDir = currentPath.includes('./business/');
-        const isInPartnersDir = currentPath.includes('./partners/');
+        const isInBusinessDir = currentPath.includes('/business/');
+        const isInPartnersDir = currentPath.includes('/partners/');
         
         console.log('현재 경로:', currentPath);
         console.log('Business 디렉토리:', isInBusinessDir);
@@ -756,28 +756,31 @@ class AuthModal {
           console.log('비즈니스 계정 로그인 성공, 대시보드로 이동');
           
           // 현재 경로에 따라 상대 경로 결정
-          const currentPath = window.location.pathname;
-          if (currentPath.includes('./business/')) {
-            window.location.href = 'dashboard.html';
+          if (isInBusinessDir) {
+            window.location.replace('dashboard.html');
           } else {
-            window.location.href = 'business/dashboard.html';
+            window.location.replace('./business/dashboard.html');
           }
           return; // 추가 코드 실행 방지
         } else if (user.type === 'partner') {
           // 파트너는 파트너 페이지로
           if (isInPartnersDir) {
-            window.location.reload();
+            // 파트너 디렉토리에 있으면 대시보드로 바로 이동
+            console.log('파트너 대시보드로 이동');
+            window.location.replace('./dashboard.html');
           } else if (isInBusinessDir) {
-            window.location.href = './partners/';
+            window.location.replace('../partners/');
           } else {
-            window.location.href = './partners/';
+            window.location.replace('./partners/');
           }
         } else {
           // 기타 경우 페이지 새로고침
+          console.log('페이지 새로고침');
           window.location.reload();
         }
       } else {
-        alert('로그인에 실패했습니다: ' + result.error);
+        console.error('로그인 실패 상세:', result);
+        alert('로그인에 실패했습니다: ' + (result.error || '알 수 없는 오류'));
       }
       
     } catch (error) {
@@ -887,10 +890,20 @@ class AuthModal {
   // Supabase 로그인
   async supabaseSignIn(email, password) {
     try {
+      console.log('로그인 시도:', email);
+      
+      // supabaseClient 확인
+      if (typeof supabaseClient === 'undefined') {
+        console.error('supabaseClient가 정의되지 않았습니다.');
+        return { success: false, error: 'Supabase client not initialized' };
+      }
+      
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email,
         password
       });
+
+      console.log('Supabase 로그인 응답:', { data, error });
 
       if (error) throw error;
 
@@ -900,6 +913,8 @@ class AuthModal {
         .select('*')
         .eq('uid', data.user.id)
         .single();
+
+      console.log('사용자 정보 조회 결과:', { userData, userError });
 
       if (userError) {
         console.error('사용자 정보 조회 오류:', userError);
@@ -911,7 +926,7 @@ class AuthModal {
         userData: userData
       };
     } catch (error) {
-      console.error('로그인 오류:', error);
+      console.error('로그인 오류 상세:', error);
       return { success: false, error: error.message };
     }
   }

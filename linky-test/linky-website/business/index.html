@@ -881,7 +881,7 @@
                     맞춤형 서비스 옵션을 선택하고<br>
                     예상 비용을 미리 확인해보세요
                 </p>
-                <a href="contract.html" class="btn btn-primary" onclick="trackEvent('solution_contract_click')">
+                <a href="/contract.html" class="btn btn-primary" onclick="trackEvent('solution_contract_click')">
                     계약서 작성하기 →
                 </a>
             </div>
@@ -1304,7 +1304,7 @@
                                     
                                     // 대시보드로 리다이렉트
                                     setTimeout(() => {
-                                        window.location.href = redirectUrl;
+                                        window.location.replace(redirectUrl);
                                     }, 1000);
                                 } else {
                                     // 현재 페이지에 머물면서 로그인 상태 UI 표시
@@ -1325,7 +1325,7 @@
                                 }
                             } else if (userData.type === 'partner') {
                                 // 파트너는 파트너 페이지로
-                                window.location.href = '../partners/index.html';
+                                window.location.replace('../partners/dashboard.html');
                             } else if (userData.status === 'pending') {
                                 // 승인 대기 중인 경우
                                 console.log('승인 대기 중인 사용자');
