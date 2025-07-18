@@ -739,7 +739,7 @@
                     
                     <!-- 로그인 후 메뉴 -->
                     <div class="auth-required" style="display: none;">
-                        <a href="dashboard.html" class="btn btn-primary" style="padding: 10px 20px; margin-right: 10px;">
+                        <a href="./dashboard.html" class="btn btn-primary" style="padding: 10px 20px; margin-right: 10px;">
                             대시보드로 이동
                         </a>
                         <div class="user-menu" style="display: flex; align-items: center; gap: 10px; margin-left: 15px;">
@@ -1271,7 +1271,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // URL 파라미터 확인 (리다이렉트 URL)
             const urlParams = new URLSearchParams(window.location.search);
-            const redirectUrl = urlParams.get('redirect') || 'dashboard.html';
+            const redirectUrl = urlParams.get('redirect') || './dashboard.html';
             
             // Supabase 인증 상태 변경 감지
             if (typeof auth !== 'undefined' && auth.onAuthStateChanged) {

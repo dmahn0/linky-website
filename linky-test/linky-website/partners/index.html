@@ -612,7 +612,7 @@
                 <div class="calculator-result">
                     <div class="result-label">예상 월 수익</div>
                     <div class="result-amount" id="monthlyIncome">₩1,600,000</div>
-                    <div class="result-sub">건당 평균 ₩18,000 기준</div>
+                    <div class="result-sub">건당 평균 ₩20,000 기준</div>
                 </div>
             </div>
         </div>
@@ -641,7 +641,7 @@
                 <div class="benefit-icon">💰</div>
                 <h3 class="benefit-title">안정적인 수익</h3>
                 <p class="benefit-description">
-                    건당 평균 18,000원의 수익으로<br>
+                    건당 평균 20,000원의 수익으로<br>
                     매달 안정적인 부수입을 만들 수 있습니다
                 </p>
             </div>
@@ -937,9 +937,14 @@
         const monthlyIncome = document.getElementById('monthlyIncome');
         
         function updateCalculator() {
+            if (!daysSlider || !jobsSlider || !daysValue || !jobsValue || !monthlyIncome) {
+                console.error('수익 계산기 요소를 찾을 수 없습니다');
+                return;
+            }
+            
             const days = parseInt(daysSlider.value);
             const jobs = parseInt(jobsSlider.value);
-            const pricePerJob = 18000;
+            const pricePerJob = 20000; // 건당 20,000원으로 변경
             const weeksPerMonth = 4;
             
             const monthly = days * jobs * pricePerJob * weeksPerMonth;
@@ -949,8 +954,13 @@
             monthlyIncome.textContent = `₩${monthly.toLocaleString()}`;
         }
         
-        daysSlider.addEventListener('input', updateCalculator);
-        jobsSlider.addEventListener('input', updateCalculator);
+        // 슬라이더 이벤트 리스너 추가
+        if (daysSlider && jobsSlider) {
+            daysSlider.addEventListener('input', updateCalculator);
+            jobsSlider.addEventListener('input', updateCalculator);
+            // 초기값 계산
+            updateCalculator();
+        }
         
         // FAQ 토글
         function toggleFaq(element) {
