@@ -592,19 +592,20 @@
                 <h2 class="calculator-title">예상 수익 계산기</h2>
                 
                 <div class="calculator-form">
+                   
+                    <div class="form-group">
+                        <label class="form-label">일일 작업 건수</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="jobsSlider" min="1" max="20" value="4">
+                            <span class="slider-value" id="jobsValue">4건</span>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label class="form-label">주당 작업 일수</label>
                         <div class="slider-container">
                             <input type="range" class="slider" id="daysSlider" min="1" max="7" value="5">
                             <span class="slider-value" id="daysValue">5일</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">일일 작업 건수</label>
-                        <div class="slider-container">
-                            <input type="range" class="slider" id="jobsSlider" min="1" max="10" value="4">
-                            <span class="slider-value" id="jobsValue">4건</span>
                         </div>
                     </div>
                 </div>
