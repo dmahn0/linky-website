@@ -37,8 +37,28 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Supabase 설정 -->
-    <script src="supabase-config.js"></script>
+    <!-- Supabase SDK 로드 확인 및 설정 -->
+    <script>
+        // SDK 로드 확인
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabase && window.supabase.createClient) {
+                    resolve();
+                } else {
+                    setTimeout(() => waitForSupabase().then(resolve), 50);
+                }
+            });
+        }
+        
+        // SDK 로드 후 config 로드
+        waitForSupabase().then(() => {
+            console.log('Supabase SDK 로드 완료 - config 로드 시작');
+            const script = document.createElement('script');
+            script.src = 'supabase-config.js';
+            script.onload = () => console.log('supabase-config.js 로드 완료');
+            document.head.appendChild(script);
+        });
+    </script>
     
     <!-- 인증 모달 -->
     <script src="auth-modal.js" defer></script>

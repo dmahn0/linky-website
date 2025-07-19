@@ -8,18 +8,40 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 // 전역 변수로 Supabase 클라이언트 생성
 let supabaseClient;
 
-// Supabase SDK가 로드될 때까지 대기
-function initializeSupabase() {
-    if (typeof window !== 'undefined' && window.supabase) {
+// Supabase SDK가 로드될 때까지 대기하는 Promise
+function waitForSupabaseSDK() {
+    return new Promise((resolve) => {
+        function checkSDK() {
+            if (typeof window !== 'undefined' && window.supabase && window.supabase.createClient) {
+                resolve();
+            } else {
+                setTimeout(checkSDK, 50);
+            }
+        }
+        checkSDK();
+    });
+}
+
+// Supabase 초기화
+async function initializeSupabase() {
+    try {
+        // SDK 로드 대기
+        await waitForSupabaseSDK();
+        
         const { createClient } = window.supabase;
         supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-        window.supabaseClient = supabaseClient; // 전역 변수로 즉시 설정
+        window.supabaseClient = supabaseClient; // 전역 변수로 설정
+        
         console.log('Supabase 클라이언트 초기화 완료');
+        console.log('window.supabaseClient:', window.supabaseClient);
+        
+        // 초기화 완료 이벤트 발생
+        window.dispatchEvent(new Event('supabaseReady'));
         
         // auth 객체의 supabaseClient 참조 업데이트
         updateAuthFunctions();
-    } else {
-        console.error('Supabase SDK가 아직 로드되지 않았습니다.');
+    } catch (error) {
+        console.error('Supabase 초기화 오류:', error);
     }
 }
 
@@ -29,13 +51,8 @@ function updateAuthFunctions() {
     console.log('Auth 함수 업데이트 완료');
 }
 
-// 즉시 시도
+// 즉시 초기화 시작
 initializeSupabase();
-
-// SDK가 로드되지 않았다면 잠시 후 재시도
-if (!supabaseClient) {
-    window.addEventListener('load', initializeSupabase);
-}
 
 // Firebase 호환 API
 const auth = {

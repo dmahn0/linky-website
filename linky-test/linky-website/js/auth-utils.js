@@ -4,7 +4,7 @@
 async function handleUserLoggedIn(user) {
     try {
         // Supabase에서 사용자 정보 가져오기
-        const { data: userData, error } = await supabaseClient
+        const { data: userData, error } = await window.supabaseClient
             .from('users')
             .select('*')
             .eq('uid', user.id)
@@ -26,7 +26,7 @@ async function handleUserLoggedIn(user) {
             }
             
             // 승인되지 않은 사용자는 로그아웃
-            await supabaseClient.auth.signOut();
+            await window.supabaseClient.auth.signOut();
             return null;
         }
         
@@ -169,7 +169,7 @@ function showRejectedMessage() {
 async function checkAuthStatus() {
     try {
         // Supabase 현재 세션 확인
-        const { data: { session } } = await supabaseClient.auth.getSession();
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
         
         if (session && session.user) {
             console.log('Auth state: authenticated', session.user.id);
@@ -190,7 +190,13 @@ async function checkAuthStatus() {
 
 // Supabase 인증 상태 변화 리스너 설정
 function setupAuthListener() {
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (!window.supabaseClient) {
+        console.warn('setupAuthListener: supabaseClient not ready, retrying...');
+        setTimeout(setupAuthListener, 100);
+        return;
+    }
+    
+    window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
         
         if (event === 'SIGNED_IN' && session) {
@@ -224,7 +230,7 @@ async function requireAuth(allowedTypes = ['business', 'partner', 'admin']) {
 async function handleLogout() {
     if (confirm('로그아웃 하시겠습니까?')) {
         try {
-            await supabaseClient.auth.signOut();
+            await window.supabaseClient.auth.signOut();
             if (typeof trackEvent !== 'undefined') {
                 trackEvent('User', 'logout');
             }
@@ -237,6 +243,15 @@ async function handleLogout() {
 }
 
 // 페이지 로드 시 인증 리스너 설정
-if (typeof supabaseClient !== 'undefined') {
-    setupAuthListener();
+if (typeof window !== 'undefined') {
+    // supabaseReady 이벤트 리스너
+    window.addEventListener('supabaseReady', () => {
+        console.log('auth-utils: supabaseReady 이벤트 받음');
+        setupAuthListener();
+    });
+    
+    // 이미 로드된 경우 즉시 실행
+    if (window.supabaseClient) {
+        setupAuthListener();
+    }
 }

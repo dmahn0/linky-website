@@ -814,14 +814,16 @@ class AuthModal {
   async supabaseSignUp(userData) {
     try {
       // supabaseClient가 정의되어 있는지 확인
-      if (typeof supabaseClient === 'undefined') {
+      if (!window.supabaseClient) {
         console.error('supabaseClient가 정의되지 않았습니다.');
         alert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.');
         return { success: false, error: 'Supabase client not initialized' };
       }
       
+      const supabaseClient = window.supabaseClient;
+      
       // 1. Supabase Auth에 사용자 생성
-      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+      const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
@@ -868,14 +870,14 @@ class AuthModal {
           };
         }
 
-        const { error: dbError } = await supabaseClient
+        const { error: dbError } = await window.supabaseClient
           .from('users')
           .insert([userRecord]);
 
         if (dbError) {
           console.error('DB 저장 오류:', dbError);
-          // Auth 사용자 삭제 (롤백)
-          await supabaseClient.auth.admin.deleteUser(authData.user.id);
+          // Auth 사용자 삭제 (롤백) - admin API는 클라이언트에서 사용 불가
+          // await window.supabaseClient.auth.admin.deleteUser(authData.user.id);
           throw dbError;
         }
       }
@@ -893,12 +895,14 @@ class AuthModal {
       console.log('로그인 시도:', email);
       
       // supabaseClient 확인
-      if (typeof supabaseClient === 'undefined') {
+      if (!window.supabaseClient) {
         console.error('supabaseClient가 정의되지 않았습니다.');
         return { success: false, error: 'Supabase client not initialized' };
       }
       
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
+      const supabaseClient = window.supabaseClient;
+      
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({
         email,
         password
       });
@@ -908,7 +912,7 @@ class AuthModal {
       if (error) throw error;
 
       // 사용자 정보 조회
-      const { data: userData, error: userError } = await supabaseClient
+      const { data: userData, error: userError } = await window.supabaseClient
         .from('users')
         .select('*')
         .eq('uid', data.user.id)
@@ -937,5 +941,26 @@ let authModal;
 
 // DOM 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
-  authModal = new AuthModal();
+  // Supabase 초기화 대기
+  function waitForSupabaseClient() {
+    if (window.supabaseClient) {
+      console.log('AuthModal: Supabase 클라이언트 준비 완료');
+      authModal = new AuthModal();
+      window.authModal = authModal; // 전역으로 노출
+    } else {
+      console.log('AuthModal: Supabase 클라이언트 대기 중...');
+      setTimeout(waitForSupabaseClient, 100);
+    }
+  }
+  
+  // supabaseReady 이벤트 리스너
+  window.addEventListener('supabaseReady', () => {
+    console.log('AuthModal: supabaseReady 이벤트 받음');
+    if (!authModal) {
+      authModal = new AuthModal();
+      window.authModal = authModal;
+    }
+  });
+  
+  waitForSupabaseClient();
 });
