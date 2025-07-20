@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용자 흐름 테스트</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #22c55e;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #16a34a;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f3f4f6;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .info {
+            color: #3b82f6;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 220px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Linky 사용자 흐름 테스트</h1>
+
+    <!-- 초기화 상태 -->
+    <div class="test-section">
+        <h2>1. Supabase 초기화 상태</h2>
+        <div id="initStatus" class="log">초기화 확인 중...</div>
+    </div>
+
+    <!-- 테스트 계정 생성 -->
+    <div class="test-section">
+        <h2>2. 테스트 계정 생성</h2>
+        <div>
+            <input type="email" id="testEmail" placeholder="이메일" value="test@example.com">
+            <input type="password" id="testPassword" placeholder="비밀번호" value="test123456">
+            <select id="userType">
+                <option value="business">사업자</option>
+                <option value="partner">파트너</option>
+            </select>
+        </div>
+        <button onclick="createTestAccount()">테스트 계정 생성</button>
+        <button onclick="deleteTestAccount()">테스트 계정 삭제</button>
+        <div id="accountLog" class="log"></div>
+    </div>
+
+    <!-- 회원가입 테스트 -->
+    <div class="test-section">
+        <h2>3. 회원가입 흐름 테스트</h2>
+        <button onclick="testSignupFlow('business')">사업자 회원가입 테스트</button>
+        <button onclick="testSignupFlow('partner')">파트너 회원가입 테스트</button>
+        <div id="signupLog" class="log"></div>
+    </div>
+
+    <!-- 로그인 테스트 -->
+    <div class="test-section">
+        <h2>4. 로그인 흐름 테스트</h2>
+        <button onclick="testLoginFlow()">로그인 테스트</button>
+        <button onclick="testLogout()">로그아웃 테스트</button>
+        <div id="loginLog" class="log"></div>
+    </div>
+
+    <!-- 리다이렉트 테스트 -->
+    <div class="test-section">
+        <h2>5. 페이지 리다이렉트 테스트</h2>
+        <button onclick="testRedirect('/')">메인 페이지</button>
+        <button onclick="testRedirect('/business/')">비즈니스 페이지</button>
+        <button onclick="testRedirect('/partners/')">파트너 페이지</button>
+        <div id="redirectLog" class="log"></div>
+    </div>
+
+    <!-- 데이터 CRUD 테스트 -->
+    <div class="test-section">
+        <h2>6. 데이터 저장/조회 테스트</h2>
+        <button onclick="testDataOperations()">CRUD 테스트 실행</button>
+        <div id="dataLog" class="log"></div>
+    </div>
+
+    <script>
+        // Supabase 초기화
+        const supabaseUrl = 'https://mzihuflrbspvyjknxlad.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16aWh1ZmxyYnNwdnlqa254bGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4MTk3ODgsImV4cCI6MjA2ODM5NTc4OH0.UDwv6eknjWwmbZ9WsRioi3J23_1az9O1pJFlnKgQ88s';
+        let supabaseClient;
+
+        // 테스트 데이터
+        let testUserId = null;
+        let currentSession = null;
+
+        // 로그 함수
+        function log(elementId, message, type = 'info') {
+            const logElement = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            logElement.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // 초기화
+        async function initializeSupabase() {
+            try {
+                supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+                log('initStatus', 'Supabase 클라이언트 생성 완료', 'success');
+                
+                // 현재 세션 확인
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    currentSession = session;
+                    log('initStatus', `현재 로그인된 사용자: ${session.user.email}`, 'info');
+                } else {
+                    log('initStatus', '로그인된 사용자 없음', 'info');
+                }
+
+                // 인증 상태 변경 리스너
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    log('initStatus', `인증 상태 변경: ${event}`, 'info');
+                    currentSession = session;
+                });
+
+            } catch (error) {
+                log('initStatus', `초기화 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // 테스트 계정 생성
+        async function createTestAccount() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const userType = document.getElementById('userType').value;
+
+            try {
+                // 1. 계정 생성
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+
+                if (authError) throw authError;
+                log('accountLog', `계정 생성 성공: ${email}`, 'success');
+                testUserId = authData.user.id;
+
+                // 2. 사용자 정보 저장
+                const { error: dbError } = await supabaseClient
+                    .from('users')
+                    .insert([{
+                        uid: authData.user.id,
+                        email: email,
+                        name: '테스트 사용자',
+                        phone: '010-1234-5678',
+                        type: userType,
+                        status: 'approved',
+                        created_at: new Date().toISOString()
+                    }]);
+
+                if (dbError) {
+                    log('accountLog', `DB 저장 오류: ${dbError.message}`, 'error');
+                } else {
+                    log('accountLog', `사용자 정보 저장 완료 (${userType})`, 'success');
+                }
+
+            } catch (error) {
+                log('accountLog', `계정 생성 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 테스트 계정 삭제
+        async function deleteTestAccount() {
+            if (!testUserId) {
+                log('accountLog', '삭제할 테스트 계정이 없습니다', 'error');
+                return;
+            }
+
+            try {
+                // 사용자 정보 삭제
+                const { error } = await supabaseClient
+                    .from('users')
+                    .delete()
+                    .eq('uid', testUserId);
+
+                if (error) {
+                    log('accountLog', `사용자 정보 삭제 오류: ${error.message}`, 'error');
+                } else {
+                    log('accountLog', '테스트 계정 삭제 완료', 'success');
+                    testUserId = null;
+                }
+            } catch (error) {
+                log('accountLog', `계정 삭제 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 회원가입 흐름 테스트
+        async function testSignupFlow(userType) {
+            log('signupLog', `${userType} 회원가입 테스트 시작`, 'info');
+            
+            const testEmail = `test_${Date.now()}@example.com`;
+            const testPassword = 'test123456';
+
+            try {
+                // 1. 회원가입
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: testEmail,
+                    password: testPassword
+                });
+
+                if (authError) throw authError;
+                log('signupLog', '회원가입 성공', 'success');
+
+                // 2. 추가 정보 저장
+                const userData = {
+                    uid: authData.user.id,
+                    email: testEmail,
+                    name: '테스트 ' + (userType === 'business' ? '사업자' : '파트너'),
+                    phone: '010-1234-5678',
+                    type: userType,
+                    status: 'approved',
+                    created_at: new Date().toISOString()
+                };
+
+                if (userType === 'business') {
+                    userData.businessName = '테스트 회사';
+                    userData.businessNumber = '123-45-67890';
+                    userData.businessAddress = '서울시 강남구';
+                }
+
+                const { error: dbError } = await supabaseClient
+                    .from('users')
+                    .insert([userData]);
+
+                if (dbError) {
+                    log('signupLog', `사용자 정보 저장 실패: ${dbError.message}`, 'error');
+                } else {
+                    log('signupLog', '사용자 정보 저장 성공', 'success');
+                }
+
+                // 3. 로그아웃 (다음 테스트를 위해)
+                await supabaseClient.auth.signOut();
+                log('signupLog', '테스트 완료 - 로그아웃됨', 'info');
+
+            } catch (error) {
+                log('signupLog', `회원가입 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 로그인 흐름 테스트
+        async function testLoginFlow() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            log('loginLog', `로그인 시도: ${email}`, 'info');
+
+            try {
+                // 1. 로그인
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+                log('loginLog', '로그인 성공', 'success');
+
+                // 2. 사용자 정보 조회
+                const { data: userData, error: userError } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('uid', data.user.id)
+                    .single();
+
+                if (userError) {
+                    log('loginLog', `사용자 정보 조회 실패: ${userError.message}`, 'error');
+                } else {
+                    log('loginLog', `사용자 타입: ${userData.type}`, 'info');
+                    log('loginLog', `승인 상태: ${userData.status}`, 'info');
+                }
+
+                // 3. 세션 확인
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    log('loginLog', '세션 확인 완료', 'success');
+                }
+
+            } catch (error) {
+                log('loginLog', `로그인 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 로그아웃 테스트
+        async function testLogout() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+                log('loginLog', '로그아웃 성공', 'success');
+            } catch (error) {
+                log('loginLog', `로그아웃 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 리다이렉트 테스트
+        function testRedirect(path) {
+            log('redirectLog', `${path}로 이동 테스트`, 'info');
+            
+            // 실제 리다이렉트 대신 로그만 표시
+            if (!currentSession) {
+                log('redirectLog', '로그인 필요 - 로그인 페이지로 이동해야 함', 'error');
+                return;
+            }
+
+            // 사용자 타입에 따른 리다이렉트 로직 시뮬레이션
+            const userType = currentSession.user.user_metadata?.type || 'unknown';
+            
+            if (path === '/') {
+                if (userType === 'business') {
+                    log('redirectLog', '비즈니스 대시보드로 리다이렉트', 'success');
+                } else if (userType === 'partner') {
+                    log('redirectLog', '파트너 대시보드로 리다이렉트', 'success');
+                }
+            } else if (path === '/business/' && userType !== 'business') {
+                log('redirectLog', '권한 없음 - 접근 거부', 'error');
+            } else if (path === '/partners/' && userType !== 'partner') {
+                log('redirectLog', '권한 없음 - 접근 거부', 'error');
+            } else {
+                log('redirectLog', '정상 접근 가능', 'success');
+            }
+        }
+
+        // 데이터 CRUD 테스트
+        async function testDataOperations() {
+            if (!currentSession) {
+                log('dataLog', '로그인이 필요합니다', 'error');
+                return;
+            }
+
+            const testData = {
+                title: '테스트 데이터 ' + Date.now(),
+                description: '테스트 설명',
+                created_by: currentSession.user.id,
+                created_at: new Date().toISOString()
+            };
+
+            try {
+                // CREATE
+                log('dataLog', 'CREATE 테스트 시작', 'info');
+                const { data: insertData, error: insertError } = await supabaseClient
+                    .from('spaces')
+                    .insert([testData])
+                    .select();
+
+                if (insertError) {
+                    log('dataLog', `INSERT 실패: ${insertError.message}`, 'error');
+                    return;
+                }
+                log('dataLog', `INSERT 성공: ID ${insertData[0].id}`, 'success');
+                const testId = insertData[0].id;
+
+                // READ
+                log('dataLog', 'READ 테스트 시작', 'info');
+                const { data: readData, error: readError } = await supabaseClient
+                    .from('spaces')
+                    .select('*')
+                    .eq('id', testId)
+                    .single();
+
+                if (readError) {
+                    log('dataLog', `SELECT 실패: ${readError.message}`, 'error');
+                } else {
+                    log('dataLog', 'SELECT 성공', 'success');
+                }
+
+                // UPDATE
+                log('dataLog', 'UPDATE 테스트 시작', 'info');
+                const { error: updateError } = await supabaseClient
+                    .from('spaces')
+                    .update({ description: '업데이트된 설명' })
+                    .eq('id', testId);
+
+                if (updateError) {
+                    log('dataLog', `UPDATE 실패: ${updateError.message}`, 'error');
+                } else {
+                    log('dataLog', 'UPDATE 성공', 'success');
+                }
+
+                // DELETE
+                log('dataLog', 'DELETE 테스트 시작', 'info');
+                const { error: deleteError } = await supabaseClient
+                    .from('spaces')
+                    .delete()
+                    .eq('id', testId);
+
+                if (deleteError) {
+                    log('dataLog', `DELETE 실패: ${deleteError.message}`, 'error');
+                } else {
+                    log('dataLog', 'DELETE 성공', 'success');
+                }
+
+                log('dataLog', 'CRUD 테스트 완료', 'success');
+
+            } catch (error) {
+                log('dataLog', `CRUD 테스트 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', initializeSupabase);
+    </script>
+</body>
+</html>

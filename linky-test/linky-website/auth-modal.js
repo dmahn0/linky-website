@@ -848,26 +848,22 @@ class AuthModal {
           created_at: new Date().toISOString()
         };
 
-        // 사업자 추가 정보
+        // 사업자 추가 정보 (플랫한 구조로 저장)
         if (userData.type === 'business') {
-          userRecord.business = {
-            businessName: userData.businessName,
-            businessNumber: userData.businessNumber || '', // 사업자등록번호는 선택사항
-            businessAddress: userData.businessAddress,
-            businessType: userData.businessType
-          };
+          userRecord.businessName = userData.businessName;
+          userRecord.businessNumber = userData.businessNumber || '';
+          userRecord.businessAddress = userData.businessAddress;
+          userRecord.businessType = userData.businessType;
         }
 
-        // 파트너 추가 정보
+        // 파트너 추가 정보 (플랫한 구조로 저장)
         if (userData.type === 'partner') {
-          userRecord.partner = {
-            realName: userData.realName || userData.name, // realName이 없으면 name 사용
-            residence: userData.residence,
-            workAreas: userData.workAreas || [],
-            availableTimes: userData.availableTimes || [],
-            transportation: userData.transportation || 'public',
-            level: 'bronze'
-          };
+          userRecord.realName = userData.realName || userData.name;
+          userRecord.residence = userData.residence;
+          userRecord.workAreas = userData.workAreas || [];
+          userRecord.availableTimes = userData.availableTimes || [];
+          userRecord.transportation = userData.transportation || 'public';
+          userRecord.level = 'bronze';
         }
 
         const { error: dbError } = await window.supabaseClient
