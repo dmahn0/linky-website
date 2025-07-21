@@ -862,7 +862,6 @@ class AuthModal {
           userRecord.residence = userData.residence;
           userRecord.workAreas = userData.workAreas || [];
           userRecord.transportation = userData.transportation || 'public';
-          userRecord.level = 'bronze';
         }
 
         const { error: dbError } = await window.supabaseClient
