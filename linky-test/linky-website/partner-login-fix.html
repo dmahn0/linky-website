@@ -202,18 +202,20 @@
                 
                 debug('로그인 성공', { userId: data.user.id });
                 
-                // 2. 사용자 정보 조회
+                // 2. 사용자 정보 조회 (중복 방지)
                 const { data: userData, error: userError } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('uid', data.user.id)
-                    .single();
+                    .limit(1);
+                
+                const userRecord = userData && userData.length > 0 ? userData[0] : null;
                 
                 if (userError) {
                     debug('사용자 정보 조회 오류', userError);
+                } else if (!userRecord) {
                     // 사용자 정보가 없으면 생성
-                    if (userError.code === 'PGRST116') {
-                        debug('사용자 정보 없음 - 생성 시도');
+                    debug('사용자 정보 없음 - 생성 시도');
                         const { error: insertError } = await supabaseClient
                             .from('users')
                             .insert([{

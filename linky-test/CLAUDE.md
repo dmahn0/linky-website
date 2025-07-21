@@ -1,71 +1,19 @@
 1. 코드가 너무 길어지면 모듈화를 해.
 
-🎯 핵심 모듈 구성
+2. 배경 및 색상 체계
+  흰색 배경
+  텍스트: 다양한 그레이 톤 (#1a1a1a, #333, #555, #666)
+  브랜드 컬러: 링키그린(#22c55e) 유지
+  강조색: 링키그린 하나로 통일
 
-  1. 인증 모듈 (auth-modal.js)
+3. 타이포그래피
+  Pretendard 폰트 적용 (한글/영문 최적화)
+  링키 로고는 기존 폰트 유지 (logo-text 클래스)
+  가독성 향상을 위한 폰트 크기와 간격 조정
 
-  - 로그인/회원가입 모달 UI
-  - 다단계 회원가입 프로세스
-  - 사용자 타입별 분기 처리 (business/partner/admin)
 
-  2. Firebase 모듈 (firebase-config.js)
-
-  - Firebase 초기화 및 설정
-  - 인증 상태 관리
-  - Firestore 데이터베이스 연동
-
-  3. 비즈니스 모듈 (/business/)
-
-  business/
-  ├── index.html          # 대시보드
-  ├── space-registration.html  # 공간 등록
-  ├── job-request.html    # 업무 요청
-  ├── jobs.html          # 업무 목록
-  ├── job-detail.html    # 업무 상세
-  ├── job-status.html    # 실시간 상태
-  ├── contract.html      # 계약서
-  └── billings.html      # 정산/영수증
-
-  4. 관리자 모듈 (/admin/)
-
-  - 사용자 승인, 통계, 시스템 모니터링
-
-  5. 공통 컴포넌트 (/components/)
-
-  - header.js: 인증 상태 반영 네비게이션
-  - footer.js: 푸터 컴포넌트
-
-  6. 유틸리티 (/js/)
-
-  - utils.js: LinkyUtils & LinkyFirebase 클래스
-    - 날짜/가격 포맷팅
-    - 상태 관리
-    - Firebase CRUD 작업
-  - auth-utils.js: 인증 헬퍼 함수
-  - analytics.js: 분석 추적
-
-  🔗 모듈 간 의존성
-
-  Firebase Core
-      ↓
-  Authentication
-      ↓
-  ┌─────────┬──────────┬─────────┐
-  │Business │ Partner  │  Admin  │
-  └─────────┴──────────┴─────────┘
-      ↓         ↓          ↓
-          Shared Utils
-
-  💡 주요 특징
-
-  1. 이벤트 기반 통신: 커스텀 이벤트로 컴포넌트 간 통신
-  2. 실시간 동기화: Firestore 리스너로 실시간 업데이트
-  3. 역할 기반 접근: 사용자 타입별 UI/기능 제어
-  4. 모바일 최적화: 반응형 디자인 적용
-
-  🚀 확장 가능한 구조
-
-  - 새 기능 추가 용이
-  - 모듈별 독립적 개발/테스트 가능
-  - 공통 유틸리티 재사용
-  - 명확한 관심사 분리
+4. 시각적 요소
+  박스: 옅은 배경색 (#f8fffe, #f5f9ff, #fafafa)
+  테두리: 부드러운 색상 (#e6f7f1, #e6f0ff)
+  호버 효과: 미묘한 그림자와 움직임
+  테이블: 깔끔한 흰색 배경과 얇은 테두리

@@ -131,10 +131,12 @@ const db = {
                     .from(collectionName)
                     .insert([data])
                     .select()
-                    .single();
+                    .limit(1);
+                    
+                const insertedRecord = result && result.length > 0 ? result[0] : null;
                     
                 if (error) throw error;
-                return { id: result.id };
+                return { id: insertedRecord?.id };
             },
             
             // 문서 참조
@@ -146,13 +148,15 @@ const db = {
                             .from(collectionName)
                             .select('*')
                             .eq('id', docId)
-                            .single();
+                            .limit(1);
+                            
+                        const record = data && data.length > 0 ? data[0] : null;
                             
                         if (error) throw error;
                         return {
-                            exists: !!data,
-                            data: () => data,
-                            id: data?.id
+                            exists: !!record,
+                            data: () => record,
+                            id: record?.id
                         };
                     },
                     

@@ -88,8 +88,8 @@ class HeaderComponent {
                     <a href="#benefits">혜택</a>
                     <a href="#faq">FAQ</a>
                     <a href="#reviews">후기</a>
-                    <button class="btn btn-secondary" onclick="authModal.openLogin()">로그인</button>
-                    <button class="btn btn-primary" onclick="authModal.openSignup('partner')">파트너 지원</button>
+                    <button class="btn btn-secondary" onclick="if(window.authModal) authModal.openLogin(); else alert('잠시 후 다시 시도해주세요.');">로그인</button>
+                    <button class="btn btn-primary" onclick="if(window.authModal) authModal.openSignup('partner'); else alert('잠시 후 다시 시도해주세요.');">파트너 지원</button>
                 </div>
                 
                 <!-- 로그인 후 메뉴 -->

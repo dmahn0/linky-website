@@ -169,7 +169,7 @@ class AuthModal {
           <span class="modal-close" onclick="event.stopPropagation(); authModal.close();">&times;</span>
           <h3 class="modal-title">로그인</h3>
           
-          <form id="loginForm" onsubmit="event.preventDefault();">
+          <form id="loginForm">
             <div class="form-group">
               <label class="form-label">이메일</label>
               <input type="email" name="email" class="form-input" placeholder="이메일을 입력하세요" required>
@@ -421,11 +421,6 @@ class AuthModal {
         </p>
         
         <form id="signupStep2Form" onsubmit="event.preventDefault();">
-          <div class="form-group">
-            <label class="form-label">실명 *</label>
-            <input type="text" name="realName" class="form-input" placeholder="실명을 입력하세요" required>
-          </div>
-          
           <div class="form-group">
             <label class="form-label">거주 지역 (구 단위) *</label>
             <input type="text" name="residence" class="form-input" placeholder="예: 강남구, 서초구" required>
@@ -715,7 +710,9 @@ class AuthModal {
   
   // 로그인 처리
   async handleLogin(e) {
+    console.log('handleLogin 함수 호출됨');
     e.preventDefault();
+    e.stopPropagation();
     
     const form = e.target;
     const submitBtn = form.querySelector('button[type="submit"]');
@@ -730,17 +727,26 @@ class AuthModal {
     try {
       const formData = new FormData(form);
       const { email, password } = Object.fromEntries(formData.entries());
+      console.log('폼 데이터 추출 완료:', { email });
       
-      const result = await this.supabaseSignIn(email, password);
+      let result;
+      try {
+        result = await this.supabaseSignIn(email, password);
+        console.log('로그인 결과:', result);
+      } catch (signInError) {
+        console.error('supabaseSignIn 호출 중 에러:', signInError);
+        throw signInError;
+      }
       
-      if (result.success) {
+      if (result && result.success) {
+        console.log('로그인 성공 처리 시작');
         this.close();
         this.reset();
         
         // 사용자 타입에 따른 리다이렉트
         const user = result.userData || result.user; // userData가 있으면 우선 사용
         console.log('로그인 성공, 사용자 정보:', user);
-        console.log('사용자 타입:', user.type);
+        console.log('사용자 타입:', user?.type);
         
         // 현재 경로 확인
         const currentPath = window.location.pathname;
@@ -751,16 +757,51 @@ class AuthModal {
         console.log('Business 디렉토리:', isInBusinessDir);
         console.log('Partners 디렉토리:', isInPartnersDir);
         
+        // 사용자 데이터가 없는 경우 처리
+        if (!user) {
+          console.warn('사용자 데이터를 찾을 수 없습니다. 메인 페이지로 이동합니다.');
+          alert('로그인 성공! 사용자 정보를 확인해주세요.');
+          window.location.replace('./');
+          return;
+        }
+        
+        // 사용자 타입이 없는 경우 처리
+        if (!user.type) {
+          console.warn('사용자 타입이 없습니다. 기본 처리를 수행합니다.');
+          alert('로그인 성공! 사용자 타입을 설정해주세요.');
+          
+          // 현재 위치에 따라 적절한 페이지로 이동
+          if (isInBusinessDir) {
+            window.location.replace('./');
+          } else if (isInPartnersDir) {
+            window.location.replace('./');
+          } else {
+            window.location.reload();
+          }
+          return;
+        }
+        
         if (user.type === 'business') {
           // 사업자는 대시보드로 즉시 이동
           console.log('비즈니스 계정 로그인 성공, 대시보드로 이동');
           
           // 현재 경로에 따라 상대 경로 결정
+          let targetUrl;
           if (isInBusinessDir) {
-            window.location.replace('dashboard.html');
+            targetUrl = 'dashboard.html';
           } else {
-            window.location.replace('./business/dashboard.html');
+            targetUrl = './business/dashboard.html';
           }
+          
+          console.log(`리다이렉트 대상: ${targetUrl}`);
+          console.log('리다이렉트 실행 중...');
+          
+          // 잠시 대기 후 리다이렉트 (디버깅을 위해)
+          setTimeout(() => {
+            console.log('실제 리다이렉트 시작');
+            window.location.replace(targetUrl);
+          }, 500);
+          
           return; // 추가 코드 실행 방지
         } else if (user.type === 'partner') {
           // 파트너는 파트너 페이지로
@@ -779,8 +820,24 @@ class AuthModal {
           window.location.reload();
         }
       } else {
+        console.error('로그인 실패:', result);
         console.error('로그인 실패 상세:', result);
-        alert('로그인에 실패했습니다: ' + (result.error || '알 수 없는 오류'));
+        
+        // 에러 메시지에 따른 친화적인 안내
+        let errorMessage = result.error || '알 수 없는 오류';
+        let userFriendlyMessage = '';
+        
+        if (errorMessage.includes('Invalid login credentials')) {
+          userFriendlyMessage = '이메일 또는 비밀번호가 올바르지 않습니다.\n\n확인사항:\n• 이메일 주소가 정확한지 확인\n• 비밀번호가 정확한지 확인\n• 계정이 생성되어 있는지 확인';
+        } else if (errorMessage.includes('Email not confirmed')) {
+          userFriendlyMessage = '이메일 인증이 필요합니다.\n등록하신 이메일에서 인증을 완료해주세요.';
+        } else if (errorMessage.includes('too many requests')) {
+          userFriendlyMessage = '너무 많은 시도로 인해 일시적으로 차단되었습니다.\n잠시 후 다시 시도해주세요.';
+        } else {
+          userFriendlyMessage = `로그인에 실패했습니다.\n\n오류 내용: ${errorMessage}\n\n문제가 지속되면 고객센터에 문의해주세요.`;
+        }
+        
+        alert(userFriendlyMessage);
       }
       
     } catch (error) {
@@ -792,6 +849,8 @@ class AuthModal {
       btnText.style.display = 'inline';
       loading.style.display = 'none';
     }
+    
+    return false; // 폼 제출 방지
   }
   
   // 모달 닫기
@@ -858,9 +917,9 @@ class AuthModal {
 
         // 파트너 추가 정보 (존재하는 경우만)
         if (userData.type === 'partner') {
-          if (userData.realName) userRecord.realName = userData.realName;
           if (userData.residence) userRecord.residence = userData.residence;
           if (userData.workAreas) userRecord.workAreas = userData.workAreas;
+          if (userData.availableTimes) userRecord.availableTimes = userData.availableTimes;
           if (userData.transportation) userRecord.transportation = userData.transportation;
         }
 
@@ -885,6 +944,7 @@ class AuthModal {
 
   // Supabase 로그인
   async supabaseSignIn(email, password) {
+    console.log('supabaseSignIn 함수 시작');
     try {
       console.log('로그인 시도:', email);
       
@@ -895,36 +955,67 @@ class AuthModal {
       }
       
       const supabaseClient = window.supabaseClient;
+      console.log('supabaseClient 확인 완료');
       
-      const { data, error } = await window.supabaseClient.auth.signInWithPassword({
-        email,
-        password
+      console.log('signInWithPassword 호출 전');
+      
+      // Promise를 사용한 타임아웃 래핑
+      const signInPromise = new Promise(async (resolve, reject) => {
+        try {
+          const response = await window.supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+          resolve(response);
+        } catch (err) {
+          reject(err);
+        }
       });
-
+      
+      // 타임아웃 설정 (10초)
+      const timeoutPromise = new Promise((resolve, reject) => {
+        setTimeout(() => reject(new Error('로그인 타임아웃')), 10000);
+      });
+      
+      // Promise.race 사용
+      const response = await Promise.race([signInPromise, timeoutPromise]);
+      
+      const data = response.data;
+      const error = response.error;
+      
+      console.log('signInWithPassword 호출 후');
       console.log('Supabase 로그인 응답:', { data, error });
 
       if (error) throw error;
 
-      // 사용자 정보 조회
+      // 사용자 정보 조회 (중복 방지)
       const { data: userData, error: userError } = await window.supabaseClient
         .from('users')
         .select('*')
         .eq('uid', data.user.id)
-        .single();
+        .limit(1);
+      
+      const userRecord = userData && userData.length > 0 ? userData[0] : null;
 
-      console.log('사용자 정보 조회 결과:', { userData, userError });
+      console.log('사용자 정보 조회 결과:', { userData, userError, userRecord });
 
       if (userError) {
         console.error('사용자 정보 조회 오류:', userError);
+      } else if (!userRecord) {
+        console.warn('Users 테이블에서 해당 사용자를 찾을 수 없습니다. UID:', data.user.id);
+      } else {
+        console.log('사용자 레코드 조회 성공:', userRecord);
       }
 
       return { 
         success: true, 
         user: data.user,
-        userData: userData
+        userData: userRecord
       };
     } catch (error) {
+      console.error('supabaseSignIn 에러 발생:', error);
       console.error('로그인 오류 상세:', error);
+      console.error('에러 스택:', error.stack);
       return { success: false, error: error.message };
     }
   }
@@ -933,28 +1024,42 @@ class AuthModal {
 // 전역 인증 모달 인스턴스
 let authModal;
 
-// DOM 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-  // Supabase 초기화 대기
-  function waitForSupabaseClient() {
-    if (window.supabaseClient) {
-      console.log('AuthModal: Supabase 클라이언트 준비 완료');
-      authModal = new AuthModal();
-      window.authModal = authModal; // 전역으로 노출
-    } else {
-      console.log('AuthModal: Supabase 클라이언트 대기 중...');
-      setTimeout(waitForSupabaseClient, 100);
-    }
+// 초기화 함수 (더 견고한 버전)
+let initAttempts = 0;
+const maxAttempts = 50; // 10초 대기
+
+function initializeAuthModal() {
+  if (authModal) {
+    console.log('AuthModal: 이미 초기화됨, 건너뜀');
+    return;
   }
   
-  // supabaseReady 이벤트 리스너
-  window.addEventListener('supabaseReady', () => {
-    console.log('AuthModal: supabaseReady 이벤트 받음');
-    if (!authModal) {
-      authModal = new AuthModal();
-      window.authModal = authModal;
-    }
-  });
+  initAttempts++;
+  console.log(`AuthModal: 초기화 시도 ${initAttempts}/${maxAttempts}, supabaseClient 상태:`, !!window.supabaseClient);
   
-  waitForSupabaseClient();
+  if (window.supabaseClient) {
+    console.log('AuthModal: Supabase 클라이언트 준비 완료');
+    try {
+      authModal = new AuthModal();
+      window.authModal = authModal; // 전역으로 노출
+      console.log('AuthModal: 초기화 완료');
+    } catch (error) {
+      console.error('AuthModal: 초기화 중 오류:', error);
+      // 오류 발생 시 다시 시도
+      if (initAttempts < maxAttempts) {
+        setTimeout(initializeAuthModal, 300);
+      }
+    }
+  } else if (initAttempts < maxAttempts) {
+    console.log('AuthModal: Supabase 클라이언트 대기 중...');
+    setTimeout(initializeAuthModal, 200);
+  } else {
+    console.error('AuthModal: 초기화 시간 초과. Supabase 설정을 확인하세요.');
+  }
+}
+
+// DOM 로드 시 초기화
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('AuthModal: DOM 로드 완료, 초기화 시작');
+  initializeAuthModal();
 });
