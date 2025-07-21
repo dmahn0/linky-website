@@ -861,7 +861,6 @@ class AuthModal {
           userRecord.realName = userData.realName || userData.name;
           userRecord.residence = userData.residence;
           userRecord.workAreas = userData.workAreas || [];
-          userRecord.availableTimes = userData.availableTimes || [];
           userRecord.transportation = userData.transportation || 'public';
           userRecord.level = 'bronze';
         }
