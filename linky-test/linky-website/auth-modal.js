@@ -842,26 +842,26 @@ class AuthModal {
           uid: authData.user.id,
           email: userData.email,
           name: userData.name,
-          phone: userData.phone,
-          type: userData.type,
-          status: 'pending',
-          created_at: new Date().toISOString()
+          type: userData.type
         };
 
-        // 사업자 추가 정보 (플랫한 구조로 저장)
+        // 선택적 필드 추가 (존재하는 경우만)
+        if (userData.phone) userRecord.phone = userData.phone;
+        
+        // 사업자 추가 정보 (존재하는 경우만)
         if (userData.type === 'business') {
-          userRecord.businessName = userData.businessName;
-          userRecord.businessNumber = userData.businessNumber || '';
-          userRecord.businessAddress = userData.businessAddress;
-          userRecord.businessType = userData.businessType;
+          if (userData.businessName) userRecord.businessName = userData.businessName;
+          if (userData.businessNumber) userRecord.businessNumber = userData.businessNumber;
+          if (userData.businessAddress) userRecord.businessAddress = userData.businessAddress;
+          if (userData.businessType) userRecord.businessType = userData.businessType;
         }
 
-        // 파트너 추가 정보 (플랫한 구조로 저장)
+        // 파트너 추가 정보 (존재하는 경우만)
         if (userData.type === 'partner') {
-          userRecord.realName = userData.realName || userData.name;
-          userRecord.residence = userData.residence;
-          userRecord.workAreas = userData.workAreas || [];
-          userRecord.transportation = userData.transportation || 'public';
+          if (userData.realName) userRecord.realName = userData.realName;
+          if (userData.residence) userRecord.residence = userData.residence;
+          if (userData.workAreas) userRecord.workAreas = userData.workAreas;
+          if (userData.transportation) userRecord.transportation = userData.transportation;
         }
 
         const { error: dbError } = await window.supabaseClient

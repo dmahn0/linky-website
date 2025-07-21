@@ -139,22 +139,14 @@
                 log('signupLog', 'Auth 사용자 ID: ' + data.user.id, 'success');
                 log('signupLog', '이메일 확인: ' + (data.user.email_confirmed_at ? '완료' : '대기중'));
                 
-                // Users 테이블에도 추가 (파트너 필수 필드 포함)
+                // Users 테이블에도 추가 (필수 필드만 포함)
                 const { error: dbError } = await supabaseClient
                     .from('users')
                     .insert([{
                         uid: data.user.id,
                         email: email,
                         name: '테스트 사용자',
-                        phone: '010-1234-5678',
-                        type: 'partner',
-                        status: 'approved',
-                        created_at: new Date().toISOString(),
-                        // 파트너 필수 필드
-                        realName: '테스트 사용자',
-                        residence: '서울시',
-                        workAreas: ['강남구', '서초구'],
-                        transportation: 'public'
+                        type: 'partner'
                     }]);
                 
                 if (dbError) {
