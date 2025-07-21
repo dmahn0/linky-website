@@ -1,10 +1,32 @@
 {
   "rewrites": [
-    { "source": "/",          "destination": "/index.html"     },
-    { "source": "/business",  "destination": "/business.html"  },
-    { "source": "/business/contract",   "destination": "/business/contract.html"},
-    { "source": "/business/billings",   "destination": "/business/billings.html"},
-    { "source": "/partners",   "destination": "/partners.html" },
-    { "source": "/og-main",   "destination": "/og-main.png"    }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/business", "destination": "/business/index.html" },
+    { "source": "/business/contract", "destination": "/business/contract.html" },
+    { "source": "/business/billings", "destination": "/business/billings.html" },
+    { "source": "/partners", "destination": "/partners/index.html" },
+    { "source": "/education", "destination": "/education/index.html" },
+    { "source": "/facility", "destination": "/facility/index.html" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/og-main", "destination": "/og-main-v2.png" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
   ]
 }

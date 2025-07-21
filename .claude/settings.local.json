@@ -23,7 +23,9 @@
       "Bash(git push:*)",
       "Bash(cp:*)",
       "Bash(node:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(vercel:*)"
     ],
     "deny": []
   }
