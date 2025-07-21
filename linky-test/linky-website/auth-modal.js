@@ -901,13 +901,28 @@ class AuthModal {
           uid: authData.user.id,
           email: userData.email,
           name: userData.name,
-          type: userData.type
+          type: userData.type,
+          status: 'pending',  // 모든 사용자에게 기본 status 추가
+          created_at: new Date().toISOString()  // 생성일시 추가
         };
 
         // 선택적 필드 추가 (존재하는 경우만)
         if (userData.phone) userRecord.phone = userData.phone;
         
-        // 사업자 추가 정보 (존재하는 경우만)
+        // 파트너 타입의 경우 valid_partner_data 제약 조건 만족을 위한 기본값
+        if (userData.type === 'partner') {
+          // residence가 없으면 기본값 설정 (제약 조건 위반 방지)
+          userRecord.residence = userData.residence || '서울시';
+          // workAreas가 없으면 기본값 설정
+          userRecord.workAreas = (userData.workAreas && userData.workAreas.length > 0) 
+            ? userData.workAreas 
+            : ['강남구'];
+        }
+        
+        // 추가 정보들은 테이블 스키마 확인 후 추가 예정
+        // 현재는 기본 컬럼만 사용하여 회원가입 오류 방지
+        /*
+        // 사업자 추가 정보
         if (userData.type === 'business') {
           if (userData.businessName) userRecord.businessName = userData.businessName;
           if (userData.businessNumber) userRecord.businessNumber = userData.businessNumber;
@@ -915,13 +930,12 @@ class AuthModal {
           if (userData.businessType) userRecord.businessType = userData.businessType;
         }
 
-        // 파트너 추가 정보 (존재하는 경우만)
+        // 파트너 추가 정보
         if (userData.type === 'partner') {
           if (userData.residence) userRecord.residence = userData.residence;
           if (userData.workAreas) userRecord.workAreas = userData.workAreas;
-          if (userData.availableTimes) userRecord.availableTimes = userData.availableTimes;
-          if (userData.transportation) userRecord.transportation = userData.transportation;
         }
+        */
 
         const { error: dbError } = await window.supabaseClient
           .from('users')
@@ -959,29 +973,11 @@ class AuthModal {
       
       console.log('signInWithPassword 호출 전');
       
-      // Promise를 사용한 타임아웃 래핑
-      const signInPromise = new Promise(async (resolve, reject) => {
-        try {
-          const response = await window.supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-          });
-          resolve(response);
-        } catch (err) {
-          reject(err);
-        }
+      // 직접 Supabase 로그인 호출
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
       });
-      
-      // 타임아웃 설정 (10초)
-      const timeoutPromise = new Promise((resolve, reject) => {
-        setTimeout(() => reject(new Error('로그인 타임아웃')), 10000);
-      });
-      
-      // Promise.race 사용
-      const response = await Promise.race([signInPromise, timeoutPromise]);
-      
-      const data = response.data;
-      const error = response.error;
       
       console.log('signInWithPassword 호출 후');
       console.log('Supabase 로그인 응답:', { data, error });

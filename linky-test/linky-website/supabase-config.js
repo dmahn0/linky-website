@@ -61,29 +61,36 @@ const auth = {
     
     // 인증 상태 변경 리스너
     onAuthStateChanged: function(callback) {
-        const checkClient = () => {
-            if (!window.supabaseClient) {
-                console.log('Waiting for supabaseClient...');
-                setTimeout(() => checkClient(), 100);
-                return;
-            }
-            
-            // 초기 상태 확인
-            window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
-                this.currentUser = user;
-                callback(user);
-            });
-            
-            // 상태 변경 구독
-            const { data: { subscription } } = window.supabaseClient.auth.onAuthStateChange((event, session) => {
-                this.currentUser = session?.user || null;
-                callback(session?.user || null);
-            });
-            
-            return () => subscription?.unsubscribe();
-        };
+        // supabaseClient가 준비될 때까지 대기
+        if (!window.supabaseClient) {
+            console.log('onAuthStateChanged: Waiting for supabaseClient...');
+            const waitInterval = setInterval(() => {
+                if (window.supabaseClient) {
+                    clearInterval(waitInterval);
+                    this.onAuthStateChanged(callback);
+                }
+            }, 100);
+            return () => clearInterval(waitInterval);
+        }
         
-        return checkClient();
+        // 초기 상태 확인
+        window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
+            this.currentUser = user;
+            callback(user);
+        }).catch(error => {
+            console.error('onAuthStateChanged getUser error:', error);
+            callback(null);
+        });
+        
+        // 상태 변경 구독
+        const { data: { subscription } } = window.supabaseClient.auth.onAuthStateChange((event, session) => {
+            console.log('Auth state change event:', event, session?.user?.email);
+            this.currentUser = session?.user || null;
+            callback(session?.user || null);
+        });
+        
+        // 구독 해제 함수 반환
+        return () => subscription?.unsubscribe();
     },
     
     // 회원가입
