@@ -760,7 +760,10 @@ class AuthModal {
         // 사용자 데이터가 없는 경우 처리
         if (!user) {
           console.warn('사용자 데이터를 찾을 수 없습니다. 메인 페이지로 이동합니다.');
-          alert('로그인 성공! 사용자 정보를 확인해주세요.');
+          alert('로그인은 성공했으나 사용자 정보가 없습니다.\n\n이전 시스템에서 가입한 계정인 경우, 관리자에게 문의해주세요.\n\n새로운 계정으로 회원가입을 진행해주시기 바랍니다.');
+          
+          // 로그아웃 처리
+          await auth.signOut();
           window.location.replace('./');
           return;
         }
@@ -1017,17 +1020,9 @@ class AuthModal {
           console.log('이메일로 사용자 정보 찾음:', emailUserData[0]);
           userRecord = emailUserData[0];
         } else {
-          console.log('이메일로도 사용자를 찾을 수 없음. 마이그레이션 시도...');
-          
-          // user-migration.js가 로드되었는지 확인
-          if (typeof window.migrateUser === 'function') {
-            userRecord = await window.migrateUser(data.user);
-            if (userRecord) {
-              console.log('사용자 마이그레이션 성공:', userRecord);
-            }
-          } else {
-            console.warn('마이그레이션 함수를 사용할 수 없습니다.');
-          }
+          console.log('이메일로도 사용자를 찾을 수 없음');
+          console.log('Auth User ID:', data.user.id);
+          console.log('Auth User Email:', data.user.email);
         }
       } else {
         console.log('사용자 레코드 조회 성공:', userRecord);
