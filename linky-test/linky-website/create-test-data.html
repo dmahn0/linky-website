@@ -315,13 +315,13 @@
             }
         ];
 
-        // Firebase 초기화 확인
+        // Supabase 초기화 확인
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 if (typeof window.supabaseClient === 'undefined') {
-                    showStatus('dataStatus', 'Firebase가 초기화되지 않았습니다.', 'error');
+                    showStatus('dataStatus', 'Supabase가 초기화되지 않았습니다.', 'error');
                 } else {
-                    showStatus('dataStatus', 'Firebase 연결 완료', 'success');
+                    showStatus('dataStatus', 'Supabase 연결 완료', 'success');
                     checkCurrentData();
                 }
             }, 1000);

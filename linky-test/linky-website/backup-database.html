@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky 데이터베이스 백업 도구</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .warning {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            color: #92400E;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        button {
+            padding: 12px 24px;
+            background: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #2563EB;
+        }
+        button:disabled {
+            background: #9CA3AF;
+            cursor: not-allowed;
+        }
+        .danger {
+            background: #DC2626;
+        }
+        .danger:hover {
+            background: #B91C1C;
+        }
+        .success {
+            background: #22c55e;
+        }
+        .success:hover {
+            background: #16a34a;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: bold;
+        }
+        .json-download {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗄️ Linky 데이터베이스 백업 및 분석</h1>
+        
+        <div class="warning">
+            <strong>⚠️ 주의사항:</strong> 이 도구는 데이터베이스 마이그레이션을 위한 백업 도구입니다. 
+            실행 전 Supabase 대시보드에서도 백업을 생성하는 것을 권장합니다.
+        </div>
+
+        <!-- Step 1: 현재 구조 분석 -->
+        <div class="section">
+            <h2>Step 1: 현재 데이터베이스 구조 분석</h2>
+            <p>현재 users 테이블의 구조와 데이터를 분석합니다.</p>
+            
+            <button onclick="analyzeCurrentStructure()">📊 구조 분석</button>
+            <button onclick="checkConstraints()">🔒 제약조건 확인</button>
+            <button onclick="countUsersByType()">👥 사용자 타입별 통계</button>
+            
+            <div id="structureResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Step 2: 데이터 백업 -->
+        <div class="section">
+            <h2>Step 2: 데이터 백업</h2>
+            <p>모든 사용자 데이터를 JSON 형식으로 백업합니다.</p>
+            
+            <button onclick="backupAllUsers()">💾 전체 사용자 백업</button>
+            <button onclick="backupBusinessUsers()">🏢 비즈니스 사용자만 백업</button>
+            <button onclick="backupPartnerUsers()">🤝 파트너 사용자만 백업</button>
+            
+            <div id="backupResult" class="result" style="display: none;"></div>
+            <a id="downloadLink" class="json-download" download="backup.json">다운로드</a>
+        </div>
+
+        <!-- Step 3: 마이그레이션 준비 -->
+        <div class="section">
+            <h2>Step 3: 마이그레이션 준비 상태 확인</h2>
+            <p>새 테이블 구조로 마이그레이션할 준비가 되었는지 확인합니다.</p>
+            
+            <button onclick="checkMigrationReadiness()">✅ 마이그레이션 준비 상태 확인</button>
+            <button onclick="generateMigrationSQL()">📝 마이그레이션 SQL 생성</button>
+            
+            <div id="migrationResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Step 4: 백업 테이블 생성 -->
+        <div class="section">
+            <h2>Step 4: 백업 테이블 생성 (선택사항)</h2>
+            <p>Supabase에 백업 테이블을 생성합니다.</p>
+            
+            <button onclick="createBackupTable()" class="danger">🔴 백업 테이블 생성</button>
+            <span style="color: #6b7280; font-size: 14px;">※ 실제 테이블을 생성합니다. 신중히 실행하세요.</span>
+            
+            <div id="backupTableResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        // Supabase 클라이언트 가져오기
+        function getSupabase() {
+            return window.supabaseClient || null;
+        }
+
+        // Step 1: 현재 구조 분석
+        async function analyzeCurrentStructure() {
+            const resultDiv = document.getElementById('structureResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '분석 중...';
+
+            try {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    resultDiv.innerHTML = '❌ Supabase가 초기화되지 않았습니다.';
+                    return;
+                }
+
+                // 샘플 데이터로 구조 파악
+                const { data: sample, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    resultDiv.innerHTML = `❌ 오류: ${error.message}`;
+                    return;
+                }
+
+                let result = '📊 Users 테이블 구조 분석\n\n';
+
+                if (sample && sample.length > 0) {
+                    const columns = Object.keys(sample[0]);
+                    result += '발견된 컬럼:\n';
+                    columns.forEach(col => {
+                        const value = sample[0][col];
+                        const type = value === null ? 'null' : 
+                                    Array.isArray(value) ? 'array' : 
+                                    typeof value;
+                        result += `- ${col} (${type})\n`;
+                    });
+
+                    result += '\n샘플 데이터:\n';
+                    result += JSON.stringify(sample[0], null, 2);
+                } else {
+                    result += '테이블이 비어있습니다.';
+                }
+
+                resultDiv.innerHTML = result;
+            } catch (err) {
+                resultDiv.innerHTML = `❌ 예외 발생: ${err.message}`;
+            }
+        }
+
+        // 제약조건 확인
+        async function checkConstraints() {
+            const resultDiv = document.getElementById('structureResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '확인 중...';
+
+            try {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    resultDiv.innerHTML = '❌ Supabase가 초기화되지 않았습니다.';
+                    return;
+                }
+
+                // 각 타입별 최소 데이터로 제약조건 테스트
+                const tests = [
+                    {
+                        name: 'Business 최소 필드 (phone 포함)',
+                        data: {
+                            uid: 'constraint-test-biz-' + Date.now(),
+                            email: 'test@constraint.com',
+                            name: '제약조건 테스트',
+                            phone: '010-0000-0000',
+                            type: 'business',
+                            status: 'pending',
+                            created_at: new Date().toISOString()
+                        }
+                    },
+                    {
+                        name: 'Partner 최소 필드 (phone 포함)',
+                        data: {
+                            uid: 'constraint-test-partner-' + Date.now(),
+                            email: 'test@constraint.com',
+                            name: '제약조건 테스트',
+                            phone: '010-0000-0000',
+                            type: 'partner',
+                            status: 'pending',
+                            created_at: new Date().toISOString()
+                        }
+                    }
+                ];
+
+                let result = '🔒 제약조건 분석 결과:\n\n';
+
+                for (const test of tests) {
+                    const { error } = await supabase
+                        .from('users')
+                        .insert(test.data);
+
+                    if (error) {
+                        result += `❌ ${test.name}: ${error.message}\n`;
+                        if (error.details) {
+                            result += `   상세: ${error.details}\n`;
+                        }
+                    } else {
+                        result += `✅ ${test.name}: 성공\n`;
+                        // 테스트 데이터 삭제
+                        await supabase.from('users').delete().eq('uid', test.data.uid);
+                    }
+                    result += '\n';
+                }
+
+                resultDiv.innerHTML = result;
+            } catch (err) {
+                resultDiv.innerHTML = `❌ 예외 발생: ${err.message}`;
+            }
+        }
+
+        // 사용자 타입별 통계
+        async function countUsersByType() {
+            const resultDiv = document.getElementById('structureResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '집계 중...';
+
+            try {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    resultDiv.innerHTML = '❌ Supabase가 초기화되지 않았습니다.';
+                    return;
+                }
+
+                // 전체 사용자 수
+                const { count: totalCount } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+
+                // 비즈니스 사용자 수
+                const { count: businessCount } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('type', 'business');
+
+                // 파트너 사용자 수
+                const { count: partnerCount } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('type', 'partner');
+
+                // 상태별 통계
+                const { data: statusStats } = await supabase
+                    .from('users')
+                    .select('type, status');
+
+                const stats = {};
+                if (statusStats) {
+                    statusStats.forEach(user => {
+                        const key = `${user.type}_${user.status}`;
+                        stats[key] = (stats[key] || 0) + 1;
+                    });
+                }
+
+                let result = '👥 사용자 통계:\n\n';
+                result += `전체 사용자: ${totalCount || 0}명\n`;
+                result += `├── 비즈니스: ${businessCount || 0}명\n`;
+                result += `└── 파트너: ${partnerCount || 0}명\n\n`;
+                
+                result += '상태별 분류:\n';
+                Object.entries(stats).forEach(([key, count]) => {
+                    const [type, status] = key.split('_');
+                    result += `- ${type} (${status}): ${count}명\n`;
+                });
+
+                resultDiv.innerHTML = result;
+            } catch (err) {
+                resultDiv.innerHTML = `❌ 예외 발생: ${err.message}`;
+            }
+        }
+
+        // Step 2: 데이터 백업
+        async function backupAllUsers() {
+            await backupUsers();
+        }
+
+        async function backupBusinessUsers() {
+            await backupUsers('business');
+        }
+
+        async function backupPartnerUsers() {
+            await backupUsers('partner');
+        }
+
+        async function backupUsers(type = null) {
+            const resultDiv = document.getElementById('backupResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '백업 중...';
+
+            try {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    resultDiv.innerHTML = '❌ Supabase가 초기화되지 않았습니다.';
+                    return;
+                }
+
+                let query = supabase.from('users').select('*');
+                
+                if (type) {
+                    query = query.eq('type', type);
+                }
+
+                const { data, error } = await query;
+
+                if (error) {
+                    resultDiv.innerHTML = `❌ 백업 실패: ${error.message}`;
+                    return;
+                }
+
+                const backup = {
+                    timestamp: new Date().toISOString(),
+                    type: type || 'all',
+                    count: data.length,
+                    data: data
+                };
+
+                // JSON 파일 다운로드 준비
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = url;
+                downloadLink.download = `linky_users_backup_${type || 'all'}_${Date.now()}.json`;
+                downloadLink.style.display = 'inline-block';
+
+                resultDiv.innerHTML = `✅ 백업 완료!\n\n`;
+                resultDiv.innerHTML += `백업된 사용자 수: ${data.length}명\n`;
+                resultDiv.innerHTML += `백업 타입: ${type || '전체'}\n`;
+                resultDiv.innerHTML += `백업 시간: ${new Date().toLocaleString()}\n\n`;
+                resultDiv.innerHTML += `아래 다운로드 링크를 클릭하여 백업 파일을 저장하세요.`;
+
+                // 자동 다운로드
+                downloadLink.click();
+            } catch (err) {
+                resultDiv.innerHTML = `❌ 예외 발생: ${err.message}`;
+            }
+        }
+
+        // Step 3: 마이그레이션 준비 상태 확인
+        async function checkMigrationReadiness() {
+            const resultDiv = document.getElementById('migrationResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '확인 중...';
+
+            try {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    resultDiv.innerHTML = '❌ Supabase가 초기화되지 않았습니다.';
+                    return;
+                }
+
+                let result = '✅ 마이그레이션 준비 상태:\n\n';
+                let ready = true;
+
+                // 1. 사용자 수 확인
+                const { count } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+
+                result += `1. 전체 사용자 수: ${count || 0}명\n`;
+
+                // 2. 필수 필드 확인
+                const { data: sampleUsers } = await supabase
+                    .from('users')
+                    .select('*')
+                    .limit(10);
+
+                if (sampleUsers && sampleUsers.length > 0) {
+                    const requiredFields = ['uid', 'email', 'name', 'type', 'phone'];
+                    let missingFields = new Set();
+
+                    sampleUsers.forEach(user => {
+                        requiredFields.forEach(field => {
+                            if (!user[field]) {
+                                missingFields.add(field);
+                            }
+                        });
+                    });
+
+                    if (missingFields.size > 0) {
+                        result += `2. ⚠️ 일부 사용자에게 필수 필드가 없습니다: ${Array.from(missingFields).join(', ')}\n`;
+                        ready = false;
+                    } else {
+                        result += `2. ✅ 모든 필수 필드가 존재합니다.\n`;
+                    }
+                }
+
+                // 3. 타입별 분포 확인
+                const { data: typeStats } = await supabase
+                    .from('users')
+                    .select('type');
+
+                const typeCount = {};
+                typeStats?.forEach(user => {
+                    typeCount[user.type] = (typeCount[user.type] || 0) + 1;
+                });
+
+                result += `3. 사용자 타입 분포:\n`;
+                Object.entries(typeCount).forEach(([type, count]) => {
+                    result += `   - ${type}: ${count}명\n`;
+                });
+
+                result += `\n${ready ? '✅ 마이그레이션 준비 완료!' : '⚠️ 일부 문제를 해결해야 합니다.'}`;
+
+                resultDiv.innerHTML = result;
+            } catch (err) {
+                resultDiv.innerHTML = `❌ 예외 발생: ${err.message}`;
+            }
+        }
+
+        // 마이그레이션 SQL 생성
+        function generateMigrationSQL() {
+            const resultDiv = document.getElementById('migrationResult');
+            resultDiv.style.display = 'block';
+            
+            const sql = `-- Linky 데이터베이스 마이그레이션 SQL
+-- 생성일: ${new Date().toISOString()}
+
+-- 1. 백업 테이블 생성
+CREATE TABLE IF NOT EXISTS users_backup AS SELECT * FROM users;
+
+-- 2. 새 테이블 생성
+-- 비즈니스 사용자 테이블
+CREATE TABLE business_users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  auth_uid UUID UNIQUE REFERENCES auth.users(id),
+  email TEXT UNIQUE NOT NULL,
+  phone TEXT NOT NULL,
+  status TEXT DEFAULT 'pending',
+  
+  -- 비즈니스 정보
+  business_name TEXT NOT NULL,
+  business_number TEXT NOT NULL,
+  business_type TEXT NOT NULL,
+  business_address TEXT NOT NULL,
+  representative_name TEXT NOT NULL,
+  
+  -- 메타데이터
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 파트너 사용자 테이블
+CREATE TABLE partner_users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  auth_uid UUID UNIQUE REFERENCES auth.users(id),
+  email TEXT UNIQUE NOT NULL,
+  phone TEXT NOT NULL,
+  status TEXT DEFAULT 'pending',
+  
+  -- 파트너 정보
+  name TEXT NOT NULL,
+  residence TEXT NOT NULL,
+  work_areas TEXT[] NOT NULL,
+  
+  -- 메타데이터
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. RLS 활성화
+ALTER TABLE business_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partner_users ENABLE ROW LEVEL SECURITY;
+
+-- 4. RLS 정책 생성
+CREATE POLICY "Users can view own business profile" ON business_users
+  FOR SELECT USING (auth.uid() = auth_uid);
+
+CREATE POLICY "Users can view own partner profile" ON partner_users
+  FOR SELECT USING (auth.uid() = auth_uid);`;
+
+            resultDiv.innerHTML = `<div class="code-block">${sql}</div>`;
+            resultDiv.innerHTML += '<p>위 SQL을 Supabase SQL Editor에서 실행하세요.</p>';
+        }
+
+        // Step 4: 백업 테이블 생성
+        async function createBackupTable() {
+            const resultDiv = document.getElementById('backupTableResult');
+            resultDiv.style.display = 'block';
+            
+            if (!confirm('정말로 백업 테이블을 생성하시겠습니까? 이 작업은 실제 데이터베이스에 영향을 줍니다.')) {
+                resultDiv.innerHTML = '작업이 취소되었습니다.';
+                return;
+            }
+
+            resultDiv.innerHTML = '백업 테이블 생성 중...';
+
+            try {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    resultDiv.innerHTML = '❌ Supabase가 초기화되지 않았습니다.';
+                    return;
+                }
+
+                // RPC 함수가 없으므로 수동으로 백업해야 함
+                resultDiv.innerHTML = `⚠️ 백업 테이블 생성은 Supabase 대시보드에서 직접 수행해야 합니다.\n\n`;
+                resultDiv.innerHTML += `1. Supabase 대시보드로 이동\n`;
+                resultDiv.innerHTML += `2. SQL Editor 열기\n`;
+                resultDiv.innerHTML += `3. 다음 SQL 실행:\n\n`;
+                resultDiv.innerHTML += `<div class="code-block">CREATE TABLE users_backup_${Date.now()} AS SELECT * FROM users;</div>`;
+            } catch (err) {
+                resultDiv.innerHTML = `❌ 예외 발생: ${err.message}`;
+            }
+        }
+
+        // 페이지 로드 시 Supabase 상태 확인
+        window.onload = function() {
+            setTimeout(() => {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    alert('Supabase가 아직 초기화되지 않았습니다. 잠시 후 다시 시도해주세요.');
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

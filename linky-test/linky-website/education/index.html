@@ -866,11 +866,16 @@
                     submittedAt: new Date().toISOString() || new Date()
                 };
 
-                // Firebase가 초기화되었다면 Firestore에 저장
-                if (typeof db !== 'undefined' && db) {
-                    await db.collection('educationBookings').add(bookingData);
+                // Supabase가 초기화되었다면 데이터베이스에 저장
+                if (typeof window.supabaseClient !== 'undefined' && window.supabaseClient) {
+                    const { data, error } = await window.supabaseClient
+                        .from('education_bookings')
+                        .insert([bookingData]);
+                    if (error) {
+                        console.error('Supabase 저장 오류:', error);
+                    }
                 } else {
-                    console.log('Firebase 미초기화 - 로컬 저장:', bookingData);
+                    console.log('Supabase 미초기화 - 로컬 저장:', bookingData);
                 }
                 
                 alert('교육 신청이 완료되었습니다!\n24시간 내에 담당자가 연락드리겠습니다.');

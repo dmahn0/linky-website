@@ -627,7 +627,7 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('requestDate').min = today;
 
-            // Firebase 초기화 대기
+            // Supabase 초기화 대기
             setTimeout(() => {
                 if (typeof auth !== 'undefined') {
                     auth.onAuthStateChanged((user) => {
@@ -638,7 +638,7 @@
                         }
                     });
                 } else {
-                    console.error('Firebase 초기화 실패');
+                    console.error('Supabase 초기화 실패');
                     showAlert('시스템 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
                 }
             }, 1000);
@@ -673,7 +673,7 @@
         // 사용자 공간 목록 로드
         async function loadUserSpaces() {
             try {
-                userSpaces = await LinkyFirebase.loadUserSpaces(currentUser.uid);
+                userSpaces = await loadUserSpacesFromSupabase(currentUser.uid);
                 displaySpaces();
             } catch (error) {
                 console.error('공간 목록 로드 오류:', error);

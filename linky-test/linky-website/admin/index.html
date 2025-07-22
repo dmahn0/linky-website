@@ -692,7 +692,7 @@
                         }
                     });
                 } else {
-                    console.error('Firebase 초기화 실패');
+                    console.error('Supabase 초기화 실패');
                 }
             }, 1000);
         });
@@ -779,7 +779,7 @@
         // 최근 활동 로드
         async function loadRecentActivity() {
             try {
-                // 임시 데이터 (실제로는 Firebase에서 로드)
+                // 임시 데이터 (실제로는 Supabase에서 로드)
                 const activities = [
                     { time: '10분 전', activity: '새로운 회원가입', user: '홍길동', status: 'pending' },
                     { time: '30분 전', activity: '작업 완료', user: '김파트너', status: 'completed' },

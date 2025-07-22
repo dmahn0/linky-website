@@ -655,7 +655,7 @@
                 return;
             }
 
-            // Firebase 초기화 대기
+            // Supabase 초기화 대기
             setTimeout(() => {
                 if (typeof auth !== 'undefined') {
                     auth.onAuthStateChanged((user) => {
@@ -666,7 +666,7 @@
                         }
                     });
                 } else {
-                    console.error('Firebase 초기화 실패');
+                    console.error('Supabase 초기화 실패');
                 }
             }, 1000);
         });

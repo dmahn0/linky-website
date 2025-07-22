@@ -27,7 +27,10 @@
       "Bash(grep:*)",
       "Bash(vercel:*)",
       "Bash(git log:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(mkdir:*)",
+      "Bash(move \"DATABASE_SCHEMA.md\" \"linky-website\\_ARCHIVED\"\")",
+      "Bash(move:*)"
     ],
     "deny": []
   }

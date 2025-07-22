@@ -151,13 +151,13 @@
     <div class="container">
         <h1>🔍 Linky 데이터 검증 도구</h1>
         
-        <!-- Firebase 연결 상태 -->
+        <!-- Supabase 연결 상태 -->
         <div class="section">
             <h2>
-                🔥 Firebase 연결 상태
-                <span id="firebaseStatus" class="status">확인 중...</span>
+                🔗 Supabase 연결 상태
+                <span id="supabaseStatus" class="status">확인 중...</span>
             </h2>
-            <div id="firebaseInfo"></div>
+            <div id="supabaseInfo"></div>
         </div>
         
         <!-- 현재 사용자 정보 -->
@@ -251,10 +251,10 @@
             document.getElementById('logConsole').innerHTML = '<div class="info">로그 콘솔 초기화됨...</div>';
         }
         
-        // Firebase 상태 확인
-        function checkFirebaseStatus() {
-            const statusEl = document.getElementById('firebaseStatus');
-            const infoEl = document.getElementById('firebaseInfo');
+        // Supabase 상태 확인
+        function checkSupabaseStatus() {
+            const statusEl = document.getElementById('supabaseStatus');
+            const infoEl = document.getElementById('supabaseInfo');
             
             try {
                 if (typeof window.supabaseClient !== 'undefined' && (window.supabaseClient ? [window.supabaseClient] : []).length > 0) {
@@ -267,18 +267,18 @@
                         <p><strong>Auth Domain:</strong> ${config.authDomain}</p>
                         <p><strong>API Key:</strong> ${config.apiKey.substring(0, 10)}...</p>
                     `;
-                    log('Firebase 연결 확인됨', 'info');
+                    log('Supabase 연결 확인됨', 'info');
                 } else {
                     statusEl.className = 'status error';
                     statusEl.textContent = '연결 실패';
-                    infoEl.innerHTML = '<p>Firebase가 초기화되지 않았습니다.</p>';
-                    log('Firebase 연결 실패', 'error');
+                    infoEl.innerHTML = '<p>Supabase가 초기화되지 않았습니다.</p>';
+                    log('Supabase 연결 실패', 'error');
                 }
             } catch (error) {
                 statusEl.className = 'status error';
                 statusEl.textContent = '오류';
                 infoEl.innerHTML = `<p>오류: ${error.message}</p>`;
-                log(`Firebase 상태 확인 오류: ${error.message}`, 'error');
+                log(`Supabase 상태 확인 오류: ${error.message}`, 'error');
             }
         }
         
@@ -435,13 +435,19 @@
             log(`테스트 회원가입 시작: ${testEmail}`, 'info');
             
             try {
-                const result = await FirebaseAuth.signUp(testEmail, testPassword, {
-                    name: '테스트 사용자',
-                    phone: '010-1234-5678',
-                    type: 'business',
-                    businessName: '테스트 사업장',
-                    businessType: 'studyroom',
-                    businessAddress: '테스트 주소'
+                const result = await window.supabaseClient.auth.signUp({
+                    email: testEmail,
+                    password: testPassword,
+                    options: {
+                        data: {
+                            name: '테스트 사용자',
+                            phone: '010-1234-5678',
+                            type: 'business',
+                            businessName: '테스트 사업장',
+                            businessType: 'studyroom',
+                            businessAddress: '테스트 주소'
+                        }
+                    }
                 });
                 
                 if (result.success) {
@@ -528,7 +534,7 @@
         // 페이지 로드 시 실행
         window.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
-                checkFirebaseStatus();
+                checkSupabaseStatus();
                 refreshUserInfo();
                 checkDatabaseStatus();
                 loadRecentUsers();

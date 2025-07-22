@@ -633,7 +633,7 @@
 
         // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', function() {
-            // Firebase 초기화 대기
+            // Supabase 초기화 대기
             setTimeout(() => {
                 if (typeof auth !== 'undefined') {
                     auth.onAuthStateChanged((user) => {
@@ -646,7 +646,7 @@
                         }
                     });
                 } else {
-                    console.error('Firebase 초기화 실패');
+                    console.error('Supabase 초기화 실패');
                 }
             }, 1000);
         });

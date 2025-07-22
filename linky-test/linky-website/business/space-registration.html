@@ -581,12 +581,12 @@
                 // 사진 업로드 처리 (향후 구현)
                 const photos = document.getElementById('spacePhotos').files;
                 if (photos.length > 0) {
-                    // TODO: Firebase Storage에 사진 업로드
+                    // TODO: Supabase Storage에 사진 업로드
                     spaceData.photos = [];
                 }
 
-                // Firestore에 공간 정보 저장
-                const result = await FirebaseDB.createSpace(spaceData);
+                // Supabase에 공간 정보 저장
+                const result = await createSpaceInSupabase(spaceData);
                 
                 if (result.success) {
                     showAlert('공간이 성공적으로 등록되었습니다!', 'success');
