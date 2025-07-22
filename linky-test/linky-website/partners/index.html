@@ -19,9 +19,34 @@
     <!-- Supabase 환경변수 (개발용) -->
     <script src="../supabase-env.js"></script>
     
-    <!-- 스크립트 직접 로드 -->
-    <script src="../supabase-config.js"></script>
-    <script src="../js/auth-utils.js"></script>
+    <!-- Supabase SDK 로드 확인 및 설정 -->
+    <script>
+        // SDK 로드 확인
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabase && window.supabase.createClient) {
+                    resolve();
+                } else {
+                    setTimeout(() => waitForSupabase().then(resolve), 50);
+                }
+            });
+        }
+        
+        // SDK 로드 후 config 로드
+        waitForSupabase().then(() => {
+            console.log('Supabase SDK 로드 완료 - config 로드 시작');
+            const script = document.createElement('script');
+            script.src = '../supabase-config.js';
+            script.onload = () => {
+                console.log('supabase-config.js 로드 완료');
+                // auth-utils 로드
+                const authUtilsScript = document.createElement('script');
+                authUtilsScript.src = '../js/auth-utils.js';
+                document.head.appendChild(authUtilsScript);
+            };
+            document.head.appendChild(script);
+        });
+    </script>
     
     <!-- 공통 스타일 -->
     <link rel="stylesheet" href="../css/common.css">
