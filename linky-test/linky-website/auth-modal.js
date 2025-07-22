@@ -771,16 +771,19 @@ class AuthModal {
         // 사용자 타입이 없는 경우 처리
         if (!user.type) {
           console.warn('사용자 타입이 없습니다. 기본 처리를 수행합니다.');
-          alert('로그인 성공! 사용자 타입을 설정해주세요.');
           
-          // 현재 위치에 따라 적절한 페이지로 이동
-          if (isInBusinessDir) {
-            window.location.replace('./');
-          } else if (isInPartnersDir) {
-            window.location.replace('./');
-          } else {
-            window.location.reload();
+          // userData가 없는 경우 (Auth에만 있는 사용자)
+          if (!result.userData) {
+            alert('로그인은 성공했으나 프로필 정보가 없습니다.\n\n이전 시스템에서 가입한 계정인 경우, 관리자에게 문의해주세요.\n\n새로운 계정으로 회원가입을 진행해주시기 바랍니다.');
+            await auth.signOut();
+            window.location.replace('../'); // 메인 페이지로
+            return;
           }
+          
+          // userData는 있지만 type이 없는 경우
+          alert('사용자 타입이 설정되지 않았습니다. 관리자에게 문의해주세요.');
+          await auth.signOut();
+          window.location.replace('../'); // 메인 페이지로
           return;
         }
         
