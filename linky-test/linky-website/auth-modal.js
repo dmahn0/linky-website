@@ -915,13 +915,18 @@ class AuthModal {
         // 선택적 필드 추가 (존재하는 경우만)
         if (userData.phone) userRecord.phone = userData.phone;
         
-        // 비즈니스 타입의 경우 valid_business_data 제약 조건 만족을 위한 필드
+        // 비즈니스 타입의 경우 - 최소한의 정보만 저장
         if (userData.type === 'business') {
-          // 비즈니스 필수 필드 추가
-          userRecord.business_name = userData.businessName || userData.name;
-          userRecord.business_number = userData.businessNumber || '000-00-00000'; // 임시값
-          userRecord.business_type = userData.businessType || 'other';
-          userRecord.business_address = userData.businessAddress || '주소 미입력';
+          console.log('비즈니스 추가 정보:', {
+            businessName: userData.businessName,
+            businessNumber: userData.businessNumber,
+            businessType: userData.businessType,
+            businessAddress: userData.businessAddress
+          });
+          
+          // 파트너와 동일한 필드 구조 사용 (임시)
+          userRecord.residence = userData.businessAddress || '서울시';
+          userRecord.work_areas = ['강남구']; // 기본값
         }
         
         // 파트너 타입의 경우 valid_partner_data 제약 조건 만족을 위한 기본값
