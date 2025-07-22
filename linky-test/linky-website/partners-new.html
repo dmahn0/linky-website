@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RYYX6LYN2B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RYYX6LYN2B');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky Partners - 새로운 수익의 기회</title>
+    
+        <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    
+    
+    <!-- Supabase 설정 -->
+    <script src="supabase-config.js"></script>
+    
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <style>
+        /* 히어로 섹션 */
+        .hero-section {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .hero-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-hero {
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #22c55e;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: #22c55e;
+        }
+        
+        /* 혜택 섹션 */
+        .benefits-section {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        
+        .section-subtitle {
+            font-size: 18px;
+            color: #64748b;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .benefit-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .benefit-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .benefit-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .benefit-description {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        /* 수익 계산기 섹션 */
+        .calculator-section {
+            padding: 80px 0;
+            background: #f8fafc;
+            position: relative;
+        }
+        
+        .calculator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .calculator-box {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .calculator-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .calculator-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .range-input {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 3px;
+        }
+        
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #22c55e;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        .range-input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #22c55e;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+        
+        .range-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+            margin-top: 10px;
+        }
+        
+        .calculator-result {
+            background: #22c55e;
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .result-label {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .result-amount {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .result-details {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        /* 파트너 후기(페르소나) 섹션 */
+        .reviews-section {
+            padding: 80px 0;
+            background: white;
+        }
+        
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .review-card {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        .review-content {
+            font-style: italic;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .reviewer-avatar {
+            width: 50px;
+            height: 50px;
+            background: #e0e7ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #4338ca;
+        }
+        
+        .reviewer-details {
+            flex: 1;
+        }
+        
+        .reviewer-name {
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        .reviewer-meta {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .review-rating {
+            color: #fbbf24;
+            margin-bottom: 10px;
+        }
+        
+        /* FAQ 섹션 */
+        .faq-section {
+            padding: 80px 0;
+            background: #f8fafc;
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .faq-question {
+            padding: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .faq-question:hover {
+            background: #f8fafc;
+        }
+        
+        .faq-toggle {
+            font-size: 24px;
+            color: #64748b;
+            transition: transform 0.3s;
+        }
+        
+        .faq-item.active .faq-toggle {
+            transform: rotate(45deg);
+        }
+        
+        .faq-answer {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s, padding 0.3s;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 0 25px 25px;
+            max-height: 500px;
+        }
+        
+        /* 파트너 대시보드 섹션 */
+        .dashboard-section {
+            padding: 40px 0;
+            background: #f8fafc;
+            min-height: 600px;
+            display: none;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-subtitle {
+            color: #64748b;
+            font-size: 16px;
+        }
+        
+        .jobs-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .jobs-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .job-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .job-header {
+            padding: 25px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .job-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .job-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        .job-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+        }
+        
+        .job-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-matched {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-in-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .job-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .job-content {
+            padding: 25px;
+        }
+        
+        .services-list {
+            margin-bottom: 20px;
+        }
+        
+        .services-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+        
+        .service-item {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .job-footer {
+            padding: 20px 25px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-accept {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-accept:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+        }
+        
+        .btn-info {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-info:hover {
+            background: #f3f4f6;
+        }
+        
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            color: #9ca3af;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #6b7280;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 32px;
+            }
+            
+            .hero-stats {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .calculator-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .job-header-top {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .jobs-filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 컴포넌트 -->
+    <div id="header-root"></div>
+    
+    <!-- 히어로 섹션 -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                하루 30분씩 투자로<br>
+                월 500만원 부수입 만들기
+            </h1>
+            <p class="hero-subtitle">
+                무인공간 정리 파트너가 되어 안정적인 추가 수입을 만드세요
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">2만원</div>
+                    <div class="stat-label">평균 건당 수익</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">파트너 만족도</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">활동 중인 파트너</div>
+                </div>
+            </div>
+            <div class="hero-buttons">
+                <button class="btn-hero btn-primary login-required" onclick="authModal.openSignup('partner')">
+                    지금 바로 지원하기
+                </button>
+                <button class="btn-hero btn-primary auth-required" style="display: none;" onclick="scrollToDashboard()">
+                    대시보드 보기
+                </button>
+                <a href="#benefits" class="btn-hero btn-secondary">
+                    자세히 알아보기
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 혜택 섹션 -->
+    <section id="benefits" class="benefits-section">
+        <div class="section-header">
+            <h2 class="section-title">파트너가 되면 좋은 점</h2>
+            <p class="section-subtitle">
+                자유롭게 일하며 안정적인 수익을 만들어보세요
+            </p>
+        </div>
+        
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">⏰</div>
+                <h3 class="benefit-title">자유로운 근무</h3>
+                <p class="benefit-description">
+                    원하는 시간에, 원하는 지역에서<br>
+                    나만의 스케줄로 일할 수 있어요
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">💰</div>
+                <h3 class="benefit-title">높은 수익성</h3>
+                <p class="benefit-description">
+                    건당 평균 2만원의 수익<br>
+                    월 200건 이상 보장
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">📱</div>
+                <h3 class="benefit-title">간편한 업무</h3>
+                <p class="benefit-description">
+                    앱으로 모든 업무 관리<br>
+                    복잡한 절차 없이 바로 시작
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">🎓</div>
+                <h3 class="benefit-title">전문 교육</h3>
+                <p class="benefit-description">
+                    체계적인 교육 프로그램<br>
+                    누구나 전문가가 될 수 있어요
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">🛡️</div>
+                <h3 class="benefit-title">안전 보장</h3>
+                <p class="benefit-description">
+                    상해보험 가입 지원<br>
+                    안전한 작업 환경 보장
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">🏆</div>
+                <h3 class="benefit-title">성장 기회</h3>
+                <p class="benefit-description">
+                    우수 파트너 인센티브<br>
+                    팀장 승진 기회 제공
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 수익 계산기 섹션 -->
+    <section class="calculator-section">
+        <div class="calculator-container">
+            <div class="section-header">
+                <h2 class="section-title" style="color: #1e293b;">내 예상 수익 계산하기</h2>
+                <p class="section-subtitle">
+                    일주일에 몇 건만 하면 얼마를 벌 수 있을까요?
+                </p>
+            </div>
+            
+            <div class="calculator-box">
+                <div class="calculator-inputs">
+                    <div class="input-group">
+                        <label class="input-label">주당 작업 일수</label>
+                        <input type="range" class="range-input" id="daysPerWeek" 
+                               min="1" max="7" value="5" step="1">
+                        <div class="range-value"><span id="daysValue">5</span>일</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">일일 작업 건수</label>
+                        <input type="range" class="range-input" id="jobsPerDay" 
+                               min="1" max="10" value="4" step="1">
+                        <div class="range-value"><span id="jobsValue">4</span>건</div>
+                    </div>
+                </div>
+                
+                <div class="calculator-result">
+                    <div class="result-label">예상 월 수익</div>
+                    <div class="result-amount" id="monthlyIncome">320만원</div>
+                    <div class="result-details">
+                        건당 평균 20,000원 × <span id="totalJobs">80</span>건/월
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 파트너 후기(페르소나) 섹션 -->
+    <section id="reviews" class="reviews-section">
+        <div class="section-header">
+            <h2 class="section-title">파트너들의 이야기</h2>
+            <p class="section-subtitle">
+                실제 파트너로 활동할 때 기대할 수 있는 경험들
+            </p>
+        </div>
+        
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="review-rating">★★★★★</div>
+                <p class="review-content">
+                    "육아로 경력이 단절됐는데, 링키 덕분에 아이 학원 시간에 맞춰 일할 수 있어요. 
+                    한 달에 200만원 정도 벌고 있는데, 가계에 큰 도움이 됩니다."
+                </p>
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">김</div>
+                    <div class="reviewer-details">
+                        <div class="reviewer-name">김민지 님 (예상)</div>
+                        <div class="reviewer-meta">30대 • 주부 • 서울 강남구</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-card">
+                <div class="review-rating">★★★★★</div>
+                <p class="review-content">
+                    "프리랜서 디자이너로 일하다가 프로젝트가 없을 때 부수입으로 시작했어요. 
+                    운동 삼아 하루 2-3건씩 하는데, 월 150만원은 꾸준히 벌어요."
+                </p>
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">이</div>
+                    <div class="reviewer-details">
+                        <div class="reviewer-name">이준호 님 (예상)</div>
+                        <div class="reviewer-meta">20대 • 프리랜서 • 서울 마포구</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-card">
+                <div class="review-rating">★★★★★</div>
+                <p class="review-content">
+                    "퇴직 후 뭘 할까 고민하다가 시작했는데, 규칙적인 생활과 적당한 운동이 되어 좋아요. 
+                    용돈 벌이로 충분하고, 젊은 사람들과 어울려 활기도 생겼습니다."
+                </p>
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">박</div>
+                    <div class="reviewer-details">
+                        <div class="reviewer-name">박영수 님 (예상)</div>
+                        <div class="reviewer-meta">50대 • 은퇴자 • 경기 성남시</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-card">
+                <div class="review-rating">★★★★★</div>
+                <p class="review-content">
+                    "대학 수업 없는 날에 아르바이트로 하고 있어요. 
+                    시급제 알바보다 훨씬 자유롭고 수입도 좋아서 만족해요."
+                </p>
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">최</div>
+                    <div class="reviewer-details">
+                        <div class="reviewer-name">최서연 님 (예상)</div>
+                        <div class="reviewer-meta">20대 • 대학생 • 서울 서대문구</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQ 섹션 -->
+    <section id="faq" class="faq-section">
+        <div class="section-header">
+            <h2 class="section-title">자주 묻는 질문</h2>
+        </div>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>지원 자격이 어떻게 되나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        만 19세 이상의 성인이라면 누구나 지원 가능합니다.
+                        특별한 경력이나 경험은 필요하지 않으며, 성실하고 책임감 있는 분이라면 환영합니다.
+                        스마트폰 사용이 가능하고, 도보나 대중교통으로 이동이 가능하신 분이면 됩니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>교육은 어떻게 진행되나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        온라인 교육 영상(2시간)과 오프라인 실습(3시간)으로 구성되어 있습니다.
+                        청소 도구 사용법, 효율적인 정리 방법, 고객 응대 등을 배우게 됩니다.
+                        교육 이수 후 간단한 테스트를 통과하면 바로 활동을 시작할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>수익은 언제 정산되나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        작업 완료 후 고객 확인이 끝나면 즉시 정산됩니다.
+                        주 단위로 일괄 정산되며, 매주 목요일에 등록하신 계좌로 입금됩니다.
+                        세금계산서 발행도 지원하므로 프리랜서 소득 신고가 가능합니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>청소 도구는 어떻게 준비하나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        기본 청소 도구는 각 무인공간에 구비되어 있습니다.
+                        개인 위생을 위한 장갑과 마스크는 회사에서 매월 무료로 제공합니다.
+                        특별한 도구가 필요한 경우 회사에서 지원해드립니다.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>보험 가입은 어떻게 되나요?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>
+                        모든 파트너는 활동 중 발생할 수 있는 상해에 대비해 단체 상해보험에 자동 가입됩니다.
+                        보험료는 회사에서 전액 부담하며, 추가 비용은 없습니다.
+                        작업 중 발생한 사고는 즉시 보상 처리를 도와드립니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 파트너 대시보드 섹션 (로그인 후 표시) -->
+    <section id="dashboard" class="dashboard-section">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">작업 요청 목록</h1>
+                <p class="dashboard-subtitle">근처의 작업을 확인하고 수락해보세요</p>
+            </div>
+            
+            <div class="jobs-filters">
+                <div class="filter-item">
+                    <label class="filter-label">지역</label>
+                    <select class="filter-select" id="areaFilter">
+                        <option value="">전체 지역</option>
+                        <option value="gangnam">강남구</option>
+                        <option value="seocho">서초구</option>
+                        <option value="songpa">송파구</option>
+                        <option value="mapo">마포구</option>
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label class="filter-label">서비스 유형</label>
+                    <select class="filter-select" id="serviceFilter">
+                        <option value="">전체 서비스</option>
+                        <option value="basic">기본 정리</option>
+                        <option value="deep">전체 청소</option>
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label class="filter-label">정렬</label>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="distance">거리순</option>
+                        <option value="price">금액순</option>
+                        <option value="time">시간순</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="jobs-list" id="jobsList">
+                <!-- 작업 목록이 여기에 동적으로 로드됩니다 -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- 푸터 컴포넌트 -->
+    <div id="footer-root"></div>
+    
+    <!-- 인증 모달 -->
+    <div id="auth-modal-root"></div>
+    
+    <!-- 공통 스크립트 -->
+    <script src="js/auth-utils.js"></script>
+    <script src="components/header.js"></script>
+    <script src="components/footer.js"></script>
+    <script src="auth-modal.js"></script>
+    
+    <script>
+        // 전역 변수
+        let currentUser = null;
+        let allJobs = [];
+        
+        // 페이지 초기화
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 헤더 초기화
+            window.headerComponent = new HeaderComponent({
+                showPartnerMenu: true
+            });
+            
+            // 푸터 초기화
+            new FooterComponent();
+            
+            // 인증 모달 초기화
+            window.authModal = new AuthModal();
+            
+            // 인증 상태 확인 (페이지 새로고침 없이)
+            const { isAuthenticated, user } = await checkAuthStatus();
+            if (isAuthenticated && user.type === 'partner') {
+                currentUser = user;
+                showDashboard();
+                loadAvailableJobs();
+            }
+        });
+        
+        // 수익 계산기
+        const daysInput = document.getElementById('daysPerWeek');
+        const jobsInput = document.getElementById('jobsPerDay');
+        const daysValue = document.getElementById('daysValue');
+        const jobsValue = document.getElementById('jobsValue');
+        const monthlyIncome = document.getElementById('monthlyIncome');
+        const totalJobs = document.getElementById('totalJobs');
+        
+        function updateCalculator() {
+            const days = parseInt(daysInput.value);
+            const jobs = parseInt(jobsInput.value);
+            const weeklyJobs = days * jobs;
+            const monthlyJobs = weeklyJobs * 4;
+            const income = monthlyJobs * 20000;
+            
+            daysValue.textContent = days;
+            jobsValue.textContent = jobs;
+            totalJobs.textContent = monthlyJobs;
+            
+            if (income >= 10000000) {
+                monthlyIncome.textContent = Math.floor(income / 10000) + '만원~';
+            } else {
+                monthlyIncome.textContent = Math.floor(income / 10000) + '만원';
+            }
+        }
+        
+        daysInput.addEventListener('input', updateCalculator);
+        jobsInput.addEventListener('input', updateCalculator);
+        
+        // FAQ 토글
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const allItems = document.querySelectorAll('.faq-item');
+            
+            allItems.forEach(item => {
+                if (item !== faqItem) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            faqItem.classList.toggle('active');
+        }
+        
+        // 대시보드 표시
+        function showDashboard() {
+            // 히어로 섹션 숨기기
+            document.querySelector('.hero-section').style.display = 'none';
+            
+            // 다른 섹션들 숨기기
+            document.querySelector('.benefits-section').style.display = 'none';
+            document.querySelector('.calculator-section').style.display = 'none';
+            document.querySelector('.reviews-section').style.display = 'none';
+            document.querySelector('.faq-section').style.display = 'none';
+            
+            // 대시보드 표시
+            document.querySelector('.dashboard-section').style.display = 'block';
+        }
+        
+        // 대시보드로 스크롤
+        function scrollToDashboard() {
+            showDashboard();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 작업 목록 로드
+        async function loadAvailableJobs() {
+            try {
+                const jobsList = document.getElementById('jobsList');
+                jobsList.innerHTML = '<div class="loading">작업 목록을 불러오는 중...</div>';
+                
+                // 파트너의 모든 작업 가져오기 (신규, 매칭, 진행중)
+                const [pendingJobs, matchedJobs, inProgressJobs] = await Promise.all([
+                    // 승인된 신규 작업
+                    db.collection('jobs')
+                        .where('status', '==', 'pending')
+                        .get(),
+                    // 매칭된 작업
+                    db.collection('jobs')
+                        .where('status', '==', 'matched')
+                        .where('partnerId', '==', currentUser.uid)
+                        .get(),
+                    // 진행 중인 작업
+                    db.collection('jobs')
+                        .where('status', '==', 'in_progress')
+                        .where('partnerId', '==', currentUser.uid)
+                        .get()
+                ]);
+                
+                allJobs = [];
+                
+                // 모든 작업 통합
+                const processJobs = async (snapshot, status) => {
+                    for (const doc of snapshot.docs) {
+                        const jobData = doc.data();
+                        
+                        // 공간 정보 가져오기
+                        let spaceData = null;
+                        if (jobData.spaceId) {
+                            const spaceDoc = await db.collection('spaces').doc(jobData.spaceId).get();
+                            if (spaceDoc.exists) {
+                                spaceData = spaceDoc.data();
+                            }
+                        }
+                        
+                        allJobs.push({
+                            id: doc.id,
+                            ...jobData,
+                            space: spaceData,
+                            displayStatus: status
+                        });
+                    }
+                };
+                
+                await Promise.all([
+                    processJobs(pendingJobs, 'pending'),
+                    processJobs(matchedJobs, 'matched'),
+                    processJobs(inProgressJobs, 'in_progress')
+                ]);
+                
+                // 최신순으로 정렬
+                allJobs.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate() || new Date(0);
+                    const dateB = b.createdAt?.toDate() || new Date(0);
+                    return dateB - dateA;
+                });
+                
+                displayJobs(allJobs);
+                
+            } catch (error) {
+                console.error('작업 목록 로드 오류:', error);
+                document.getElementById('jobsList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <div class="empty-text">작업 목록을 불러오는 중 오류가 발생했습니다.</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // 작업 목록 표시
+        function displayJobs(jobs) {
+            const jobsList = document.getElementById('jobsList');
+            
+            if (jobs.length === 0) {
+                jobsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">현재 수락 가능한 작업이 없습니다.</div>
+                        <p style="color: #9ca3af; margin-top: 10px;">잠시 후 다시 확인해주세요.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            jobsList.innerHTML = jobs.map(job => createJobCard(job)).join('');
+        }
+        
+        // 작업 카드 생성
+        function createJobCard(job) {
+            const services = getServicesList(job.services);
+            const price = job.pricing?.totalPrice || 0;
+            
+            return `
+                <div class="job-card">
+                    <div class="job-header">
+                        <div class="job-header-top">
+                            <div>
+                                <span class="job-title">${job.space?.name || '공간 정보 없음'}</span>
+                                ${job.displayStatus === 'matched' ? 
+                                    '<span class="job-status status-matched">매칭 완료</span>' : 
+                                    job.displayStatus === 'in_progress' ? 
+                                    '<span class="job-status status-in-progress">진행중</span>' : ''}
+                            </div>
+                            <div class="job-price">₩${price.toLocaleString()}</div>
+                        </div>
+                        <div class="job-info">
+                            <div class="info-item">
+                                <span>📅</span>
+                                <span>${formatDate(job.schedule?.requestedDate)} ${job.schedule?.requestedTime}</span>
+                            </div>
+                            <div class="info-item">
+                                <span>📍</span>
+                                <span>${job.space?.address?.dong || '위치 정보 없음'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span>🏢</span>
+                                <span>${job.space?.type || '공간 유형 미정'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="job-content">
+                        <div class="services-list">
+                            <div class="services-title">요청 서비스</div>
+                            ${services.map(service => `<span class="service-item">${service}</span>`).join('')}
+                        </div>
+                        
+                        ${job.requirements ? `
+                            <div style="margin-top: 15px;">
+                                <div class="services-title">특별 요청사항</div>
+                                <p style="color: #6b7280; font-size: 14px; margin-top: 5px;">
+                                    ${job.requirements}
+                                </p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="job-footer">
+                        <button class="btn btn-info" onclick="viewJobDetails('${job.id}')">
+                            상세보기
+                        </button>
+                        ${job.displayStatus === 'pending' ? `
+                            <button class="btn btn-accept" onclick="acceptJob('${job.id}')">
+                                작업 수락하기
+                            </button>
+                        ` : job.displayStatus === 'matched' ? `
+                            <button class="btn btn-accept" onclick="startJob('${job.id}')">
+                                작업 시작하기
+                            </button>
+                        ` : `
+                            <button class="btn btn-primary" onclick="completeJob('${job.id}')">
+                                완료 보고하기
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 서비스 목록 생성
+        function getServicesList(services) {
+            const servicesList = [];
+            if (services?.basic?.selected) servicesList.push('기본 정리');
+            if (services?.floor?.selected) servicesList.push('바닥 청소');
+            if (services?.toilet?.selected) servicesList.push('화장실 청소');
+            if (services?.dishes?.selected) servicesList.push('설거지');
+            return servicesList;
+        }
+        
+        // 날짜 포맷
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR');
+        }
+        
+        // 작업 상세보기
+        function viewJobDetails(jobId) {
+            alert('작업 상세 정보 기능은 준비 중입니다.');
+        }
+        
+        // 작업 수락
+        async function acceptJob(jobId) {
+            if (!confirm('이 작업을 수락하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                // 작업 상태 업데이트
+                await db.collection('jobs').doc(jobId).update({
+                    status: 'matched',
+                    partnerId: currentUser.uid,
+                    matchedAt: new Date().toISOString()
+                });
+                
+                alert('작업이 성공적으로 수락되었습니다!');
+                
+                // 목록 새로고침
+                loadAvailableJobs();
+                
+            } catch (error) {
+                console.error('작업 수락 오류:', error);
+                alert('작업 수락 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 작업 시작
+        async function startJob(jobId) {
+            if (!confirm('작업을 시작하시겠습니까?')) {
+                return;
+            }
+            
+            try {
+                // 작업 상태 업데이트
+                await db.collection('jobs').doc(jobId).update({
+                    status: 'in_progress',
+                    startedAt: new Date().toISOString()
+                });
+                
+                alert('작업이 시작되었습니다!');
+                
+                // 목록 새로고침
+                loadAvailableJobs();
+                
+            } catch (error) {
+                console.error('작업 시작 오류:', error);
+                alert('작업 시작 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 작업 완료 보고
+        function completeJob(jobId) {
+            // 완료 보고 페이지로 이동
+            window.location.href = `partner-job-completion.html?jobId=${jobId}`;
+        }
+        
+        // 필터 이벤트 리스너
+        document.getElementById('areaFilter')?.addEventListener('change', filterJobs);
+        document.getElementById('serviceFilter')?.addEventListener('change', filterJobs);
+        document.getElementById('sortFilter')?.addEventListener('change', filterJobs);
+        
+        // 작업 필터링
+        function filterJobs() {
+            const areaFilter = document.getElementById('areaFilter').value;
+            const serviceFilter = document.getElementById('serviceFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            
+            let filteredJobs = [...allJobs];
+            
+            // 지역 필터
+            if (areaFilter) {
+                // 실제로는 지역 정보로 필터링해야 함
+                // filteredJobs = filteredJobs.filter(job => job.space?.area === areaFilter);
+            }
+            
+            // 서비스 필터
+            if (serviceFilter) {
+                if (serviceFilter === 'basic') {
+                    filteredJobs = filteredJobs.filter(job => 
+                        job.services?.basic?.selected && 
+                        !job.services?.floor?.selected && 
+                        !job.services?.toilet?.selected
+                    );
+                } else if (serviceFilter === 'deep') {
+                    filteredJobs = filteredJobs.filter(job => 
+                        job.services?.floor?.selected || job.services?.toilet?.selected
+                    );
+                }
+            }
+            
+            // 정렬
+            if (sortFilter === 'price') {
+                filteredJobs.sort((a, b) => (b.pricing?.totalPrice || 0) - (a.pricing?.totalPrice || 0));
+            } else if (sortFilter === 'time') {
+                filteredJobs.sort((a, b) => {
+                    const dateA = new Date(a.schedule?.requestedDate + ' ' + a.schedule?.requestedTime);
+                    const dateB = new Date(b.schedule?.requestedDate + ' ' + b.schedule?.requestedTime);
+                    return dateA - dateB;
+                });
+            }
+            
+            displayJobs(filteredJobs);
+        }
+        
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

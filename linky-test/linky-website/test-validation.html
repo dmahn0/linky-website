@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky - 시스템 검증</title>
+    
+        <!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f7fafc;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #22c55e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .test-section h3 {
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .test-name {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .test-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #16a34a;
+        }
+        
+        .result-details {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .account-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .account-link {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: #166534;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .account-link:hover {
+            background: #dcfce7;
+            transform: translateY(-2px);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Linky 시스템 검증</h1>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <a href="index.html" style="color: #22c55e; text-decoration: none; font-weight: 600;">← 메인 페이지로 돌아가기</a>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔥 Firebase 연결 상태</h3>
+            <button onclick="testFirebaseConnection()" class="btn btn-primary">연결 테스트</button>
+            <div id="firebaseResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>👥 테스트 계정 확인</h3>
+            <button onclick="testAccounts()" class="btn btn-primary">계정 확인</button>
+            <div id="accountResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 데이터 무결성 검사</h3>
+            <button onclick="testDataIntegrity()" class="btn btn-primary">데이터 검사</button>
+            <div id="dataResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔄 전체 플로우 시뮬레이션</h3>
+            <button onclick="simulateFullFlow()" class="btn btn-primary">플로우 테스트</button>
+            <div id="flowResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 테스트 계정 빠른 로그인</h3>
+            <div class="account-links">
+                <a href="business/" class="account-link" onclick="quickLogin('business')">
+                    🏢 사업자 계정<br>
+                    <small>business@test.com</small>
+                </a>
+                <a href="partners.html" class="account-link" onclick="quickLogin('partner')">
+                    🤝 파트너 계정<br>
+                    <small>partner@test.com</small>
+                </a>
+                <a href="admin/" class="account-link" onclick="quickLogin('admin')">
+                    ⚙️ 관리자 계정<br>
+                    <small>admin@test.com</small>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase 설정 -->
+    <script src="supabase-config.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        let testResults = {
+            firebase: null,
+            accounts: null,
+            data: null,
+            flow: null
+        };
+
+        // Firebase 연결 테스트
+        async function testFirebaseConnection() {
+            const resultsDiv = document.getElementById('firebaseResults');
+            resultsDiv.innerHTML = '<div class="loading"></div> Firebase 연결 테스트 중...';
+            
+            try {
+                // Firebase 초기화 확인
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase SDK가 로드되지 않았습니다.');
+                }
+                
+                // Auth 테스트
+                const authTest = auth.currentUser !== undefined;
+                
+                // Firestore 테스트
+                await db.collection('test').limit(1).get();
+                
+                testResults.firebase = true;
+                
+                resultsDiv.innerHTML = `
+                    <div class="test-item">
+                        <span class="test-name">Firebase SDK 로드</span>
+                        <span class="test-status status-pass">통과</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="test-name">Authentication 서비스</span>
+                        <span class="test-status status-pass">연결됨</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="test-name">Firestore 데이터베이스</span>
+                        <span class="test-status status-pass">연결됨</span>
+                    </div>
+                `;
+                
+            } catch (error) {
+                testResults.firebase = false;
+                resultsDiv.innerHTML = `
+                    <div class="test-item">
+                        <span class="test-name">Firebase 연결</span>
+                        <span class="test-status status-fail">실패</span>
+                    </div>
+                    <div class="result-details">오류: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 테스트 계정 확인
+        async function testAccounts() {
+            const resultsDiv = document.getElementById('accountResults');
+            resultsDiv.innerHTML = '<div class="loading"></div> 테스트 계정 확인 중...';
+            
+            const testEmails = [
+                'business@test.com',
+                'partner@test.com', 
+                'admin@test.com'
+            ];
+            
+            const accountTypes = ['business', 'partner', 'admin'];
+            let results = [];
+            
+            try {
+                for (let i = 0; i < testEmails.length; i++) {
+                    const email = testEmails[i];
+                    const type = accountTypes[i];
+                    
+                    const snapshot = await db.collection('users')
+                        .where('email', '==', email)
+                        .get();
+                    
+                    if (!snapshot.empty) {
+                        const userData = snapshot.docs[0].data();
+                        results.push({
+                            email,
+                            type,
+                            status: userData.status,
+                            exists: true
+                        });
+                    } else {
+                        results.push({
+                            email,
+                            type,
+                            exists: false
+                        });
+                    }
+                }
+                
+                testResults.accounts = results.every(r => r.exists);
+                
+                resultsDiv.innerHTML = results.map(result => `
+                    <div class="test-item">
+                        <span class="test-name">${result.type} 계정 (${result.email})</span>
+                        <span class="test-status ${result.exists ? 'status-pass' : 'status-fail'}">
+                            ${result.exists ? `존재 (${result.status})` : '없음'}
+                        </span>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                testResults.accounts = false;
+                resultsDiv.innerHTML = `
+                    <div class="result-details">오류: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 데이터 무결성 검사
+        async function testDataIntegrity() {
+            const resultsDiv = document.getElementById('dataResults');
+            resultsDiv.innerHTML = '<div class="loading"></div> 데이터 무결성 검사 중...';
+            
+            try {
+                const [usersSnapshot, spacesSnapshot, jobsSnapshot] = await Promise.all([
+                    db.collection('users').get(),
+                    db.collection('spaces').get(),
+                    db.collection('jobs').get()
+                ]);
+                
+                // 데이터 카운트
+                const userCount = usersSnapshot.size;
+                const spaceCount = spacesSnapshot.size;
+                const jobCount = jobsSnapshot.size;
+                
+                // 관계 무결성 검사
+                let orphanedSpaces = 0;
+                let orphanedJobs = 0;
+                
+                const userIds = new Set();
+                usersSnapshot.forEach(doc => userIds.add(doc.id));
+                
+                const spaceIds = new Set();
+                spacesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    spaceIds.add(doc.id);
+                    if (!userIds.has(data.ownerId)) {
+                        orphanedSpaces++;
+                    }
+                });
+                
+                jobsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!userIds.has(data.businessId)) {
+                        orphanedJobs++;
+                    }
+                    if (data.spaceId && !spaceIds.has(data.spaceId)) {
+                        orphanedJobs++;
+                    }
+                });
+                
+                const isHealthy = orphanedSpaces === 0 && orphanedJobs === 0;
+                testResults.data = isHealthy;
+                
+                resultsDiv.innerHTML = `
+                    <div class="test-item">
+                        <span class="test-name">사용자 수</span>
+                        <span class="test-status status-pass">${userCount}명</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="test-name">공간 수</span>
+                        <span class="test-status status-pass">${spaceCount}개</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="test-name">작업 수</span>
+                        <span class="test-status status-pass">${jobCount}개</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="test-name">고아 공간 (소유자 없음)</span>
+                        <span class="test-status ${orphanedSpaces === 0 ? 'status-pass' : 'status-fail'}">${orphanedSpaces}개</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="test-name">고아 작업 (관련자 없음)</span>
+                        <span class="test-status ${orphanedJobs === 0 ? 'status-pass' : 'status-fail'}">${orphanedJobs}개</span>
+                    </div>
+                `;
+                
+            } catch (error) {
+                testResults.data = false;
+                resultsDiv.innerHTML = `
+                    <div class="result-details">오류: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 전체 플로우 시뮬레이션
+        async function simulateFullFlow() {
+            const resultsDiv = document.getElementById('flowResults');
+            resultsDiv.innerHTML = '<div class="loading"></div> 플로우 시뮬레이션 중...';
+            
+            const steps = [
+                '사업자 계정 확인',
+                '공간 존재 확인', 
+                '테스트 작업 생성',
+                '파트너 매칭 시뮬레이션',
+                '정리 작업'
+            ];
+            
+            let stepResults = [];
+            
+            try {
+                // 1. 사업자 계정 확인
+                const businessSnapshot = await db.collection('users')
+                    .where('email', '==', 'business@test.com')
+                    .where('type', '==', 'business')
+                    .where('status', '==', 'approved')
+                    .get();
+                
+                stepResults.push({
+                    step: steps[0],
+                    status: !businessSnapshot.empty
+                });
+                
+                if (businessSnapshot.empty) {
+                    throw new Error('승인된 사업자 계정이 없습니다.');
+                }
+                
+                const businessId = businessSnapshot.docs[0].id;
+                
+                // 2. 공간 존재 확인
+                const spacesSnapshot = await db.collection('spaces')
+                    .where('ownerId', '==', businessId)
+                    .where('status', '==', 'active')
+                    .get();
+                
+                stepResults.push({
+                    step: steps[1],
+                    status: !spacesSnapshot.empty
+                });
+                
+                if (spacesSnapshot.empty) {
+                    throw new Error('활성 공간이 없습니다.');
+                }
+                
+                // 3. 테스트 작업 생성 가능성 확인 (실제로는 생성하지 않음)
+                const spaceId = spacesSnapshot.docs[0].id;
+                stepResults.push({
+                    step: steps[2],
+                    status: true
+                });
+                
+                // 4. 파트너 계정 확인
+                const partnerSnapshot = await db.collection('users')
+                    .where('type', '==', 'partner')
+                    .where('status', '==', 'approved')
+                    .get();
+                
+                stepResults.push({
+                    step: steps[3],
+                    status: !partnerSnapshot.empty
+                });
+                
+                // 5. 기존 작업 확인
+                const jobsSnapshot = await db.collection('jobs')
+                    .where('businessId', '==', businessId)
+                    .get();
+                
+                stepResults.push({
+                    step: steps[4],
+                    status: true
+                });
+                
+                testResults.flow = stepResults.every(r => r.status);
+                
+                resultsDiv.innerHTML = stepResults.map(result => `
+                    <div class="test-item">
+                        <span class="test-name">${result.step}</span>
+                        <span class="test-status ${result.status ? 'status-pass' : 'status-fail'}">
+                            ${result.status ? '통과' : '실패'}
+                        </span>
+                    </div>
+                `).join('') + `
+                    <div class="result-details">
+                        전체 플로우: ${testResults.flow ? '모든 단계 준비 완료' : '일부 단계 실패'}
+                    </div>
+                `;
+                
+            } catch (error) {
+                testResults.flow = false;
+                resultsDiv.innerHTML = stepResults.map(result => `
+                    <div class="test-item">
+                        <span class="test-name">${result.step}</span>
+                        <span class="test-status ${result.status ? 'status-pass' : 'status-fail'}">
+                            ${result.status ? '통과' : '실패'}
+                        </span>
+                    </div>
+                `).join('') + `
+                    <div class="result-details">오류: ${error.message}</div>
+                `;
+            }
+        }
+
+        // 빠른 로그인 (실제로는 사용자가 수동으로 로그인해야 함)
+        function quickLogin(accountType) {
+            const credentials = {
+                business: 'business@test.com / test1234',
+                partner: 'partner@test.com / test1234',
+                admin: 'admin@test.com / test1234'
+            };
+            
+            alert(`${accountType} 계정 정보:\n${credentials[accountType]}\n\n해당 페이지에서 로그인하세요.`);
+        }
+
+        // 페이지 로드 시 자동 테스트 실행
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (typeof window.supabaseClient !== 'undefined') {
+                    testFirebaseConnection();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -16,37 +16,9 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Supabase 환경변수 (개발용) -->
-    <script src="../supabase-env.js"></script>
-    
-    <!-- Supabase SDK 로드 확인 및 설정 -->
-    <script>
-        // SDK 로드 확인
-        function waitForSupabase() {
-            return new Promise((resolve) => {
-                if (window.supabase && window.supabase.createClient) {
-                    resolve();
-                } else {
-                    setTimeout(() => waitForSupabase().then(resolve), 50);
-                }
-            });
-        }
-        
-        // SDK 로드 후 config 로드
-        waitForSupabase().then(() => {
-            console.log('Supabase SDK 로드 완료 - config 로드 시작');
-            const script = document.createElement('script');
-            script.src = '../supabase-config.js';
-            script.onload = () => {
-                console.log('supabase-config.js 로드 완료');
-                // auth-utils 로드
-                const authUtilsScript = document.createElement('script');
-                authUtilsScript.src = '../js/auth-utils.js';
-                document.head.appendChild(authUtilsScript);
-            };
-            document.head.appendChild(script);
-        });
-    </script>
+    <!-- 스크립트 직접 로드 -->
+    <script src="../supabase-config.js"></script>
+    <script src="../js/auth-utils.js"></script>
     <style>
         * {
             margin: 0;
@@ -884,7 +856,7 @@
                 </div>
                 <div class="problem-card">
                     <div class="problem-icon">💸</div>
-                    <h3 class="problem-title">비싼 정리 비용</h3>
+                    <h3 class="problem-title">비싼 청소 비용</h3>
                     <p class="problem-desc">
                         건당 3만원 이상의 비용으로<br>
                         수익이 줄어들고 있습니다
@@ -1030,7 +1002,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>바닥 정리</td>
+                            <td>바닥 청소</td>
                             <td>간단</td>
                             <td>쓸기</td>
                             <td>쓸기</td>
@@ -1152,7 +1124,7 @@
                         <li>창문/블라인드 확인 및 정리</li>
                         <li>쓰레기통 비우기 (봉투 교체)</li>
                         <li>소모품 확인 및 리필 (휴지, 물티슈)</li>
-                        <li>바닥 상태 확인 및 기본 정리</li>
+                        <li>바닥 상태 확인 및 기본 청소</li>
                         <li>전열기구 및 조명 확인</li>
                         <li>공간별 특이사항 체크 및 보고</li>
                         <li>작업 전/후 사진 촬영</li>
@@ -1163,7 +1135,7 @@
                 <div class="service-detail-card" style="background: #fef3c7;">
                     <h3 class="service-detail-title" style="color: #92400e;">⚠️ 서비스 제외 항목</h3>
                     <ul style="list-style: none; color: #92400e;">
-                        <li>✗ 전문 정리 (왁스, 카펫 등)</li>
+                        <li>✗ 전문 청소 (왁스, 카펫 등)</li>
                         <li>✗ 2인 이상 필요 작업</li>
                         <li>✗ 위험물/의료폐기물 처리</li>
                         <li>✗ 50만원 이상 고가 물품 이동</li>
@@ -1190,7 +1162,7 @@
                 <div class="case-card">
                     <div class="case-quote">"</div>
                     <p class="case-text">
-                        정리업체는 너무 비싸고, 알바를 쓰자니 관리가 어려워요. 
+                        청소업체는 너무 비싸고, 알바를 쓰자니 관리가 어려워요. 
                         필요할 때만 부를 수 있는 서비스가 있으면 좋겠어요.
                     </p>
                     <div class="case-author">파티룸 운영 1년차</div>
@@ -1321,9 +1293,6 @@
     </footer>
 
     <!-- 인증 모달 -->
-    <!-- 사용자 마이그레이션 헬퍼 -->
-    <script src="../js/user-migration.js"></script>
-    
     <script src="../auth-modal.js" defer></script>
     
     <!-- 공통 스크립트 -->

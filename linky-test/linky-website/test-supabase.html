@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 연결 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success {
+            color: #22c55e;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #22c55e;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #16a34a;
+        }
+        pre {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase 연결 테스트</h1>
+    
+    <div class="test-section">
+        <h2>1. 연결 상태</h2>
+        <div id="connectionStatus">확인 중...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 인증 테스트</h2>
+        <button onclick="testSignUp()">회원가입 테스트</button>
+        <button onclick="testSignIn()">로그인 테스트</button>
+        <button onclick="testSignOut()">로그아웃</button>
+        <button onclick="checkUser()">현재 사용자 확인</button>
+        <div id="authResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 데이터베이스 테스트</h2>
+        <button onclick="testDatabase()">데이터베이스 쿼리 테스트</button>
+        <div id="dbResult"></div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Supabase 초기화
+        const supabaseUrl = 'https://mzihuflrbspvyjknxlad.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16aWh1ZmxyYnNwdnlqa254bGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4MTk3ODgsImV4cCI6MjA2ODM5NTc4OH0.UDwv6eknjWwmbZ9WsRioi3J23_1az9O1pJFlnKgQ88s';
+        
+        const { createClient } = supabase;
+        const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+
+        // 연결 테스트
+        async function checkConnection() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (error) throw error;
+                
+                document.getElementById('connectionStatus').innerHTML = 
+                    '<span class="success">✅ Supabase 연결 성공!</span>';
+            } catch (error) {
+                document.getElementById('connectionStatus').innerHTML = 
+                    `<span class="error">❌ 연결 실패: ${error.message}</span>`;
+            }
+        }
+
+        // 회원가입 테스트
+        async function testSignUp() {
+            const randomNum = Math.floor(Math.random() * 10000);
+            const email = `testuser${randomNum}@gmail.com`;
+            const password = 'Test1234!';
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            name: '테스트 사용자',
+                            type: 'business'
+                        }
+                    }
+                });
+                
+                if (error) throw error;
+                
+                // 이메일 확인 없이 바로 로그인 (개발용)
+                if (data.user && !data.session) {
+                    // 자동 로그인 시도
+                    const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (!loginError) {
+                        console.log('자동 로그인 성공');
+                    }
+                }
+                
+                // 사용자 정보를 users 테이블에 추가
+                if (data.user) {
+                    const { error: dbError } = await supabaseClient
+                        .from('users')
+                        .insert([{
+                            uid: data.user.id,
+                            email: email,
+                            name: '테스트 사용자',
+                            phone: '010-1234-5678',
+                            type: 'business',
+                            status: 'pending',
+                            business: {
+                                businessName: '테스트 비즈니스',
+                                businessNumber: '123-45-67890'
+                            }
+                        }]);
+                    
+                    if (dbError) console.error('DB 저장 오류:', dbError);
+                }
+                
+                document.getElementById('authResult').innerHTML = 
+                    `<span class="success">✅ 회원가입 성공!</span>
+                    <p>이메일: ${email}</p>
+                    <p>비밀번호: ${password}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = 
+                    `<span class="error">❌ 회원가입 실패: ${error.message}</span>`;
+            }
+        }
+
+        // 로그인 테스트
+        async function testSignIn() {
+            const email = prompt('로그인할 이메일 주소를 입력하세요:', 'testuser1234@gmail.com');
+            const password = prompt('비밀번호를 입력하세요:', 'Test1234!');
+            
+            if (!email || !password) return;
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                document.getElementById('authResult').innerHTML = 
+                    `<span class="success">✅ 로그인 성공!</span>
+                    <pre>${JSON.stringify(data.user, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = 
+                    `<span class="error">❌ 로그인 실패: ${error.message}</span>`;
+            }
+        }
+
+        // 로그아웃
+        async function testSignOut() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                
+                if (error) throw error;
+                
+                document.getElementById('authResult').innerHTML = 
+                    '<span class="success">✅ 로그아웃 성공!</span>';
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = 
+                    `<span class="error">❌ 로그아웃 실패: ${error.message}</span>`;
+            }
+        }
+
+        // 현재 사용자 확인
+        async function checkUser() {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                
+                document.getElementById('authResult').innerHTML = user ? 
+                    `<span class="success">✅ 로그인된 사용자:</span>
+                    <pre>${JSON.stringify(user, null, 2)}</pre>` :
+                    '<span class="error">❌ 로그인된 사용자 없음</span>';
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = 
+                    `<span class="error">❌ 사용자 확인 실패: ${error.message}</span>`;
+            }
+        }
+
+        // 데이터베이스 테스트
+        async function testDatabase() {
+            try {
+                // users 테이블 조회
+                const { data: users, error: usersError } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .limit(5);
+                
+                if (usersError) throw usersError;
+
+                // spaces 테이블 조회
+                const { data: spaces, error: spacesError } = await supabaseClient
+                    .from('spaces')
+                    .select('*')
+                    .limit(5);
+                
+                if (spacesError) throw spacesError;
+
+                document.getElementById('dbResult').innerHTML = 
+                    `<span class="success">✅ 데이터베이스 쿼리 성공!</span>
+                    <h4>Users 테이블 (${users.length}개):</h4>
+                    <pre>${JSON.stringify(users, null, 2)}</pre>
+                    <h4>Spaces 테이블 (${spaces.length}개):</h4>
+                    <pre>${JSON.stringify(spaces, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('dbResult').innerHTML = 
+                    `<span class="error">❌ 데이터베이스 쿼리 실패: ${error.message}</span>`;
+            }
+        }
+
+        // 페이지 로드 시 연결 확인
+        window.onload = () => {
+            checkConnection();
+        };
+    </script>
+</body>
+</html>

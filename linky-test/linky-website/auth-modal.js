@@ -760,10 +760,7 @@ class AuthModal {
         // 사용자 데이터가 없는 경우 처리
         if (!user) {
           console.warn('사용자 데이터를 찾을 수 없습니다. 메인 페이지로 이동합니다.');
-          alert('로그인은 성공했으나 사용자 정보가 없습니다.\n\n이전 시스템에서 가입한 계정인 경우, 관리자에게 문의해주세요.\n\n새로운 계정으로 회원가입을 진행해주시기 바랍니다.');
-          
-          // 로그아웃 처리
-          await auth.signOut();
+          alert('로그인 성공! 사용자 정보를 확인해주세요.');
           window.location.replace('./');
           return;
         }
@@ -771,19 +768,16 @@ class AuthModal {
         // 사용자 타입이 없는 경우 처리
         if (!user.type) {
           console.warn('사용자 타입이 없습니다. 기본 처리를 수행합니다.');
+          alert('로그인 성공! 사용자 타입을 설정해주세요.');
           
-          // userData가 없는 경우 (Auth에만 있는 사용자)
-          if (!result.userData) {
-            alert('로그인은 성공했으나 프로필 정보가 없습니다.\n\n이전 시스템에서 가입한 계정인 경우, 관리자에게 문의해주세요.\n\n새로운 계정으로 회원가입을 진행해주시기 바랍니다.');
-            await auth.signOut();
-            window.location.replace('../'); // 메인 페이지로
-            return;
+          // 현재 위치에 따라 적절한 페이지로 이동
+          if (isInBusinessDir) {
+            window.location.replace('./');
+          } else if (isInPartnersDir) {
+            window.location.replace('./');
+          } else {
+            window.location.reload();
           }
-          
-          // userData는 있지만 type이 없는 경우
-          alert('사용자 타입이 설정되지 않았습니다. 관리자에게 문의해주세요.');
-          await auth.signOut();
-          window.location.replace('../'); // 메인 페이지로
           return;
         }
         
@@ -915,26 +909,12 @@ class AuthModal {
         // 선택적 필드 추가 (존재하는 경우만)
         if (userData.phone) userRecord.phone = userData.phone;
         
-        // 비즈니스 타입의 경우 - 최소한의 정보만 저장
-        if (userData.type === 'business') {
-          console.log('비즈니스 추가 정보:', {
-            businessName: userData.businessName,
-            businessNumber: userData.businessNumber,
-            businessType: userData.businessType,
-            businessAddress: userData.businessAddress
-          });
-          
-          // 파트너와 동일한 필드 구조 사용 (임시)
-          userRecord.residence = userData.businessAddress || '서울시';
-          userRecord.work_areas = ['강남구']; // 기본값
-        }
-        
         // 파트너 타입의 경우 valid_partner_data 제약 조건 만족을 위한 기본값
         if (userData.type === 'partner') {
           // residence가 없으면 기본값 설정 (제약 조건 위반 방지)
           userRecord.residence = userData.residence || '서울시';
-          // work_areas로 변경 (언더스코어 사용)
-          userRecord.work_areas = (userData.workAreas && userData.workAreas.length > 0) 
+          // workAreas가 없으면 기본값 설정
+          userRecord.workAreas = (userData.workAreas && userData.workAreas.length > 0) 
             ? userData.workAreas 
             : ['강남구'];
         }
@@ -957,36 +937,16 @@ class AuthModal {
         }
         */
 
-        console.log('users 테이블에 저장할 데이터:', userRecord);
-        
-        const { data: insertedData, error: dbError } = await window.supabaseClient
+        const { error: dbError } = await window.supabaseClient
           .from('users')
-          .insert([userRecord])
-          .select();
+          .insert([userRecord]);
 
         if (dbError) {
           console.error('DB 저장 오류:', dbError);
-          console.error('오류 상세:', {
-            code: dbError.code,
-            message: dbError.message,
-            details: dbError.details,
-            hint: dbError.hint
-          });
           // Auth 사용자 삭제 (롤백) - admin API는 클라이언트에서 사용 불가
           // await window.supabaseClient.auth.admin.deleteUser(authData.user.id);
           throw dbError;
         }
-        
-        console.log('DB 저장 성공! 생성된 사용자:', insertedData);
-        
-        // 저장 후 즉시 조회해서 확인
-        const { data: verifyData, error: verifyError } = await window.supabaseClient
-          .from('users')
-          .select('*')
-          .eq('uid', authData.user.id)
-          .single();
-          
-        console.log('저장 직후 확인 조회:', { verifyData, verifyError });
       }
 
       return { success: true, user: authData.user };
@@ -1025,7 +985,6 @@ class AuthModal {
       if (error) throw error;
 
       // 사용자 정보 조회 (중복 방지)
-      console.log('users 테이블 조회 시작 - UID:', data.user.id);
       const { data: userData, error: userError } = await window.supabaseClient
         .from('users')
         .select('*')
@@ -1035,43 +994,11 @@ class AuthModal {
       const userRecord = userData && userData.length > 0 ? userData[0] : null;
 
       console.log('사용자 정보 조회 결과:', { userData, userError, userRecord });
-      console.log('조회된 레코드 수:', userData ? userData.length : 0);
-      console.log('사용자 UID:', data.user.id);
-      console.log('사용자 이메일:', data.user.email);
-      
-      if (userRecord) {
-        console.log('찾은 사용자 정보:', {
-          id: userRecord.id,
-          email: userRecord.email,
-          type: userRecord.type,
-          status: userRecord.status
-        });
-      }
 
       if (userError) {
         console.error('사용자 정보 조회 오류:', userError);
       } else if (!userRecord) {
         console.warn('Users 테이블에서 해당 사용자를 찾을 수 없습니다. UID:', data.user.id);
-        
-        // Auth 정보로부터 이메일 가져오기
-        const email = data.user.email;
-        
-        // 이메일로 사용자 정보 다시 조회 시도
-        console.log('이메일로 사용자 정보 재조회 시도:', email);
-        const { data: emailUserData, error: emailError } = await window.supabaseClient
-          .from('users')
-          .select('*')
-          .eq('email', email)
-          .limit(1);
-          
-        if (emailUserData && emailUserData.length > 0) {
-          console.log('이메일로 사용자 정보 찾음:', emailUserData[0]);
-          userRecord = emailUserData[0];
-        } else {
-          console.log('이메일로도 사용자를 찾을 수 없음');
-          console.log('Auth User ID:', data.user.id);
-          console.log('Auth User Email:', data.user.email);
-        }
       } else {
         console.log('사용자 레코드 조회 성공:', userRecord);
       }

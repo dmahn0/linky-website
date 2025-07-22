@@ -16,37 +16,9 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Supabase 환경변수 (개발용) -->
-    <script src="../supabase-env.js"></script>
-    
-    <!-- Supabase SDK 로드 확인 및 설정 -->
-    <script>
-        // SDK 로드 확인
-        function waitForSupabase() {
-            return new Promise((resolve) => {
-                if (window.supabase && window.supabase.createClient) {
-                    resolve();
-                } else {
-                    setTimeout(() => waitForSupabase().then(resolve), 50);
-                }
-            });
-        }
-        
-        // SDK 로드 후 config 로드
-        waitForSupabase().then(() => {
-            console.log('Supabase SDK 로드 완료 - config 로드 시작');
-            const script = document.createElement('script');
-            script.src = '../supabase-config.js';
-            script.onload = () => {
-                console.log('supabase-config.js 로드 완료');
-                // auth-utils 로드
-                const authUtilsScript = document.createElement('script');
-                authUtilsScript.src = '../js/auth-utils.js';
-                document.head.appendChild(authUtilsScript);
-            };
-            document.head.appendChild(script);
-        });
-    </script>
+    <!-- 스크립트 직접 로드 -->
+    <script src="../supabase-config.js"></script>
+    <script src="../js/auth-utils.js"></script>
     
     <!-- 공통 스타일 -->
     <link rel="stylesheet" href="../css/common.css">
@@ -874,7 +846,7 @@
                 </div>
                 <div class="faq-answer">
                     <p>
-                        기본적인 정리 도구는 각 무인공간에 구비되어 있습니다.
+                        기본적인 청소 도구는 각 무인공간에 구비되어 있습니다.
                         파트너님은 별도의 도구를 준비하실 필요가 없으며,
                         필요시 앱을 통해 추가 물품을 요청할 수 있습니다.
                     </p>
@@ -934,9 +906,6 @@
     
     <!-- 인증 모달 -->
     <div id="auth-modal-root"></div>
-    
-    <!-- 사용자 마이그레이션 헬퍼 -->
-    <script src="../js/user-migration.js"></script>
     
     <!-- 인증 모달 -->
     <script src="../auth-modal.js" defer></script>

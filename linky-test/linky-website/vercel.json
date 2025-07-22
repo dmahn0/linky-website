@@ -1,45 +1,10 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/business", "destination": "/business/index.html" },
-    { "source": "/business/dashboard", "destination": "/business/dashboard.html" },
-    { "source": "/business/billing", "destination": "/business/billing.html" },
-    { "source": "/business/billings", "destination": "/business/billings.html" },
-    { "source": "/business/contract", "destination": "/business/contract.html" },
-    { "source": "/business/direct-spaces", "destination": "/business/direct-spaces.html" },
-    { "source": "/business/jobs", "destination": "/business/jobs.html" },
-    { "source": "/business/job-detail", "destination": "/business/job-detail.html" },
-    { "source": "/business/job-request", "destination": "/business/job-request.html" },
-    { "source": "/business/job-completion-review", "destination": "/business/job-completion-review.html" },
-    { "source": "/business/space-registration", "destination": "/business/space-registration.html" },
-    { "source": "/partners", "destination": "/partners/index.html" },
-    { "source": "/partners/dashboard", "destination": "/partners/dashboard.html" },
-    { "source": "/partners/earnings", "destination": "/partners/earnings.html" },
-    { "source": "/partners/jobs", "destination": "/partners/jobs.html" },
-    { "source": "/partners/job-detail", "destination": "/partners/job-detail.html" },
-    { "source": "/education", "destination": "/education/index.html" },
-    { "source": "/facility", "destination": "/facility/index.html" },
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/warning/pt", "destination": "/warning/pt.html" },
-    { "source": "/og-main", "destination": "/og-main-v2.png" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
+    { "source": "/",          "destination": "/index.html"     },
+    { "source": "/business",  "destination": "/business.html"  },
+    { "source": "/business/contract",   "destination": "/business/contract.html"},
+    { "source": "/business/billings",   "destination": "/business/billings.html"},
+    { "source": "/partners",   "destination": "/partners.html" },
+    { "source": "/og-main",   "destination": "/og-main.png"    }
   ]
 }

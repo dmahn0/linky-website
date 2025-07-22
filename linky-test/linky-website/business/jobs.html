@@ -8,14 +8,8 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Supabase 환경변수 (개발용) -->
-    <script src="../supabase-env.js"></script>
-    
     <!-- Supabase 설정 -->
     <script src="../supabase-config.js"></script>
-    
-    <!-- 작업 상호작용 모듈 -->
-    <script src="../js/job-interaction.js"></script>
     
     <style>
         * {
@@ -481,8 +475,8 @@
                     <div class="checkbox-item" onclick="toggleService('floor')">
                         <input type="checkbox" id="service_floor">
                         <div class="service-info">
-                            <div class="service-name">바닥 정리</div>
-                            <div class="service-desc">정리기, 걸레질 (15평 이하)</div>
+                            <div class="service-name">바닥 청소</div>
+                            <div class="service-desc">청소기, 걸레질 (15평 이하)</div>
                             <div class="service-price">+3,000원</div>
                         </div>
                     </div>
@@ -497,8 +491,8 @@
                     <div class="checkbox-item" onclick="toggleService('toilet')">
                         <input type="checkbox" id="service_toilet">
                         <div class="service-info">
-                            <div class="service-name">화장실 정리</div>
-                            <div class="service-desc">변기, 세면대, 거울 정리</div>
+                            <div class="service-name">화장실 청소</div>
+                            <div class="service-desc">변기, 세면대, 거울 청소</div>
                             <div class="service-price">+3,000원</div>
                         </div>
                     </div>
@@ -892,13 +886,13 @@
                 selectedServices.push('기본 정리 (12,000원)');
             }
             if (document.getElementById('service_floor').checked) {
-                selectedServices.push('바닥 정리 (+3,000원)');
+                selectedServices.push('바닥 청소 (+3,000원)');
             }
             if (document.getElementById('service_dishes').checked) {
                 selectedServices.push('설거지 (+3,000원)');
             }
             if (document.getElementById('service_toilet').checked) {
-                selectedServices.push('화장실 정리 (+3,000원)');
+                selectedServices.push('화장실 청소 (+3,000원)');
             }
             
             const urgency = document.getElementById('urgency').value;

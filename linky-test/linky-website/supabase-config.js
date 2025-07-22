@@ -2,9 +2,8 @@
 // Drop-in replacement for Firebase
 
 // Supabase 초기화
-// 프로덕션에서는 환경변수를 사용하세요
-const supabaseUrl = window.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseAnonKey = window.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
+const supabaseUrl = 'https://mzihuflrbspvyjknxlad.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16aWh1ZmxyYnNwdnlqa254bGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4MTk3ODgsImV4cCI6MjA2ODM5NTc4OH0.UDwv6eknjWwmbZ9WsRioi3J23_1az9O1pJFlnKgQ88s';
 
 // 전역 변수로 Supabase 클라이언트 생성
 let supabaseClient;
