@@ -1015,11 +1015,19 @@ class AuthModal {
           
         if (emailUserData && emailUserData.length > 0) {
           console.log('이메일로 사용자 정보 찾음:', emailUserData[0]);
-          return { 
-            success: true, 
-            user: data.user,
-            userData: emailUserData[0]
-          };
+          userRecord = emailUserData[0];
+        } else {
+          console.log('이메일로도 사용자를 찾을 수 없음. 마이그레이션 시도...');
+          
+          // user-migration.js가 로드되었는지 확인
+          if (typeof window.migrateUser === 'function') {
+            userRecord = await window.migrateUser(data.user);
+            if (userRecord) {
+              console.log('사용자 마이그레이션 성공:', userRecord);
+            }
+          } else {
+            console.warn('마이그레이션 함수를 사용할 수 없습니다.');
+          }
         }
       } else {
         console.log('사용자 레코드 조회 성공:', userRecord);
