@@ -994,11 +994,33 @@ class AuthModal {
       const userRecord = userData && userData.length > 0 ? userData[0] : null;
 
       console.log('사용자 정보 조회 결과:', { userData, userError, userRecord });
+      console.log('사용자 UID:', data.user.id);
+      console.log('사용자 이메일:', data.user.email);
 
       if (userError) {
         console.error('사용자 정보 조회 오류:', userError);
       } else if (!userRecord) {
         console.warn('Users 테이블에서 해당 사용자를 찾을 수 없습니다. UID:', data.user.id);
+        
+        // Auth 정보로부터 이메일 가져오기
+        const email = data.user.email;
+        
+        // 이메일로 사용자 정보 다시 조회 시도
+        console.log('이메일로 사용자 정보 재조회 시도:', email);
+        const { data: emailUserData, error: emailError } = await window.supabaseClient
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .limit(1);
+          
+        if (emailUserData && emailUserData.length > 0) {
+          console.log('이메일로 사용자 정보 찾음:', emailUserData[0]);
+          return { 
+            success: true, 
+            user: data.user,
+            userData: emailUserData[0]
+          };
+        }
       } else {
         console.log('사용자 레코드 조회 성공:', userRecord);
       }
