@@ -915,12 +915,21 @@ class AuthModal {
         // 선택적 필드 추가 (존재하는 경우만)
         if (userData.phone) userRecord.phone = userData.phone;
         
+        // 비즈니스 타입의 경우 valid_business_data 제약 조건 만족을 위한 필드
+        if (userData.type === 'business') {
+          // 비즈니스 필수 필드 추가
+          userRecord.business_name = userData.businessName || userData.name;
+          userRecord.business_number = userData.businessNumber || '000-00-00000'; // 임시값
+          userRecord.business_type = userData.businessType || 'other';
+          userRecord.business_address = userData.businessAddress || '주소 미입력';
+        }
+        
         // 파트너 타입의 경우 valid_partner_data 제약 조건 만족을 위한 기본값
         if (userData.type === 'partner') {
           // residence가 없으면 기본값 설정 (제약 조건 위반 방지)
           userRecord.residence = userData.residence || '서울시';
-          // workAreas가 없으면 기본값 설정
-          userRecord.workAreas = (userData.workAreas && userData.workAreas.length > 0) 
+          // work_areas로 변경 (언더스코어 사용)
+          userRecord.work_areas = (userData.workAreas && userData.workAreas.length > 0) 
             ? userData.workAreas 
             : ['강남구'];
         }
@@ -943,12 +952,20 @@ class AuthModal {
         }
         */
 
+        console.log('users 테이블에 저장할 데이터:', userRecord);
+        
         const { error: dbError } = await window.supabaseClient
           .from('users')
           .insert([userRecord]);
 
         if (dbError) {
           console.error('DB 저장 오류:', dbError);
+          console.error('오류 상세:', {
+            code: dbError.code,
+            message: dbError.message,
+            details: dbError.details,
+            hint: dbError.hint
+          });
           // Auth 사용자 삭제 (롤백) - admin API는 클라이언트에서 사용 불가
           // await window.supabaseClient.auth.admin.deleteUser(authData.user.id);
           throw dbError;
