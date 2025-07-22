@@ -954,9 +954,10 @@ class AuthModal {
 
         console.log('users 테이블에 저장할 데이터:', userRecord);
         
-        const { error: dbError } = await window.supabaseClient
+        const { data: insertedData, error: dbError } = await window.supabaseClient
           .from('users')
-          .insert([userRecord]);
+          .insert([userRecord])
+          .select();
 
         if (dbError) {
           console.error('DB 저장 오류:', dbError);
@@ -970,6 +971,17 @@ class AuthModal {
           // await window.supabaseClient.auth.admin.deleteUser(authData.user.id);
           throw dbError;
         }
+        
+        console.log('DB 저장 성공! 생성된 사용자:', insertedData);
+        
+        // 저장 후 즉시 조회해서 확인
+        const { data: verifyData, error: verifyError } = await window.supabaseClient
+          .from('users')
+          .select('*')
+          .eq('uid', authData.user.id)
+          .single();
+          
+        console.log('저장 직후 확인 조회:', { verifyData, verifyError });
       }
 
       return { success: true, user: authData.user };
@@ -1008,6 +1020,7 @@ class AuthModal {
       if (error) throw error;
 
       // 사용자 정보 조회 (중복 방지)
+      console.log('users 테이블 조회 시작 - UID:', data.user.id);
       const { data: userData, error: userError } = await window.supabaseClient
         .from('users')
         .select('*')
@@ -1017,8 +1030,18 @@ class AuthModal {
       const userRecord = userData && userData.length > 0 ? userData[0] : null;
 
       console.log('사용자 정보 조회 결과:', { userData, userError, userRecord });
+      console.log('조회된 레코드 수:', userData ? userData.length : 0);
       console.log('사용자 UID:', data.user.id);
       console.log('사용자 이메일:', data.user.email);
+      
+      if (userRecord) {
+        console.log('찾은 사용자 정보:', {
+          id: userRecord.id,
+          email: userRecord.email,
+          type: userRecord.type,
+          status: userRecord.status
+        });
+      }
 
       if (userError) {
         console.error('사용자 정보 조회 오류:', userError);
