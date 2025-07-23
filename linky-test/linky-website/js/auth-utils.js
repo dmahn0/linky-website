@@ -3,20 +3,84 @@
 // 사용자 로그인 시 처리
 async function handleUserLoggedIn(user) {
     try {
-        // Supabase에서 사용자 정보 가져오기
-        const { data: userData, error } = await window.supabaseClient
-            .from('users')
-            .select('*')
-            .eq('uid', user.id)
-            .single();
-
-        if (error || !userData) {
-            console.warn('사용자 문서가 존재하지 않습니다:', error);
+        // 새로운 테이블 구조 사용 - 사용자 타입 수동 확인
+        let userType = null;
+        
+        // business_users 테이블 확인
+        const { data: businessData } = await window.supabaseClient
+            .from('business_users')
+            .select('id')
+            .eq('auth_uid', user.id)
+            .limit(1);
+        
+        if (businessData && businessData.length > 0) {
+            userType = 'business';
+        } else {
+            // partner_users 테이블 확인
+            const { data: partnerData } = await window.supabaseClient
+                .from('partner_users')
+                .select('id')
+                .eq('auth_uid', user.id)
+                .limit(1);
+            
+            if (partnerData && partnerData.length > 0) {
+                userType = 'partner';
+            } else {
+                // admins 테이블 확인
+                const { data: adminData } = await window.supabaseClient
+                    .from('admins')
+                    .select('id')
+                    .eq('auth_uid', user.id)
+                    .limit(1);
+                
+                if (adminData && adminData.length > 0) {
+                    userType = 'admin';
+                }
+            }
+        }
+        
+        console.log('사용자 타입:', userType);
+        
+        let userData = null;
+        let tableName = '';
+        
+        // 타입에 따라 적절한 테이블에서 데이터 가져오기
+        if (userType === 'business') {
+            tableName = 'business_users';
+            const { data, error } = await window.supabaseClient
+                .from(tableName)
+                .select('*')
+                .eq('auth_uid', user.id)
+                .single();
+            userData = data;
+            if (error) console.error('비즈니스 사용자 조회 오류:', error);
+        } else if (userType === 'partner') {
+            tableName = 'partner_users';
+            const { data, error } = await window.supabaseClient
+                .from(tableName)
+                .select('*')
+                .eq('auth_uid', user.id)
+                .single();
+            userData = data;
+            if (error) console.error('파트너 사용자 조회 오류:', error);
+        } else if (userType === 'admin') {
+            tableName = 'admins';
+            const { data, error } = await window.supabaseClient
+                .from(tableName)
+                .select('*')
+                .eq('auth_uid', user.id)
+                .single();
+            userData = data;
+            if (error) console.error('어드민 조회 오류:', error);
+        }
+        
+        if (!userData) {
+            console.warn('사용자 문서가 존재하지 않습니다');
             return null;
         }
         
-        // 승인 상태 확인 (status가 없는 경우 approved로 간주)
-        if (userData.status && userData.status !== 'approved') {
+        // 승인 상태 확인 (어드민은 승인 불필요)
+        if (userType !== 'admin' && userData.status && userData.status !== 'approved') {
             console.log('사용자 승인 대기 중:', userData.status);
             
             if (userData.status === 'pending') {
@@ -30,16 +94,17 @@ async function handleUserLoggedIn(user) {
             return null;
         }
         
-        // status가 없으면 approved로 설정
-        if (!userData.status) {
+        // status가 없으면 approved로 설정 (어드민 제외)
+        if (userType !== 'admin' && !userData.status) {
             userData.status = 'approved';
             console.log('User status not set, defaulting to approved');
         }
 
-        // uid가 포함된 완전한 사용자 데이터
+        // uid와 type이 포함된 완전한 사용자 데이터
         const completeUserData = {
             uid: user.id,
             email: user.email,
+            type: userType,
             ...userData
         };
 
@@ -56,7 +121,7 @@ async function handleUserLoggedIn(user) {
 
         // Analytics 트래킹
         if (typeof trackEvent !== 'undefined') {
-            trackEvent('User', 'login', userData.type);
+            trackEvent('User', 'login', userType);
         }
 
         return completeUserData;

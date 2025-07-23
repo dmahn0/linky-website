@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Function</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Creating get_user_type function...</h1>
+    <div id="result"></div>
+    
+    <script>
+        const supabaseUrl = 'https://mzihuflrbspvyjknxlad.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16aWh1ZmxyYnNwdnlqa254bGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4MTk3ODgsImV4cCI6MjA2ODM5NTc4OH0.UDwv6eknjWwmbZ9WsRioi3J23_1az9O1pJFlnKgQ88s';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        
+        async function createFunction() {
+            try {
+                const functionSQL = `
+                    CREATE OR REPLACE FUNCTION get_user_type(user_auth_uid UUID)
+                    RETURNS TEXT AS $$
+                    DECLARE
+                        business_count INTEGER;
+                        partner_count INTEGER;
+                        admin_count INTEGER;
+                    BEGIN
+                        SELECT COUNT(*) INTO business_count
+                        FROM business_users 
+                        WHERE auth_uid = user_auth_uid;
+                        
+                        IF business_count > 0 THEN
+                            RETURN 'business';
+                        END IF;
+                        
+                        SELECT COUNT(*) INTO partner_count
+                        FROM partner_users 
+                        WHERE auth_uid = user_auth_uid;
+                        
+                        IF partner_count > 0 THEN
+                            RETURN 'partner';
+                        END IF;
+                        
+                        SELECT COUNT(*) INTO admin_count
+                        FROM admins 
+                        WHERE auth_uid = user_auth_uid;
+                        
+                        IF admin_count > 0 THEN
+                            RETURN 'admin';
+                        END IF;
+                        
+                        RETURN NULL;
+                    END;
+                    $$ LANGUAGE plpgsql SECURITY DEFINER;
+                `;
+                
+                // 함수 생성을 위해 직접 SQL 실행
+                const { data, error } = await supabase.rpc('exec_sql', {
+                    query: functionSQL
+                });
+                
+                if (error) {
+                    document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                } else {
+                    document.getElementById('result').innerHTML = `<p style="color: green;">Function created successfully!</p>`;
+                }
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">Exception: ${error.message}</p>`;
+            }
+        }
+        
+        // 페이지 로드 시 함수 생성 시도
+        createFunction();
+    </script>
+</body>
+</html>

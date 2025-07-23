@@ -810,9 +810,9 @@ class AuthModal {
             console.log('파트너 대시보드로 이동');
             window.location.replace('./dashboard.html');
           } else if (isInBusinessDir) {
-            window.location.replace('../partners/');
+            window.location.replace('../partners/dashboard.html');
           } else {
-            window.location.replace('./partners/');
+            window.location.replace('./partners/dashboard.html');
           }
         } else {
           // 기타 경우 페이지 새로고침
@@ -879,77 +879,23 @@ class AuthModal {
         return { success: false, error: 'Supabase client not initialized' };
       }
       
-      const supabaseClient = window.supabaseClient;
-      
-      // 1. Supabase Auth에 사용자 생성
-      const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
-        email: userData.email,
-        password: userData.password,
-        options: {
-          data: {
-            name: userData.name,
-            type: userData.type
-          }
-        }
-      });
-
-      if (authError) throw authError;
-
-      // 2. users 테이블에 사용자 정보 저장
-      if (authData.user) {
-        const userRecord = {
-          uid: authData.user.id,
-          email: userData.email,
-          name: userData.name,
-          type: userData.type,
-          status: 'pending',  // 모든 사용자에게 기본 status 추가
-          created_at: new Date().toISOString()  // 생성일시 추가
-        };
-
-        // 선택적 필드 추가 (존재하는 경우만)
-        if (userData.phone) userRecord.phone = userData.phone;
-        
-        // 파트너 타입의 경우 valid_partner_data 제약 조건 만족을 위한 기본값
-        if (userData.type === 'partner') {
-          // residence가 없으면 기본값 설정 (제약 조건 위반 방지)
-          userRecord.residence = userData.residence || '서울시';
-          // workAreas가 없으면 기본값 설정
-          userRecord.workAreas = (userData.workAreas && userData.workAreas.length > 0) 
-            ? userData.workAreas 
-            : ['강남구'];
-        }
-        
-        // 추가 정보들은 테이블 스키마 확인 후 추가 예정
-        // 현재는 기본 컬럼만 사용하여 회원가입 오류 방지
-        /*
-        // 사업자 추가 정보
-        if (userData.type === 'business') {
-          if (userData.businessName) userRecord.businessName = userData.businessName;
-          if (userData.businessNumber) userRecord.businessNumber = userData.businessNumber;
-          if (userData.businessAddress) userRecord.businessAddress = userData.businessAddress;
-          if (userData.businessType) userRecord.businessType = userData.businessType;
-        }
-
-        // 파트너 추가 정보
-        if (userData.type === 'partner') {
-          if (userData.residence) userRecord.residence = userData.residence;
-          if (userData.workAreas) userRecord.workAreas = userData.workAreas;
-        }
-        */
-
-        const { error: dbError } = await window.supabaseClient
-          .from('users')
-          .insert([userRecord]);
-
-        if (dbError) {
-          console.error('DB 저장 오류:', dbError);
-          // Auth 사용자 삭제 (롤백) - admin API는 클라이언트에서 사용 불가
-          // await window.supabaseClient.auth.admin.deleteUser(authData.user.id);
-          throw dbError;
-        }
+      // 새 인증 시스템 사용
+      let authManager;
+      if (userData.type === 'business') {
+        authManager = window.businessAuth;
+      } else if (userData.type === 'partner') {
+        authManager = window.partnerAuth;
       }
-
-      return { success: true, user: authData.user };
+      
+      if (!authManager) {
+        console.error('인증 관리자를 찾을 수 없습니다.');
+        return { success: false, error: '인증 시스템 오류' };
+      }
+      
+      // 새 인증 시스템으로 회원가입
+      const result = await authManager.signUp(userData);
+      
+      return result;
     } catch (error) {
       console.error('회원가입 오류:', error);
       return { success: false, error: error.message };
@@ -968,45 +914,50 @@ class AuthModal {
         return { success: false, error: 'Supabase client not initialized' };
       }
       
-      const supabaseClient = window.supabaseClient;
-      console.log('supabaseClient 확인 완료');
-      
-      console.log('signInWithPassword 호출 전');
-      
-      // 직접 Supabase 로그인 호출
+      // 먼저 사용자 타입을 확인하기 위해 직접 로그인 시도
       const { data, error } = await window.supabaseClient.auth.signInWithPassword({
         email: email,
         password: password
       });
       
-      console.log('signInWithPassword 호출 후');
-      console.log('Supabase 로그인 응답:', { data, error });
-
       if (error) throw error;
-
-      // 사용자 정보 조회 (중복 방지)
-      const { data: userData, error: userError } = await window.supabaseClient
-        .from('users')
-        .select('*')
-        .eq('uid', data.user.id)
-        .limit(1);
       
-      const userRecord = userData && userData.length > 0 ? userData[0] : null;
-
-      console.log('사용자 정보 조회 결과:', { userData, userError, userRecord });
-
-      if (userError) {
-        console.error('사용자 정보 조회 오류:', userError);
-      } else if (!userRecord) {
-        console.warn('Users 테이블에서 해당 사용자를 찾을 수 없습니다. UID:', data.user.id);
+      // 사용자 타입 확인
+      const { data: funcResult } = await window.supabaseClient
+        .rpc('get_user_type', { user_auth_uid: data.user.id });
+      
+      console.log('사용자 타입:', funcResult);
+      
+      // 타입에 따라 적절한 인증 관리자 사용
+      let authManager;
+      let userType;
+      
+      if (funcResult === 'business') {
+        authManager = window.businessAuth;
+        userType = 'business';
+      } else if (funcResult === 'partner') {
+        authManager = window.partnerAuth;
+        userType = 'partner';
       } else {
-        console.log('사용자 레코드 조회 성공:', userRecord);
+        // 타입이 없는 경우 기본 처리
+        console.warn('사용자 타입을 확인할 수 없습니다.');
+        return {
+          success: true,
+          user: data.user,
+          userData: { type: null }
+        };
       }
-
+      
+      // 프로필 정보 가져오기
+      const currentUser = await authManager.getCurrentUser();
+      
       return { 
         success: true, 
         user: data.user,
-        userData: userRecord
+        userData: {
+          ...currentUser?.profile,
+          type: userType
+        }
       };
     } catch (error) {
       console.error('supabaseSignIn 에러 발생:', error);

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky - 관리자 대시보드</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #f7fafc;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #6b7280;
+        }
+
+        /* 사이드바 */
+        .admin-layout {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 30px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 12px 25px;
+            color: #6b7280;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-right: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #f3f4f6;
+            color: #4f46e5;
+            border-right-color: #4f46e5;
+        }
+
+        /* 메인 컨텐츠 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 30px;
+        }
+
+        /* 통계 카드 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #4f46e5;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            color: #4f46e5;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-increase {
+            color: #10b981;
+        }
+
+        .stat-decrease {
+            color: #ef4444;
+        }
+
+        /* 테이블 스타일 */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: #f8fafc;
+            padding: 20px 25px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px 25px;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .data-table td {
+            color: #6b7280;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* 상태 배지 */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-active {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* 필터 */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* 탭 */
+        .tab-container {
+            margin-bottom: 30px;
+        }
+
+        .tab-list {
+            display: flex;
+            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 20px;
+        }
+
+        .tab-item {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-item.active {
+            color: #4f46e5;
+            border-bottom-color: #4f46e5;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 로딩 상태 */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .admin-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 20px 0;
+            }
+            
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 20px;
+            }
+            
+            .sidebar-menu li {
+                margin-bottom: 0;
+                margin-right: 15px;
+                white-space: nowrap;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-content">
+            <a href="../" class="logo">🔗 Linky Admin</a>
+            <div class="admin-info">
+                <span id="adminName">관리자</span>
+                <button class="btn btn-secondary btn-small" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 레이아웃 -->
+    <div class="admin-layout">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="active" onclick="showTab('dashboard')">📊 대시보드</a></li>
+                <li><a href="#users" onclick="showTab('users')">👥 회원 관리</a></li>
+                <li><a href="#jobs" onclick="showTab('jobs')">💼 작업 관리</a></li>
+                <li><a href="#spaces" onclick="showTab('spaces')">🏢 공간 관리</a></li>
+                <li><a href="#bookings" onclick="showTab('bookings')">🎓 교육 예약</a></li>
+                <li><a href="#facilities" onclick="showTab('facilities')">🔧 시설 신청</a></li>
+                <li><a href="#analytics" onclick="showTab('analytics')">📈 통계 분석</a></li>
+                <li><a href="#settings" onclick="showTab('settings')">⚙️ 설정</a></li>
+            </ul>
+        </aside>
+
+        <!-- 메인 컨텐츠 -->
+        <main class="main-content">
+            <!-- 대시보드 탭 -->
+            <div id="dashboard" class="tab-content active">
+                <h1 class="page-title">대시보드</h1>
+                
+                <!-- 통계 카드 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">총 회원 수</span>
+                            <span class="stat-icon">👥</span>
+                        </div>
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-change stat-increase">+12% 이번 달</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">활성 파트너</span>
+                            <span class="stat-icon">🤝</span>
+                        </div>
+                        <div class="stat-number" id="activePartners">0</div>
+                        <div class="stat-change stat-increase">+8% 이번 달</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">이번 달 거래</span>
+                            <span class="stat-icon">💰</span>
+                        </div>
+                        <div class="stat-number" id="monthlyJobs">0</div>
+                        <div class="stat-change stat-increase">+25% 전월 대비</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">승인 대기</span>
+                            <span class="stat-icon">⏳</span>
+                        </div>
+                        <div class="stat-number" id="pendingApprovals">0</div>
+                        <div class="stat-change">처리 필요</div>
+                    </div>
+                </div>
+
+                <!-- 최근 활동 -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">최근 활동</h3>
+                        <button class="btn btn-primary btn-small" onclick="loadRecentActivity()">새로고침</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>시간</th>
+                                <th>활동</th>
+                                <th>사용자</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivityTable">
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    <div class="empty-icon">📋</div>
+                                    <div>활동 내역을 불러오는 중...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 회원 관리 탭 -->
+            <div id="users" class="tab-content">
+                <h1 class="page-title">회원 관리</h1>
+                
+                <!-- 필터 -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label class="filter-label">회원 유형</label>
+                        <select class="filter-select" id="userTypeFilter" onchange="filterUsers()">
+                            <option value="">전체</option>
+                            <option value="business">사업자</option>
+                            <option value="partner">파트너</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">상태</label>
+                        <select class="filter-select" id="userStatusFilter" onchange="filterUsers()">
+                            <option value="">전체</option>
+                            <option value="pending">승인 대기</option>
+                            <option value="approved">승인 완료</option>
+                            <option value="rejected">승인 거부</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadUsers()">새로고침</button>
+                </div>
+
+                <!-- 회원 목록 -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">회원 목록</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-success btn-small" onclick="approveSelected()">선택 승인</button>
+                            <button class="btn btn-danger btn-small" onclick="rejectSelected()">선택 거부</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                                <th>이름</th>
+                                <th>이메일</th>
+                                <th>유형</th>
+                                <th>상태</th>
+                                <th>가입일</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <div class="empty-icon">👥</div>
+                                    <div>회원 정보를 불러오는 중...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 작업 관리 탭 -->
+            <div id="jobs" class="tab-content">
+                <h1 class="page-title">작업 관리</h1>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">작업 목록</h3>
+                        <button class="btn btn-primary btn-small" onclick="loadJobs()">새로고침</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>작업 ID</th>
+                                <th>공간</th>
+                                <th>사업자</th>
+                                <th>파트너</th>
+                                <th>금액</th>
+                                <th>상태</th>
+                                <th>일정</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jobsTable">
+                            <tr>
+                                <td colspan="8" class="empty-state">
+                                    <div class="empty-icon">💼</div>
+                                    <div>작업 정보를 불러오는 중...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 기타 탭들... (간소화) -->
+            <div id="spaces" class="tab-content">
+                <h1 class="page-title">공간 관리</h1>
+                <div class="empty-state">
+                    <div class="empty-icon">🏢</div>
+                    <div>공간 관리 기능 준비 중입니다.</div>
+                </div>
+            </div>
+
+            <div id="bookings" class="tab-content">
+                <h1 class="page-title">교육 예약 관리</h1>
+                <div class="empty-state">
+                    <div class="empty-icon">🎓</div>
+                    <div>교육 예약 관리 기능 준비 중입니다.</div>
+                </div>
+            </div>
+
+            <div id="facilities" class="tab-content">
+                <h1 class="page-title">시설 신청 관리</h1>
+                <div class="empty-state">
+                    <div class="empty-icon">🔧</div>
+                    <div>시설 신청 관리 기능 준비 중입니다.</div>
+                </div>
+            </div>
+
+            <div id="analytics" class="tab-content">
+                <h1 class="page-title">통계 분석</h1>
+                <div class="empty-state">
+                    <div class="empty-icon">📈</div>
+                    <div>통계 분석 기능 준비 중입니다.</div>
+                </div>
+            </div>
+
+            <div id="settings" class="tab-content">
+                <h1 class="page-title">설정</h1>
+                <div class="empty-state">
+                    <div class="empty-icon">⚙️</div>
+                    <div>설정 기능 준비 중입니다.</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase 설정 및 스크립트 -->
+    <script src="../supabase-config.js"></script>
+    <script src="../js/auth-utils.js"></script>
+    <script src="../js/utils.js"></script>
+    <script>
+        // 전역 변수
+        let currentUser = null;
+        let allUsers = [];
+        let allJobs = [];
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Supabase가 로드될 때까지 대기
+            await waitForSupabase();
+            
+            // 현재 인증 상태 확인
+            const { isAuthenticated, user } = await checkAuthStatus();
+            
+            if (isAuthenticated && user) {
+                if (user.type === 'admin') {
+                    currentUser = user;
+                    document.getElementById('adminName').textContent = user.name || '관리자';
+                    loadDashboard();
+                } else {
+                    alert('관리자 권한이 필요합니다.');
+                    window.location.href = '../';
+                }
+            } else {
+                alert('로그인이 필요합니다.');
+                window.location.href = '../';
+            }
+        });
+
+        // Supabase 로드 대기
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabaseClient) {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabaseClient) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        // 대시보드 로드
+        async function loadDashboard() {
+            try {
+                // 통계 데이터 로드
+                await Promise.all([
+                    loadUserStats(),
+                    loadJobStats(),
+                    loadRecentActivity()
+                ]);
+            } catch (error) {
+                console.error('대시보드 로드 오류:', error);
+            }
+        }
+
+        // 사용자 통계 로드
+        async function loadUserStats() {
+            try {
+                // 비즈니스 사용자 조회
+                const { data: businessUsers, error: businessError } = await window.supabaseClient
+                    .from('business_users')
+                    .select('id, status');
+                
+                // 파트너 사용자 조회  
+                const { data: partnerUsers, error: partnerError } = await window.supabaseClient
+                    .from('partner_users')
+                    .select('id, status');
+
+                if (businessError) throw businessError;
+                if (partnerError) throw partnerError;
+
+                const totalUsers = (businessUsers?.length || 0) + (partnerUsers?.length || 0);
+                const activePartners = partnerUsers?.filter(u => u.status === 'approved').length || 0;
+                const pendingApprovals = (businessUsers?.filter(u => u.status === 'pending').length || 0) + 
+                                       (partnerUsers?.filter(u => u.status === 'pending').length || 0);
+
+                document.getElementById('totalUsers').textContent = totalUsers;
+                document.getElementById('activePartners').textContent = activePartners;
+                document.getElementById('pendingApprovals').textContent = pendingApprovals;
+            } catch (error) {
+                console.error('사용자 통계 로드 오류:', error);
+            }
+        }
+
+        // 작업 통계 로드
+        async function loadJobStats() {
+            try {
+                // 이번 달 시작일 계산
+                const startOfMonth = new Date();
+                startOfMonth.setDate(1);
+                startOfMonth.setHours(0, 0, 0, 0);
+
+                const { data: jobs, error } = await window.supabaseClient
+                    .from('jobs')
+                    .select('created_at')
+                    .gte('created_at', startOfMonth.toISOString());
+
+                if (error) throw error;
+
+                document.getElementById('monthlyJobs').textContent = jobs?.length || 0;
+            } catch (error) {
+                console.error('작업 통계 로드 오류:', error);
+                document.getElementById('monthlyJobs').textContent = 0;
+            }
+        }
+
+        // 최근 활동 로드
+        async function loadRecentActivity() {
+            try {
+                // 임시 데이터 (실제로는 Supabase에서 로드)
+                const activities = [
+                    { time: '10분 전', activity: '새로운 회원가입', user: '홍길동', status: 'pending' },
+                    { time: '30분 전', activity: '작업 완료', user: '김파트너', status: 'completed' },
+                    { time: '1시간 전', activity: '작업 요청', user: '이사업자', status: 'active' },
+                    { time: '2시간 전', activity: '회원 승인', user: '박파트너', status: 'approved' }
+                ];
+
+                const tableBody = document.getElementById('recentActivityTable');
+                tableBody.innerHTML = activities.map(activity => `
+                    <tr>
+                        <td>${activity.time}</td>
+                        <td>${activity.activity}</td>
+                        <td>${activity.user}</td>
+                        <td><span class="status-badge status-${activity.status}">${getStatusLabel(activity.status)}</span></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('최근 활동 로드 오류:', error);
+            }
+        }
+
+        // 회원 목록 로드
+        async function loadUsers() {
+            try {
+                allUsers = [];
+                
+                // 비즈니스 사용자 조회
+                const { data: businessUsers, error: businessError } = await window.supabaseClient
+                    .from('business_users')
+                    .select('id, auth_uid, business_name as name, email, status, created_at')
+                    .order('created_at', { ascending: false });
+                
+                if (businessError) throw businessError;
+                
+                // 파트너 사용자 조회  
+                const { data: partnerUsers, error: partnerError } = await window.supabaseClient
+                    .from('partner_users')
+                    .select('id, auth_uid, name, email, status, created_at')
+                    .order('created_at', { ascending: false });
+                
+                if (partnerError) throw partnerError;
+                
+                // 사용자 타입 추가
+                const businessUsersWithType = businessUsers?.map(user => ({ ...user, type: 'business' })) || [];
+                const partnerUsersWithType = partnerUsers?.map(user => ({ ...user, type: 'partner' })) || [];
+                
+                // 합치기 및 날짜순 정렬
+                allUsers = [...businessUsersWithType, ...partnerUsersWithType]
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                displayUsers(allUsers);
+            } catch (error) {
+                console.error('회원 목록 로드 오류:', error);
+                const tableBody = document.getElementById('usersTable');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div>회원 정보를 불러오는데 실패했습니다.</div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // 회원 목록 표시
+        function displayUsers(users) {
+            const tableBody = document.getElementById('usersTable');
+            
+            if (users.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-icon">👥</div>
+                            <div>회원이 없습니다.</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = users.map(user => `
+                <tr>
+                    <td><input type="checkbox" class="user-checkbox" value="${user.id}" data-type="${user.type}"></td>
+                    <td>${user.name || 'N/A'}</td>
+                    <td>${user.email}</td>
+                    <td>${getTypeLabel(user.type)}</td>
+                    <td><span class="status-badge status-${user.status}">${getStatusLabel(user.status)}</span></td>
+                    <td>${formatDate(user.created_at)}</td>
+                    <td>
+                        ${user.status === 'pending' ? `
+                            <button class="btn btn-success btn-small" onclick="approveUser('${user.id}', '${user.type}')">승인</button>
+                            <button class="btn btn-danger btn-small" onclick="rejectUser('${user.id}', '${user.type}')">거부</button>
+                        ` : `
+                            <button class="btn btn-secondary btn-small" onclick="viewUser('${user.id}', '${user.type}')">상세</button>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 회원 필터링
+        function filterUsers() {
+            const typeFilter = document.getElementById('userTypeFilter').value;
+            const statusFilter = document.getElementById('userStatusFilter').value;
+            
+            let filteredUsers = allUsers;
+            
+            if (typeFilter) {
+                filteredUsers = filteredUsers.filter(user => user.type === typeFilter);
+            }
+            
+            if (statusFilter) {
+                filteredUsers = filteredUsers.filter(user => user.status === statusFilter);
+            }
+            
+            displayUsers(filteredUsers);
+        }
+
+        // 회원 승인
+        async function approveUser(userId, userType) {
+            try {
+                const tableName = userType === 'business' ? 'business_users' : 'partner_users';
+                
+                const { error } = await window.supabaseClient
+                    .from(tableName)
+                    .update({
+                        status: 'approved',
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', userId);
+
+                if (error) throw error;
+                
+                alert('회원이 승인되었습니다.');
+                loadUsers();
+                loadDashboard();
+            } catch (error) {
+                console.error('회원 승인 오류:', error);
+                alert('승인 처리 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 회원 거부
+        async function rejectUser(userId, userType) {
+            if (confirm('정말 이 회원을 거부하시겠습니까?')) {
+                try {
+                    const tableName = userType === 'business' ? 'business_users' : 'partner_users';
+                    
+                    const { error } = await window.supabaseClient
+                        .from(tableName)
+                        .update({
+                            status: 'rejected',
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('id', userId);
+
+                    if (error) throw error;
+                    
+                    alert('회원이 거부되었습니다.');
+                    loadUsers();
+                    loadDashboard();
+                } catch (error) {
+                    console.error('회원 거부 오류:', error);
+                    alert('거부 처리 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        // 작업 목록 로드
+        async function loadJobs() {
+            const tableBody = document.getElementById('jobsTable');
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <div class="empty-icon">💼</div>
+                        <div>작업 관리 기능 준비 중입니다.</div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // 탭 전환
+        function showTab(tabName) {
+            // 모든 탭 컨텐츠 숨기기
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 모든 사이드바 메뉴 비활성화
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // 선택된 탭 표시
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`a[href="#${tabName}"]`).classList.add('active');
+            
+            // 탭별 데이터 로드
+            if (tabName === 'users' && allUsers.length === 0) {
+                loadUsers();
+            } else if (tabName === 'jobs') {
+                loadJobs();
+            }
+        }
+
+        // 유틸리티 함수들 (utils.js 사용)
+        function getTypeLabel(type) {
+            return LinkyUtils.getTypeLabel(type);
+        }
+
+        function getStatusLabel(status) {
+            return LinkyUtils.getStatusLabel(status);
+        }
+
+        function formatDate(timestamp) {
+            return LinkyUtils.formatDate(timestamp);
+        }
+
+        // 전체 선택 토글
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+
+        // 선택된 회원 승인
+        async function approveSelected() {
+            const selected = document.querySelectorAll('.user-checkbox:checked');
+            if (selected.length === 0) {
+                alert('승인할 회원을 선택해주세요.');
+                return;
+            }
+            
+            if (confirm(`선택된 ${selected.length}명의 회원을 승인하시겠습니까?`)) {
+                try {
+                    const promises = Array.from(selected).map(checkbox => {
+                        const userId = checkbox.value;
+                        const userType = checkbox.dataset.type;
+                        const tableName = userType === 'business' ? 'business_users' : 'partner_users';
+                        
+                        return window.supabaseClient
+                            .from(tableName)
+                            .update({
+                                status: 'approved',
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', userId);
+                    });
+                    
+                    await Promise.all(promises);
+                    alert('선택된 회원들이 승인되었습니다.');
+                    loadUsers();
+                    loadDashboard();
+                } catch (error) {
+                    console.error('일괄 승인 오류:', error);
+                    alert('승인 처리 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        // 선택된 회원 거부
+        async function rejectSelected() {
+            const selected = document.querySelectorAll('.user-checkbox:checked');
+            if (selected.length === 0) {
+                alert('거부할 회원을 선택해주세요.');
+                return;
+            }
+            
+            if (confirm(`선택된 ${selected.length}명의 회원을 거부하시겠습니까?`)) {
+                try {
+                    const promises = Array.from(selected).map(checkbox => {
+                        const userId = checkbox.value;
+                        const userType = checkbox.dataset.type;
+                        const tableName = userType === 'business' ? 'business_users' : 'partner_users';
+                        
+                        return window.supabaseClient
+                            .from(tableName)
+                            .update({
+                                status: 'rejected',
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', userId);
+                    });
+                    
+                    await Promise.all(promises);
+                    alert('선택된 회원들이 거부되었습니다.');
+                    loadUsers();
+                    loadDashboard();
+                } catch (error) {
+                    console.error('일괄 거부 오류:', error);
+                    alert('거부 처리 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        // 회원 상세 보기
+        function viewUser(userId) {
+            alert('회원 상세 보기 기능 준비 중입니다.');
+        }
+
+        // 로그아웃
+        async function handleLogout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                try {
+                    // Supabase 로그아웃
+                    const { error } = await window.supabaseClient.auth.signOut();
+                    
+                    if (error) {
+                        console.error('Supabase 로그아웃 오류:', error);
+                    }
+                    
+                    // 현재 사용자 정보 초기화
+                    currentUser = null;
+                    window.currentUser = null;
+                    
+                    // 세션 스토리지 정리
+                    sessionStorage.clear();
+                    localStorage.removeItem('supabase.auth.token');
+                    
+                    // 강제 리다이렉트 (replace 사용으로 뒤로가기 방지)
+                    window.location.replace('../index.html');
+                    
+                } catch (error) {
+                    console.error('로그아웃 오류:', error);
+                    // 오류가 있어도 강제 리다이렉트
+                    window.location.replace('../index.html');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

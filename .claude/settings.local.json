@@ -30,7 +30,12 @@
       "Bash(git stash:*)",
       "Bash(mkdir:*)",
       "Bash(move \"DATABASE_SCHEMA.md\" \"linky-website\\_ARCHIVED\"\")",
-      "Bash(move:*)"
+      "Bash(move:*)",
+      "Bash(curl:*)",
+      "Bash(start \"\" \"http://localhost:8000/test-auth.html\")",
+      "Bash(psql:*)",
+      "Bash(mv:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }

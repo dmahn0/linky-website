@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정리 요청하기 - Linky Business</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
+    
+    <!-- 인증 및 API -->
+    <script src="../js/auth/auth-manager.js"></script>
+    <script src="../js/auth/business-auth.js"></script>
+    <script src="../js/api/business-api.js"></script>
+    <script src="../js/auth-utils.js"></script>
+    
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/components.css">
+    
+    <style>
+        .create-job-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f8fafc;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .form-header {
+            margin-bottom: 40px;
+        }
+        
+        .form-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+        
+        .form-subtitle {
+            color: #6b7280;
+            font-size: 18px;
+        }
+        
+        /* 진행 단계 */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 0;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+            background: white;
+            padding: 0 10px;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .step.active .step-number {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+        }
+        
+        .step.active .step-label {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        /* 폼 스타일 */
+        .form-section {
+            display: none;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        .required::after {
+            content: ' *';
+            color: #ef4444;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* 공간 선택 카드 */
+        .space-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .space-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .space-option:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        
+        .space-option.selected {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        
+        .space-option input[type="radio"] {
+            display: none;
+        }
+        
+        .space-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .space-address {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        /* 날짜 시간 선택 */
+        .datetime-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* 요약 섹션 */
+        .summary-section {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            color: #6b7280;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .summary-total {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .total-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .total-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #22c55e;
+        }
+        
+        /* 버튼 */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn-primary {
+            background: #22c55e;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #16a34a;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 알림 */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+        }
+        
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+        }
+        
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .empty-description {
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        
+        /* 로딩 */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #22c55e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header id="header"></header>
+    
+    <!-- 정리 요청 컨테이너 -->
+    <div class="create-job-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-title">정리 요청하기</h1>
+                <p class="form-subtitle">깨끗한 공간을 위한 첫 단계입니다</p>
+            </div>
+            
+            <!-- 진행 단계 -->
+            <div class="progress-steps">
+                <div class="step active" id="step1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">공간 선택</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">작업 내용</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">일정 선택</div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">확인 및 완료</div>
+                </div>
+            </div>
+            
+            <!-- 폼 섹션들 -->
+            <form id="jobForm" onsubmit="handleSubmit(event)">
+                <!-- Step 1: 공간 선택 -->
+                <div class="form-section active" id="section1">
+                    <h2 style="margin-bottom: 24px;">정리할 공간을 선택해주세요</h2>
+                    
+                    <div id="spacesList">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    
+                    <div id="noSpacesAlert" class="empty-state" style="display: none;">
+                        <div class="empty-icon">🏢</div>
+                        <h3 class="empty-title">등록된 공간이 없습니다</h3>
+                        <p class="empty-description">먼저 공간을 등록해주세요</p>
+                        <a href="spaces.html" class="btn btn-primary">공간 등록하기</a>
+                    </div>
+                </div>
+                
+                <!-- Step 2: 작업 내용 -->
+                <div class="form-section" id="section2">
+                    <h2 style="margin-bottom: 24px;">작업 내용을 입력해주세요</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label required" for="jobTitle">작업 제목</label>
+                        <input type="text" id="jobTitle" class="form-input" required 
+                               placeholder="예: 주간 정기 청소">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required" for="jobType">작업 유형</label>
+                        <select id="jobType" class="form-select" required onchange="updatePrice()">
+                            <option value="">선택하세요</option>
+                            <option value="regular" data-price="50000">정기 청소 (₩50,000)</option>
+                            <option value="deep" data-price="100000">대청소 (₩100,000)</option>
+                            <option value="move_in" data-price="150000">입주 청소 (₩150,000)</option>
+                            <option value="move_out" data-price="150000">이사 청소 (₩150,000)</option>
+                            <option value="emergency" data-price="80000">긴급 청소 (₩80,000)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="jobDescription">상세 요청사항</label>
+                        <textarea id="jobDescription" class="form-textarea" 
+                                  placeholder="특별히 신경써주셨으면 하는 부분이나 주의사항을 입력해주세요"></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <span>💡</span>
+                        <span>작업 가격은 공간 크기와 작업 난이도에 따라 조정될 수 있습니다.</span>
+                    </div>
+                </div>
+                
+                <!-- Step 3: 일정 선택 -->
+                <div class="form-section" id="section3">
+                    <h2 style="margin-bottom: 24px;">작업 일정을 선택해주세요</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label required" for="preferredDate">희망 작업일</label>
+                        <input type="date" id="preferredDate" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label required" for="preferredTime">희망 시간대</label>
+                        <select id="preferredTime" class="form-select" required>
+                            <option value="">선택하세요</option>
+                            <option value="morning">오전 (09:00 - 12:00)</option>
+                            <option value="afternoon">오후 (12:00 - 18:00)</option>
+                            <option value="evening">저녁 (18:00 - 21:00)</option>
+                            <option value="flexible">시간 무관</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="urgency">긴급도</label>
+                        <select id="urgency" class="form-select">
+                            <option value="normal">보통</option>
+                            <option value="urgent">긴급</option>
+                            <option value="very_urgent">매우 긴급</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="additionalNotes">추가 메모</label>
+                        <textarea id="additionalNotes" class="form-textarea" 
+                                  placeholder="파트너에게 전달하고 싶은 메시지가 있다면 입력해주세요"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Step 4: 확인 및 완료 -->
+                <div class="form-section" id="section4">
+                    <h2 style="margin-bottom: 24px;">요청 내용을 확인해주세요</h2>
+                    
+                    <div class="summary-section">
+                        <h3 class="summary-title">요청 내용 요약</h3>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">공간</span>
+                            <span class="summary-value" id="summarySpace">-</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">작업 제목</span>
+                            <span class="summary-value" id="summaryTitle">-</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">작업 유형</span>
+                            <span class="summary-value" id="summaryType">-</span>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">희망 일정</span>
+                            <span class="summary-value" id="summarySchedule">-</span>
+                        </div>
+                        
+                        <div class="summary-total">
+                            <span class="total-label">예상 비용</span>
+                            <span class="total-value">₩<span id="summaryPrice">0</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <span>📋</span>
+                        <span>요청을 등록하면 파트너들이 신청할 수 있으며, 원하는 파트너를 선택할 수 있습니다.</span>
+                    </div>
+                </div>
+                
+                <!-- 버튼 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="previousStep()" id="prevBtn" style="display: none;">
+                        이전
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()" id="nextBtn">
+                        다음
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                        요청 등록하기
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 푸터 -->
+    <footer id="footer"></footer>
+    
+    <script>
+        // 전역 변수
+        let currentStep = 1;
+        let formData = {};
+        let spaces = [];
+        let currentUser = null;
+        let businessProfile = null;
+        
+        // 페이지 초기화
+        async function initializePage() {
+            try {
+                // 세션 확인
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (!session) {
+                    window.location.href = './index.html';
+                    return;
+                }
+                
+                currentUser = session.user;
+                
+                // 비즈니스 프로필 확인
+                const { data: profile, error } = await window.supabaseClient
+                    .from('businesses')
+                    .select('*')
+                    .eq('auth_uid', currentUser.id)
+                    .single();
+                
+                if (error || !profile) {
+                    alert('프로필을 불러올 수 없습니다.');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                
+                businessProfile = profile;
+                
+                // 공간 목록 로드
+                await loadSpaces();
+                
+                // 날짜 최소값 설정 (오늘부터)
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('preferredDate').min = today;
+                
+            } catch (error) {
+                console.error('초기화 오류:', error);
+                alert('페이지 로드 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 공간 목록 로드
+        async function loadSpaces() {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('spaces')
+                    .select('*')
+                    .eq('owner_id', currentUser.id)  // owner_id는 auth_uid를 참조
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                spaces = data || [];
+                displaySpaces();
+                
+            } catch (error) {
+                console.error('공간 로드 오류:', error);
+                alert('공간 목록을 불러올 수 없습니다.');
+            }
+        }
+        
+        // 공간 목록 표시
+        function displaySpaces() {
+            const container = document.getElementById('spacesList');
+            const noSpacesAlert = document.getElementById('noSpacesAlert');
+            
+            if (spaces.length === 0) {
+                container.style.display = 'none';
+                noSpacesAlert.style.display = 'block';
+                document.getElementById('nextBtn').disabled = true;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="space-grid">
+                    ${spaces.map(space => `
+                        <label class="space-option" for="space-${space.id}">
+                            <input type="radio" name="space" id="space-${space.id}" 
+                                   value="${space.id}" onchange="selectSpace('${space.id}')">
+                            <div class="space-name">${space.name}</div>
+                            <div class="space-address">${space.address}</div>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // 공간 선택
+        function selectSpace(spaceId) {
+            formData.spaceId = spaceId;
+            formData.space = spaces.find(s => s.id === spaceId);
+            
+            // 선택된 스타일 업데이트
+            document.querySelectorAll('.space-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`label[for="space-${spaceId}"]`).classList.add('selected');
+        }
+        
+        // 다음 단계
+        function nextStep() {
+            if (!validateStep(currentStep)) return;
+            
+            if (currentStep < 4) {
+                // 현재 단계 데이터 저장
+                saveStepData(currentStep);
+                
+                // 단계 이동
+                document.getElementById(`section${currentStep}`).classList.remove('active');
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById(`step${currentStep}`).classList.add('completed');
+                
+                currentStep++;
+                
+                document.getElementById(`section${currentStep}`).classList.add('active');
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                
+                // 버튼 표시 업데이트
+                updateButtons();
+                
+                // 마지막 단계면 요약 표시
+                if (currentStep === 4) {
+                    showSummary();
+                }
+            }
+        }
+        
+        // 이전 단계
+        function previousStep() {
+            if (currentStep > 1) {
+                document.getElementById(`section${currentStep}`).classList.remove('active');
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                
+                currentStep--;
+                
+                document.getElementById(`section${currentStep}`).classList.add('active');
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                document.getElementById(`step${currentStep}`).classList.remove('completed');
+                
+                updateButtons();
+            }
+        }
+        
+        // 단계 검증
+        function validateStep(step) {
+            switch (step) {
+                case 1:
+                    if (!formData.spaceId) {
+                        alert('공간을 선택해주세요.');
+                        return false;
+                    }
+                    break;
+                case 2:
+                    if (!document.getElementById('jobTitle').value || 
+                        !document.getElementById('jobType').value) {
+                        alert('필수 항목을 입력해주세요.');
+                        return false;
+                    }
+                    break;
+                case 3:
+                    if (!document.getElementById('preferredDate').value || 
+                        !document.getElementById('preferredTime').value) {
+                        alert('필수 항목을 입력해주세요.');
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+        
+        // 단계 데이터 저장
+        function saveStepData(step) {
+            switch (step) {
+                case 2:
+                    formData.title = document.getElementById('jobTitle').value;
+                    formData.type = document.getElementById('jobType').value;
+                    formData.description = document.getElementById('jobDescription').value;
+                    formData.price = parseInt(document.querySelector('#jobType option:checked').dataset.price);
+                    break;
+                case 3:
+                    formData.preferredDate = document.getElementById('preferredDate').value;
+                    formData.preferredTime = document.getElementById('preferredTime').value;
+                    formData.urgency = document.getElementById('urgency').value;
+                    formData.notes = document.getElementById('additionalNotes').value;
+                    break;
+            }
+        }
+        
+        // 버튼 표시 업데이트
+        function updateButtons() {
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').style.display = currentStep < 4 ? 'block' : 'none';
+            document.getElementById('submitBtn').style.display = currentStep === 4 ? 'block' : 'none';
+        }
+        
+        // 가격 업데이트
+        function updatePrice() {
+            const select = document.getElementById('jobType');
+            const selectedOption = select.options[select.selectedIndex];
+            const price = selectedOption.dataset.price;
+            // 나중에 UI에 표시할 수 있음
+        }
+        
+        // 요약 표시
+        function showSummary() {
+            document.getElementById('summarySpace').textContent = formData.space.name;
+            document.getElementById('summaryTitle').textContent = formData.title;
+            document.getElementById('summaryType').textContent = 
+                document.querySelector('#jobType option:checked').textContent;
+            document.getElementById('summarySchedule').textContent = 
+                `${formData.preferredDate} ${getTimeText(formData.preferredTime)}`;
+            document.getElementById('summaryPrice').textContent = formData.price.toLocaleString();
+        }
+        
+        // 시간대 텍스트 반환
+        function getTimeText(time) {
+            const times = {
+                morning: '오전',
+                afternoon: '오후',
+                evening: '저녁',
+                flexible: '시간 무관'
+            };
+            return times[time] || time;
+        }
+        
+        // 폼 제출 처리
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            try {
+                // 작업 데이터 준비
+                const jobData = {
+                    business_id: currentUser.id,  // auth_uid 사용
+                    space_id: formData.spaceId,
+                    title: formData.title,
+                    description: formData.description,
+                    type: formData.type,
+                    price: formData.price,
+                    preferred_date: formData.preferredDate,
+                    preferred_time: formData.preferredTime,
+                    urgency: formData.urgency,
+                    notes: formData.notes,
+                    status: 'pending'
+                };
+                
+                // 작업 생성
+                const { data, error } = await window.supabaseClient
+                    .from('jobs')
+                    .insert([jobData])
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                
+                alert('정리 요청이 등록되었습니다! 파트너들의 신청을 기다려주세요.');
+                window.location.href = 'jobs.html';
+                
+            } catch (error) {
+                console.error('작업 생성 오류:', error);
+                alert('요청 등록 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            // 헤더/푸터 로드
+            loadComponent('header', '../components/header.html');
+            loadComponent('footer', '../components/footer.html');
+            
+            // 페이지 초기화
+            initializePage();
+        });
+        
+        // 컴포넌트 로드 함수
+        async function loadComponent(id, path) {
+            try {
+                const response = await fetch(path);
+                const html = await response.text();
+                document.getElementById(id).innerHTML = html;
+            } catch (error) {
+                console.error(`${id} 로드 오류:`, error);
+            }
+        }
+    </script>
+</body>
+</html>

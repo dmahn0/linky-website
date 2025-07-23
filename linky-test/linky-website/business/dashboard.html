@@ -11,6 +11,93 @@
     <!-- Supabase 설정 -->
     <script src="../supabase-config.js"></script>
     
+    <!-- 새로운 인증 및 API -->
+    <script src="../js/auth/auth-manager.js"></script>
+    <script src="../js/auth/business-auth.js"></script>
+    <script src="../js/api/business-api.js"></script>
+    <script src="../js/auth-utils.js"></script>
+    
+    <script>
+        // 간단한 BusinessAPI 클래스 (임시)
+        class BusinessAPI {
+            constructor() {
+                this.tableName = 'business_users';
+            }
+
+            async getProfile(authUid) {
+                try {
+                    const { data, error } = await window.supabaseClient
+                        .from(this.tableName)
+                        .select('*')
+                        .eq('auth_uid', authUid)
+                        .single();
+                    if (error) throw error;
+                    return { data, error: null };
+                } catch (error) {
+                    console.error('프로필 조회 오류:', error);
+                    return { data: null, error: error.message };
+                }
+            }
+
+            async getStatistics(authUid) {
+                try {
+                    // 공간 수 조회
+                    const { data: spaces } = await window.supabaseClient
+                        .from('spaces')
+                        .select('*')
+                        .eq('owner_id', authUid);
+
+                    // 작업 조회
+                    const { data: jobs } = await window.supabaseClient
+                        .from('jobs')
+                        .select('*')
+                        .eq('business_id', authUid);
+
+                    const stats = {
+                        monthly: {
+                            pending_jobs: (jobs || []).filter(j => j.status === 'pending').length,
+                            completed_jobs: (jobs || []).filter(j => j.status === 'completed').length,
+                            total_jobs: (jobs || []).length,
+                            monthly_spent: (jobs || []).filter(j => j.status === 'completed').reduce((sum, j) => sum + (j.price || 0), 0)
+                        },
+                        total: {
+                            space_count: (spaces || []).length
+                        }
+                    };
+
+                    return { data: stats, error: null };
+                } catch (error) {
+                    console.error('통계 조회 오류:', error);
+                    return { data: null, error: error.message };
+                }
+            }
+
+            async getJobs(authUid) {
+                try {
+                    const { data, error } = await window.supabaseClient
+                        .from('jobs')
+                        .select(`
+                            *,
+                            space:spaces(name, address),
+                            partner:partner_users(name, phone)
+                        `)
+                        .eq('business_id', authUid)
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+                    return { data, error: null };
+                } catch (error) {
+                    console.error('작업 목록 조회 오류:', error);
+                    return { data: [], error: error.message };
+                }
+            }
+        }
+
+        // 전역 인스턴스 생성
+        window.businessAPI = new BusinessAPI();
+        console.log('BusinessAPI 인라인 로드 완료');
+    </script>
+    
     <!-- 공통 스타일 -->
     <link rel="stylesheet" href="../css/common.css">
     <link rel="stylesheet" href="../css/components.css">
@@ -102,20 +189,12 @@
         }
         
         .stat-label {
-            font-size: 16px;
             color: #6b7280;
+            font-size: 16px;
         }
         
-        .stat-detail {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e5e7eb;
-            font-size: 14px;
-            color: #64748b;
-        }
-        
-        /* 빠른 작업 섹션 */
-        .quick-actions {
+        /* 섹션 스타일 */
+        .section {
             background: white;
             padding: 30px;
             border-radius: 12px;
@@ -123,365 +202,522 @@
             margin-bottom: 30px;
         }
         
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 20px;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
         
-        .action-grid {
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        /* 빠른 액션 버튼들 */
+        .quick-actions {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
         }
         
-        .action-btn {
-            padding: 20px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            background: #f9fafb;
-            text-align: center;
-            text-decoration: none;
-            color: #374151;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: block;
-        }
-        
-        .action-btn:hover {
-            background: #f3f4f6;
-            border-color: #10b981;
-            color: #10b981;
-        }
-        
-        .action-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-            display: block;
-        }
-        
-        /* 최근 작업 섹션 */
-        .recent-jobs {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        
-        .job-list {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .job-item {
+        .action-button {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            gap: 10px;
             padding: 20px;
-            background: #f9fafb;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        
-        .job-item:hover {
             background: #f3f4f6;
-        }
-        
-        .job-info {
-            flex: 1;
-        }
-        
-        .job-name {
+            border: 2px solid transparent;
+            border-radius: 8px;
             font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 5px;
+            color: #374151;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
         }
         
-        .job-meta {
-            font-size: 14px;
-            color: #6b7280;
+        .action-button:hover {
+            background: #22c55e;
+            color: white;
+            border-color: #22c55e;
         }
         
-        .job-status {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+        .action-button .icon {
+            font-size: 24px;
+        }
+        
+        /* 알림 배너 */
+        .alert-banner {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .alert-banner.warning {
+            background: #fef3c7;
+            border-color: #fcd34d;
+        }
+        
+        .alert-banner.info {
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }
+        
+        .alert-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        /* 테이블 스타일 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .data-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+        
+        /* 상태 뱃지 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 600;
         }
         
-        .status-pending_review {
+        .status-badge.pending {
             background: #fef3c7;
             color: #92400e;
         }
         
-        .status-in_progress {
+        .status-badge.in-progress {
             background: #dbeafe;
             color: #1e40af;
         }
         
-        .status-completed {
+        .status-badge.completed {
             background: #d1fae5;
             color: #065f46;
         }
         
+        /* 로딩 상태 */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f4f6;
+            border-top: 5px solid #22c55e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         /* 반응형 */
         @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 20px 15px;
+            }
+            
             .stats-grid {
                 grid-template-columns: 1fr;
             }
             
-            .action-grid {
+            .quick-actions {
                 grid-template-columns: 1fr;
+            }
+            
+            .welcome-title {
+                font-size: 24px;
+            }
+            
+            .stat-number {
+                font-size: 32px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 헤더 컴포넌트 -->
-    <div id="header-root"></div>
+    <!-- 헤더 -->
+    <header id="header"></header>
     
+    <!-- 대시보드 컨테이너 -->
     <div class="dashboard-container">
-        <!-- 환영 메시지 -->
-        <div class="welcome-header">
-            <h1 class="welcome-title">안녕하세요, <span id="userName">사업자</span>님!</h1>
-            <p class="welcome-subtitle">오늘도 깨끗한 공간을 만들어가요 🌟</p>
+        <!-- 로딩 상태 -->
+        <div id="loadingState" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 20px; color: #6b7280;">대시보드를 불러오는 중...</p>
         </div>
         
-        <!-- 통계 카드 -->
-        <div class="stats-grid">
-            <a href="job-list.html?tab=pending_review" class="stat-card pending-review" id="pendingReviewCard">
-                <div class="stat-header">
-                    <span class="stat-icon">🔍</span>
-                    <span class="stat-badge">긴급</span>
-                </div>
-                <div class="stat-number" id="pendingReviewCount">0</div>
-                <div class="stat-label">검토 대기 작업</div>
-                <div class="stat-detail">파트너가 완료한 작업을 확인해주세요</div>
-            </a>
-            
-            <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-icon">🏃</span>
-                </div>
-                <div class="stat-number" id="inProgressCount">0</div>
-                <div class="stat-label">진행 중인 작업</div>
-                <div class="stat-detail">현재 파트너가 작업 중입니다</div>
+        <!-- 대시보드 콘텐츠 -->
+        <div id="dashboardContent" style="display: none;">
+            <!-- 환영 헤더 -->
+            <div class="welcome-header">
+                <h1 class="welcome-title">환영합니다, <span id="businessName">사업자</span>님!</h1>
+                <p class="welcome-subtitle">오늘도 깨끗한 공간 관리를 위해 링키가 함께합니다.</p>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-icon">✅</span>
+            <!-- 알림 배너 (필요시 표시) -->
+            <div id="alertBanner" class="alert-banner warning" style="display: none;">
+                <span class="alert-icon">⚠️</span>
+                <span id="alertMessage"></span>
+            </div>
+            
+            <!-- 통계 카드 -->
+            <div class="stats-grid">
+                <div class="stat-card" onclick="location.href='spaces.html'">
+                    <div class="stat-header">
+                        <span class="stat-icon">🏢</span>
+                    </div>
+                    <div class="stat-number" id="spaceCount">0</div>
+                    <div class="stat-label">등록된 공간</div>
                 </div>
-                <div class="stat-number" id="completedCount">0</div>
-                <div class="stat-label">이번 달 완료</div>
-                <div class="stat-detail">총 <span id="totalAmount">0</span>원 집행</div>
+                
+                <div class="stat-card" onclick="location.href='jobs.html?status=pending'">
+                    <div class="stat-header">
+                        <span class="stat-icon">⏳</span>
+                        <span class="stat-badge" id="pendingBadge" style="display: none;">NEW</span>
+                    </div>
+                    <div class="stat-number" id="pendingCount">0</div>
+                    <div class="stat-label">대기 중인 작업</div>
+                </div>
+                
+                <div class="stat-card" onclick="location.href='jobs.html?status=in_progress'">
+                    <div class="stat-header">
+                        <span class="stat-icon">🧹</span>
+                    </div>
+                    <div class="stat-number" id="inProgressCount">0</div>
+                    <div class="stat-label">진행 중인 작업</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">💰</span>
+                    </div>
+                    <div class="stat-number">₩<span id="monthlySpent">0</span></div>
+                    <div class="stat-label">이번 달 지출</div>
+                </div>
             </div>
-        </div>
-        
-        <!-- 빠른 작업 -->
-        <div class="quick-actions">
-            <h2 class="section-title">빠른 작업</h2>
-            <div class="action-grid">
-                <a href="job-request.html" class="action-btn">
-                    <span class="action-icon">➕</span>
-                    새 작업 요청
-                </a>
-                <a href="job-list.html" class="action-btn">
-                    <span class="action-icon">📋</span>
-                    작업 현황
-                </a>
-                <a href="space-registration.html" class="action-btn">
-                    <span class="action-icon">🏢</span>
-                    공간 관리
-                </a>
-                <a href="billing.html" class="action-btn">
-                    <span class="action-icon">💳</span>
-                    정산 관리
-                </a>
-            </div>
-        </div>
-        
-        <!-- 최근 작업 -->
-        <div class="recent-jobs">
-            <h2 class="section-title">최근 작업</h2>
-            <div class="job-list" id="recentJobsList">
-                <!-- 최근 작업이 여기에 표시됩니다 -->
-            </div>
+            
+            <!-- 빠른 액션 -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">빠른 액션</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="create-job.html" class="action-button">
+                        <span class="icon">➕</span>
+                        <span>정리 요청하기</span>
+                    </a>
+                    <a href="spaces.html" class="action-button">
+                        <span class="icon">🏢</span>
+                        <span>공간 관리</span>
+                    </a>
+                    <a href="jobs.html" class="action-button">
+                        <span class="icon">📋</span>
+                        <span>작업 내역</span>
+                    </a>
+                    <a href="profile.html" class="action-button">
+                        <span class="icon">⚙️</span>
+                        <span>프로필 설정</span>
+                    </a>
+                </div>
+            </section>
+            
+            <!-- 최근 작업 -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">최근 작업</h2>
+                    <a href="jobs.html" class="btn btn-outline">전체 보기</a>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>공간</th>
+                            <th>요청일</th>
+                            <th>상태</th>
+                            <th>파트너</th>
+                            <th>작업</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentJobs">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #6b7280;">
+                                최근 작업이 없습니다.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
         </div>
     </div>
     
-    <!-- 푸터 컴포넌트 -->
-    <div id="footer-root"></div>
-    
-    <!-- 인증 모달 -->
-    <script src="../auth-modal.js"></script>
-    
-    <!-- 공통 스크립트 -->
-    <script src="../js/auth-utils.js"></script>
-    <script src="../components/header.js"></script>
-    <script src="../components/footer.js"></script>
+    <!-- 푸터 -->
+    <footer id="footer"></footer>
     
     <script>
+        // 전역 변수
         let currentUser = null;
-        let authModal;
+        let businessProfile = null;
         
         // 페이지 초기화
-        document.addEventListener('DOMContentLoaded', async function() {
-            // authModal 인스턴스 생성
-            authModal = new AuthModal();
-            // 헤더 초기화
-            new HeaderComponent({
-                showBusinessMenu: true,
-                currentPage: 'dashboard'
-            });
-            
-            // 푸터 초기화
-            new FooterComponent();
-            
-            // 인증 확인
-            const { isAuthenticated, user } = await checkAuthStatus();
-            if (!isAuthenticated || user.type !== 'business') {
-                // 로그인 페이지로 리다이렉트 (현재 페이지를 redirect 파라미터로)
-                const currentPath = window.location.pathname + window.location.search;
-                window.location.href = `index.html?redirect=${encodeURIComponent('dashboard.html')}`;
-                return;
-            }
-            
-            currentUser = user;
-            document.getElementById('userName').textContent = user.name || '사업자';
-            
-            // 통계 및 작업 로드
-            await loadDashboardData();
-        });
-        
-        // 대시보드 데이터 로드
-        async function loadDashboardData() {
+        async function initializePage() {
             try {
-                // 이번 달 시작일
-                const now = new Date();
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                // 로딩 표시
+                showLoading(true);
                 
-                // 작업 통계 가져오기
-                const [pendingReview, inProgress, completed] = await Promise.all([
-                    db.collection('jobs')
-                        .where('businessId', '==', currentUser.uid)
-                        .where('status', '==', 'pending_review')
-                        .get(),
-                    db.collection('jobs')
-                        .where('businessId', '==', currentUser.uid)
-                        .where('status', '==', 'in_progress')
-                        .get(),
-                    db.collection('jobs')
-                        .where('businessId', '==', currentUser.uid)
-                        .where('status', '==', 'completed')
-                        .where('completedAt', '>=', monthStart)
-                        .get()
-                ]);
+                console.log('대시보드 초기화 시작...');
                 
-                // 통계 표시
-                document.getElementById('pendingReviewCount').textContent = pendingReview.size;
-                document.getElementById('inProgressCount').textContent = inProgress.size;
-                document.getElementById('completedCount').textContent = completed.size;
-                
-                // 검토 대기 알림
-                if (pendingReview.size > 0) {
-                    document.getElementById('pendingReviewCard').classList.add('pending-review');
+                // Supabase 클라이언트 확인
+                if (!window.supabaseClient) {
+                    throw new Error('Supabase 클라이언트가 로드되지 않았습니다.');
                 }
                 
-                // 이번 달 총 비용 계산
-                let totalAmount = 0;
-                completed.forEach(doc => {
-                    const job = doc.data();
-                    totalAmount += job.pricing?.totalPrice || 0;
-                });
-                document.getElementById('totalAmount').textContent = totalAmount.toLocaleString();
+                // BusinessAPI 인스턴스 확인 및 생성
+                if (!window.businessAPI) {
+                    console.log('BusinessAPI 인스턴스 생성...');
+                    window.businessAPI = new BusinessAPI();
+                }
+                
+                // 세션 확인
+                console.log('세션 확인 중...');
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (!session) {
+                    console.log('세션 없음, 인덱스로 리다이렉트');
+                    window.location.href = '../index.html';
+                    return;
+                }
+                
+                currentUser = session.user;
+                console.log('현재 사용자:', currentUser.id);
+                
+                // 사용자 타입 확인
+                const userType = currentUser.user_metadata?.user_type;
+                console.log('사용자 타입:', userType);
+                
+                if (userType === 'partner') {
+                    console.log('파트너 사용자가 비즈니스 대시보드 접근, 파트너 대시보드로 리다이렉트');
+                    window.location.href = '../partners/dashboard.html';
+                    return;
+                } else if (userType !== 'business') {
+                    console.log('알 수 없는 사용자 타입, 메인으로 리다이렉트');
+                    window.location.href = '../index.html';
+                    return;
+                }
+                
+                // 비즈니스 프로필 조회
+                console.log('프로필 조회 중...');
+                const { data: profile, error } = await window.businessAPI.getProfile(currentUser.id);
+                if (error || !profile) {
+                    showAlert('프로필을 불러올 수 없습니다. 다시 로그인해주세요.', 'error');
+                    await window.supabaseClient.auth.signOut();
+                    window.location.href = './index.html';
+                    return;
+                }
+                
+                // 승인 상태 확인
+                if (profile.status !== 'approved') {
+                    showAlert('아직 승인 대기 중입니다. 승인 후 서비스를 이용하실 수 있습니다.', 'warning');
+                }
+                
+                businessProfile = profile;
+                
+                // UI 업데이트
+                updateUI();
+                
+                // 통계 로드
+                console.log('통계 로드 중...');
+                await loadStatistics();
                 
                 // 최근 작업 로드
+                console.log('최근 작업 로드 중...');
                 await loadRecentJobs();
                 
+                console.log('대시보드 초기화 완료');
+                
             } catch (error) {
-                console.error('대시보드 데이터 로드 오류:', error);
+                console.error('초기화 오류:', error);
+                showAlert('페이지 로드 중 오류가 발생했습니다.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // UI 업데이트
+        function updateUI() {
+            // 비즈니스명 표시
+            document.getElementById('businessName').textContent = businessProfile.business_name;
+            
+            // 임시 데이터 경고 표시
+            if (businessProfile.business_number === '000-00-00000' || 
+                businessProfile.business_type === 'other' ||
+                businessProfile.business_address === '주소 미입력') {
+                showAlert('프로필 정보를 업데이트해주세요. 일부 정보가 누락되어 있습니다.', 'warning');
+            }
+        }
+        
+        // 통계 로드
+        async function loadStatistics() {
+            try {
+                console.log('통계 API 호출...');
+                const { data: stats, error } = await window.businessAPI.getStatistics(currentUser.id);
+                if (error) {
+                    console.error('통계 로드 에러:', error);
+                    throw error;
+                }
+                
+                // 통계 업데이트
+                document.getElementById('spaceCount').textContent = stats.total.space_count || 0;
+                document.getElementById('pendingCount').textContent = stats.monthly.pending_jobs || 0;
+                document.getElementById('inProgressCount').textContent = 
+                    (stats.monthly.total_jobs - stats.monthly.completed_jobs - stats.monthly.pending_jobs) || 0;
+                document.getElementById('monthlySpent').textContent = 
+                    (stats.monthly.monthly_spent || 0).toLocaleString();
+                
+                // 대기 중인 작업이 있으면 뱃지 표시
+                if (stats.monthly.pending_jobs > 0) {
+                    document.getElementById('pendingBadge').style.display = 'inline-block';
+                }
+                
+            } catch (error) {
+                console.error('통계 로드 오류:', error);
             }
         }
         
         // 최근 작업 로드
         async function loadRecentJobs() {
             try {
-                const recentJobs = await db.collection('jobs')
-                    .where('businessId', '==', currentUser.uid)
-                    .orderBy('createdAt', 'desc')
-                    .limit(5)
-                    .get();
+                console.log('작업 목록 API 호출...');
+                const { data: jobs, error } = await window.businessAPI.getJobs(currentUser.id);
+                if (error) {
+                    console.error('작업 로드 에러:', error);
+                    throw error;
+                }
                 
-                const jobsList = document.getElementById('recentJobsList');
+                const recentJobs = jobs.slice(0, 5);  // 최근 5개만
+                const tbody = document.getElementById('recentJobs');
                 
-                if (recentJobs.empty) {
-                    jobsList.innerHTML = '<p style="text-align: center; color: #9ca3af;">아직 작업이 없습니다.</p>';
+                if (recentJobs.length === 0) {
                     return;
                 }
                 
-                jobsList.innerHTML = '';
-                
-                recentJobs.forEach(doc => {
-                    const job = doc.data();
-                    const jobItem = createJobItem(doc.id, job);
-                    jobsList.appendChild(jobItem);
-                });
+                tbody.innerHTML = recentJobs.map(job => `
+                    <tr onclick="location.href='job-detail.html?id=${job.id}'" style="cursor: pointer;">
+                        <td>${job.space?.name || '-'}</td>
+                        <td>${new Date(job.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <span class="status-badge ${job.status}">
+                                ${getStatusText(job.status)}
+                            </span>
+                        </td>
+                        <td>${job.partner?.name || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline">상세보기</button>
+                        </td>
+                    </tr>
+                `).join('');
                 
             } catch (error) {
-                console.error('최근 작업 로드 오류:', error);
+                console.error('작업 로드 오류:', error);
             }
         }
         
-        // 작업 아이템 생성
-        function createJobItem(jobId, jobData) {
-            const div = document.createElement('div');
-            div.className = 'job-item';
-            div.style.cursor = 'pointer';
-            
+        // 상태 텍스트 변환
+        function getStatusText(status) {
             const statusMap = {
-                'pending': '대기중',
-                'matched': '매칭됨',
-                'in_progress': '진행중',
-                'pending_review': '검토 대기',
-                'completed': '완료',
-                'rejected': '거부됨',
-                'cancelled': '취소됨'
+                pending: '대기 중',
+                accepted: '수락됨',
+                in_progress: '진행 중',
+                completed: '완료',
+                cancelled: '취소됨'
             };
-            
-            const statusClass = `status-${jobData.status}`;
-            
-            div.innerHTML = `
-                <div class="job-info">
-                    <div class="job-name">${jobData.spaceInfo?.name || '공간 정보 없음'}</div>
-                    <div class="job-meta">
-                        ${formatDate(jobData.schedule?.requestedDate)} • 
-                        ${jobData.schedule?.requestedTime || '-'}
-                    </div>
-                </div>
-                <span class="job-status ${statusClass}">
-                    ${statusMap[jobData.status] || jobData.status}
-                </span>
-            `;
-            
-            // 클릭 이벤트
-            div.onclick = () => {
-                if (jobData.status === 'pending_review') {
-                    window.location.href = `job-completion-review.html?jobId=${jobId}`;
-                } else {
-                    window.location.href = `job-detail.html?jobId=${jobId}`;
-                }
-            };
-            
-            return div;
+            return statusMap[status] || status;
         }
         
-        // 날짜 포맷
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('ko-KR');
+        // 알림 표시
+        function showAlert(message, type = 'warning') {
+            const banner = document.getElementById('alertBanner');
+            const messageEl = document.getElementById('alertMessage');
+            
+            banner.className = `alert-banner ${type}`;
+            messageEl.textContent = message;
+            banner.style.display = 'flex';
+        }
+        
+        // 로딩 표시
+        function showLoading(show) {
+            document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+            document.getElementById('dashboardContent').style.display = show ? 'none' : 'block';
+        }
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM 로드 완료');
+            
+            // BusinessAPI 강제 확인 및 생성
+            if (!window.businessAPI) {
+                console.log('BusinessAPI 인스턴스 수동 생성');
+                window.businessAPI = new BusinessAPI();
+            }
+            console.log('BusinessAPI 준비 완료:', typeof window.businessAPI);
+            
+            // 헤더/푸터 로드
+            loadComponent('header', '../components/header.html');
+            loadComponent('footer', '../components/footer.html');
+            
+            // 30초 타임아웃으로 페이지 초기화
+            const timeoutId = setTimeout(() => {
+                showAlert('페이지 로딩이 너무 오래 걸립니다. 새로고침 해주세요.', 'error');
+                showLoading(false);
+            }, 30000);
+            
+            // 페이지 초기화
+            initializePage().finally(() => {
+                clearTimeout(timeoutId);
+            });
+        });
+        
+        // 컴포넌트 로드 함수
+        async function loadComponent(id, path) {
+            try {
+                const response = await fetch(path);
+                const html = await response.text();
+                document.getElementById(id).innerHTML = html;
+            } catch (error) {
+                console.error(`${id} 로드 오류:`, error);
+            }
         }
     </script>
 </body>

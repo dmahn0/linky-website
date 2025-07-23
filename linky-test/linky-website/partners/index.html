@@ -575,7 +575,7 @@
                     <span>파트너 대시보드</span>
                     <span>→</span>
                 </a>
-                <a href="#" class="btn-hero btn-primary login-required" onclick="authModal.openSignup('partner')">
+                <a href="#" class="btn-hero btn-primary login-required" onclick="partnerSignupModal.open()">
                     <span>파트너 신청하기</span>
                     <span>→</span>
                 </a>
@@ -894,7 +894,7 @@
                 <a href="./dashboard.html" class="btn-cta auth-required" style="display: none;">
                     파트너 대시보드
                 </a>
-                <a href="#" class="btn-cta login-required" onclick="authModal.openSignup('partner')">
+                <a href="#" class="btn-cta login-required" onclick="partnerSignupModal.open()">
                     파트너 신청하기
                 </a>
             </div>
@@ -907,8 +907,11 @@
     <!-- 인증 모달 -->
     <div id="auth-modal-root"></div>
     
-    <!-- 인증 모달 -->
-    <script src="../auth-modal.js" defer></script>
+    <!-- 새 인증 시스템 -->
+    <script src="../js/auth/auth-manager.js" defer></script>
+    <script src="../js/auth/business-auth.js" defer></script>
+    <script src="../js/auth/partner-auth.js" defer></script>
+    <script src="../js/components/partner-signup-modal.js" defer></script>
     
     <!-- 공통 스크립트 -->
     <script src="../js/utils.js"></script>
@@ -928,8 +931,35 @@
             }
         }
 
+        // 로그인 상태 확인 및 자동 리다이렉트
+        async function checkAuthAndRedirect() {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                
+                if (session && session.user) {
+                    // 파트너 사용자인지 확인
+                    const { data: partnerUser } = await window.supabaseClient
+                        .from('partners')
+                        .select('id')
+                        .eq('auth_uid', session.user.id)
+                        .single();
+                    
+                    if (partnerUser) {
+                        // 파트너 대시보드로 이동
+                        window.location.href = './dashboard.html';
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+
         // 인증 상태 확인 및 자동 리다이렉트
         document.addEventListener('DOMContentLoaded', function() {
+            // 로그인 상태 확인 (checkAuthDirectly로 통합)
+            // checkAuthAndRedirect();
+            
             // 헤더 초기화
             window.headerComponent = new HeaderComponent({
                 showPartnerMenu: true
@@ -949,26 +979,26 @@
                     const { data: { session } } = await window.supabaseClient.auth.getSession();
                     
                     if (session && session.user) {
-                        // 사용자 정보 가져오기
+                        // 파트너 사용자 정보 가져오기 (새 테이블 구조)
                         const { data: userData, error } = await window.supabaseClient
-                            .from('users')
+                            .from('partner_users')
                             .select('*')
-                            .eq('uid', session.user.id)
+                            .eq('auth_uid', session.user.id)
                             .single();
                         
                         if (error || !userData) {
-                            console.error('사용자 정보 조회 오류:', error);
+                            console.error('파트너 정보 조회 오류:', error);
                             return;
                         }
                         
-                        console.log('현재 로그인된 사용자:', userData);
+                        console.log('현재 로그인된 파트너:', userData);
                         
                         // URL 파라미터 확인
                         const urlParams = new URLSearchParams(window.location.search);
                         const shouldStay = urlParams.get('stay') === 'true';
                         
-                        // 파트너 사용자이고 승인된 상태인 경우
-                        if (userData.type === 'partner' && userData.status === 'approved') {
+                        // 파트너 승인 상태 확인
+                        if (userData.status === 'approved') {
                             if (!shouldStay) {
                                 // 대시보드로 리다이렉트
                                 document.body.innerHTML = `
@@ -982,7 +1012,7 @@
                                 `;
                                 
                                 setTimeout(() => {
-                                    window.location.replace('/dashboard/partner-dashboard.html');
+                                    window.location.replace('./dashboard.html');
                                 }, 1000);
                                 return;
                             } else {
@@ -1002,7 +1032,7 @@
                             }
                         } else if (userData.type === 'business') {
                             // 비즈니스는 비즈니스 페이지로
-                            window.location.replace('../business/dashboard.html');
+                            window.location.replace('../business/index.html');
                         } else if (userData.status === 'pending') {
                             // 승인 대기 중
                             alert('현재 관리자 승인 대기 중입니다. 승인 후 서비스를 이용하실 수 있습니다.');

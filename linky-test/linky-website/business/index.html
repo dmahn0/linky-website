@@ -789,8 +789,8 @@
                     <a href="#cases">사례</a>
                     <!-- 로그인 전 메뉴 -->
                     <div class="login-required">
-                        <a href="#" class="btn btn-secondary" style="padding: 10px 20px; margin-right: 10px;" onclick="authModal.openLogin();">로그인</a>
-                        <a href="#" class="btn btn-primary" style="padding: 10px 20px;" onclick="authModal.openSignupSelect();">회원가입</a>
+                        <a href="#" class="btn btn-secondary" style="padding: 10px 20px; margin-right: 10px;" onclick="businessSignupModal.openLogin();">로그인</a>
+                        <a href="#" class="btn btn-primary" style="padding: 10px 20px;" onclick="businessSignupModal.open();">회원가입</a>
                     </div>
                     
                     <!-- 로그인 후 메뉴 -->
@@ -827,7 +827,7 @@
                         <a href="space-registration.html" class="btn btn-primary auth-required" style="display: none; font-size: 18px; padding: 15px 30px;">
                             공간 등록하기 →
                         </a>
-                        <a href="#" class="btn btn-primary login-required" onclick="authModal.openSignup('business'); trackEvent('hero_cta_click');" style="font-size: 18px; padding: 15px 30px;">
+                        <a href="#" class="btn btn-primary login-required" onclick="businessSignupModal.open(); trackEvent('hero_cta_click');" style="font-size: 18px; padding: 15px 30px;">
                             무료로 시작하기 →
                         </a>
                         <a href="#features" class="btn btn-secondary" style="font-size: 18px; padding: 15px 30px;">
@@ -1293,13 +1293,17 @@
     </footer>
 
     <!-- 인증 모달 -->
-    <script src="../auth-modal.js" defer></script>
+    <!-- 새 인증 시스템 -->
+    <script src="../js/auth/auth-manager.js" defer></script>
+    <script src="../js/auth/business-auth.js" defer></script>
+    <script src="../js/auth/partner-auth.js" defer></script>
+    <script src="../js/components/business-signup-modal.js" defer></script>
     
     <!-- 공통 스크립트 -->
     <script src="../js/utils.js"></script>
     
     <script>
-        // auth-modal.js가 defer로 로드되어 자동으로 authModal이 전역 생성됨
+        // business-signup-modal.js가 defer로 로드되어 자동으로 businessSignupModal이 전역 생성됨
         
         // 로그아웃 처리
         async function handleLogout() {
@@ -1324,11 +1328,11 @@
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
                 
                 if (session && session.user) {
-                    // 사용자 정보 가져오기
+                    // 비즈니스 사용자 정보 가져오기 (새 테이블 구조)
                     const { data: userData, error } = await window.supabaseClient
-                        .from('users')
+                        .from('business_users')
                         .select('*')
-                        .eq('uid', session.user.id)
+                        .eq('auth_uid', session.user.id)
                         .single();
                     
                     if (error || !userData) {
@@ -1342,8 +1346,8 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     const shouldStay = urlParams.get('stay') === 'true';
                     
-                    // 비즈니스 사용자이고 승인된 상태인 경우
-                    if (userData.type === 'business' && userData.status === 'approved') {
+                    // 비즈니스 승인 상태 확인
+                    if (userData.status === 'approved') {
                         if (!shouldStay) {
                             // 대시보드로 리다이렉트
                             document.body.innerHTML = `
@@ -1398,9 +1402,36 @@
             }
         }
         
+        // 로그인 상태 확인 및 자동 리다이렉트
+        async function checkAuthAndRedirect() {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                
+                if (session && session.user) {
+                    // 비즈니스 사용자인지 확인
+                    const { data: businessUser } = await window.supabaseClient
+                        .from('businesses')
+                        .select('id')
+                        .eq('auth_uid', session.user.id)
+                        .single();
+                    
+                    if (businessUser) {
+                        // 비즈니스 대시보드로 이동
+                        window.location.href = './dashboard.html';
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+
         // DOMContentLoaded 이벤트 - 랜딩 페이지와 동일
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOMContentLoaded - business page');
+            
+            // 로그인 상태 확인
+            checkAuthAndRedirect();
             
             // 로그인 성공 이벤트 리스너
             window.addEventListener('loginSuccess', async (event) => {
