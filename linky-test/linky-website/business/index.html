@@ -1410,7 +1410,7 @@
                 if (session && session.user) {
                     // 비즈니스 사용자인지 확인
                     const { data: businessUser } = await window.supabaseClient
-                        .from('businesses')
+                        .from('business_users')
                         .select('id')
                         .eq('auth_uid', session.user.id)
                         .single();

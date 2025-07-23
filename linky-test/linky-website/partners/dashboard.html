@@ -786,14 +786,17 @@
                 // UI 업데이트
                 updateUI();
 
-                // 데이터 로드 (비동기로 최적화)
-                console.log('대시보드 데이터 로드 중...');
-                loadDashboardData(); // await 제거로 빠른 로딩
+                // 화면을 먼저 표시
+                showLoading(false);
+                console.log('화면 표시 완료');
+                
+                // 데이터는 백그라운드에서 로드
+                console.log('백그라운드 데이터 로드 시작...');
+                loadDashboardData();
 
             } catch (error) {
                 console.error('초기화 오류:', error);
                 showAlert('페이지 로드 중 오류가 발생했습니다.');
-            } finally {
                 showLoading(false);
             }
         }
@@ -847,26 +850,19 @@
         // 대시보드 데이터 로드
         async function loadDashboardData() {
             try {
-                // 모든 데이터를 병렬로 로드
-                const [statsResult, pendingResult, progressResult] = await Promise.allSettled([
-                    loadStatistics(),
-                    loadPendingJobs(),
-                    loadInProgressJobs()
-                ]);
-
-                // 에러 체크
-                if (statsResult.status === 'rejected') {
-                    console.error('통계 로드 실패:', statsResult.reason);
-                }
-                if (pendingResult.status === 'rejected') {
-                    console.error('대기 업무 로드 실패:', pendingResult.reason);
-                }
-                if (progressResult.status === 'rejected') {
-                    console.error('진행 업무 로드 실패:', progressResult.reason);
-                }
-
-                // 수익 차트는 별도로 로드 (Canvas 초기화 필요)
-                loadEarningsChart();
+                console.log('대시보드 데이터 로드 시작');
+                
+                // 통계만 먼저 로드 (빠른 표시)
+                loadStatistics();
+                
+                // 다른 데이터는 비동기로 로드
+                setTimeout(() => {
+                    loadPendingJobs();
+                    loadInProgressJobs();
+                    loadEarningsChart();
+                }, 100);
+                
+                console.log('대시보드 데이터 로드 완료');
             } catch (error) {
                 console.error('대시보드 데이터 로드 오류:', error);
             }
@@ -930,7 +926,7 @@
                     .select(`
                         *,
                         space:spaces(name, address, area, type),
-                        business:businesses(company_name, phone)
+                        business:business_users(business_name, phone)
                     `)
                     .eq('status', 'pending')
                     .is('partner_id', null)
@@ -983,7 +979,7 @@
                     .select(`
                         *,
                         space:spaces(name, address, area, type),
-                        business:businesses(company_name, phone)
+                        business:business_users(business_name, phone)
                     `)
                     .eq('partner_id', partnerProfile.id)
                     .eq('status', 'in_progress')

@@ -939,7 +939,7 @@
                 if (session && session.user) {
                     // 파트너 사용자인지 확인
                     const { data: partnerUser } = await window.supabaseClient
-                        .from('partners')
+                        .from('partner_users')
                         .select('id')
                         .eq('auth_uid', session.user.id)
                         .single();

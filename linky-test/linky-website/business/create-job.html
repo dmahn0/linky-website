@@ -567,7 +567,7 @@
                 
                 // 비즈니스 프로필 확인
                 const { data: profile, error } = await window.supabaseClient
-                    .from('businesses')
+                    .from('business_users')
                     .select('*')
                     .eq('auth_uid', currentUser.id)
                     .single();

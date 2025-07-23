@@ -535,7 +535,7 @@
                 
                 // 비즈니스 프로필 확인
                 const { data: profile, error } = await window.supabaseClient
-                    .from('businesses')
+                    .from('business_users')
                     .select('*')
                     .eq('auth_uid', currentUser.id)
                     .single();
@@ -577,7 +577,7 @@
                         space:spaces(*),
                         job_applications(
                             *,
-                            partner:partners(*)
+                            partner:partner_users(*)
                         )
                     `)
                     .eq('business_id', currentUser.id)  // auth_uid 사용

@@ -138,7 +138,7 @@ async function updateHeaderUserName() {
         if (session) {
             // 비즈니스 프로필 조회
             const { data: profile } = await window.supabaseClient
-                .from('businesses')
+                .from('business_users')
                 .select('company_name, name')
                 .eq('auth_uid', session.user.id)
                 .single();

@@ -1054,9 +1054,9 @@
                     // 로그인 상태면 사용자 타입 확인
                     const userId = session.user.id;
                     
-                    // businesses 테이블 확인
+                    // business_users 테이블 확인
                     const { data: businessUser } = await window.supabaseClient
-                        .from('businesses')
+                        .from('business_users')
                         .select('id')
                         .eq('auth_uid', userId)
                         .single();
@@ -1067,9 +1067,9 @@
                         return;
                     }
                     
-                    // partners 테이블 확인
+                    // partner_users 테이블 확인
                     const { data: partnerUser } = await window.supabaseClient
-                        .from('partners')
+                        .from('partner_users')
                         .select('id')
                         .eq('auth_uid', userId)
                         .single();

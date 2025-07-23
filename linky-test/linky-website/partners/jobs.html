@@ -633,7 +633,7 @@
 
                 // 파트너 프로필 확인
                 const { data: profile, error } = await window.supabaseClient
-                    .from('partners')
+                    .from('partner_users')
                     .select('*')
                     .eq('auth_uid', currentUser.id)
                     .single();
@@ -675,7 +675,7 @@
                         *,
                         space:spaces(
                             *,
-                            business:businesses(*)
+                            business:business_users(*)
                         )
                     `)
                     .eq('status', 'pending')
@@ -692,7 +692,7 @@
                             *,
                             space:spaces(
                                 *,
-                                business:businesses(*)
+                                business:business_users(*)
                             )
                         )
                     `)
