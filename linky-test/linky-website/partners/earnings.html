@@ -555,26 +555,33 @@
                 
                 // 사용자 정보 조회
                 const { data: userData, error } = await supabaseClient
-                    .from('users')
+                    .from('partner_users')
                     .select('*')
-                    .eq('uid', user.id)
+                    .eq('auth_uid', user.id)
                     .single();
                 
                 if (error || !userData) {
-                    console.error('사용자 정보 조회 오류:', error);
-                    alert('사용자 정보를 불러올 수 없습니다.');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                
-                if (userData.type !== 'partner') {
-                    alert('파트너 전용 페이지입니다.');
-                    window.location.href = '../index.html';
+                    console.error('파트너 정보 조회 오류:', error);
+                    // 파트너가 아닌 경우 비즈니스 사용자인지 확인
+                    const { data: businessUser } = await supabaseClient
+                        .from('business_users')
+                        .select('id')
+                        .eq('auth_uid', user.id)
+                        .single();
+                    
+                    if (businessUser) {
+                        alert('파트너 전용 페이지입니다.');
+                        window.location.href = '../business/dashboard.html';
+                    } else {
+                        alert('사용자 정보를 불러올 수 없습니다.');
+                        window.location.href = '../index.html';
+                    }
                     return;
                 }
                 
                 // 사용자 이름 표시
-                document.getElementById('userName').textContent = userData.name || '파트너님';
+                const displayName = userData.nickname || userData.name || '파트너님';
+                document.getElementById('userName').textContent = displayName;
                 
                 // 정산 데이터 로드
                 loadEarningsData();
@@ -622,48 +629,85 @@
             console.log('페이지 변경:', direction);
         }
 
+        // 현재 파트너 정보 저장
+        let currentPartner = null;
+        
         // 정산 데이터 로드
         async function loadEarningsData(period = 'month') {
-            // 예시 데이터
-            const earnings = [
-                {
-                    date: '2024-01-15',
-                    job: '강남역 스터디카페 정리',
-                    location: '강남구 역삼동',
-                    amount: 18000,
-                    status: 'paid'
-                },
-                {
-                    date: '2024-01-14',
-                    job: '홍대 파티룸 청소',
-                    location: '마포구 서교동',
-                    amount: 25000,
-                    status: 'paid'
-                },
-                {
-                    date: '2024-01-13',
-                    job: '성수동 무인카페 정리',
-                    location: '성동구 성수동',
-                    amount: 15000,
-                    status: 'completed'
-                },
-                {
-                    date: '2024-01-12',
-                    job: '논현동 스터디룸 정리',
-                    location: '강남구 논현동',
-                    amount: 16000,
-                    status: 'completed'
-                },
-                {
-                    date: '2024-01-11',
-                    job: '역삼동 공유오피스 청소',
-                    location: '강남구 역삼동',
-                    amount: 20000,
-                    status: 'pending'
+            try {
+                // 파트너 정보 가져오기
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                
+                const { data: partner, error: partnerError } = await supabaseClient
+                    .from('partner_users')
+                    .select('id')
+                    .eq('auth_uid', user.id)
+                    .single();
+                
+                if (partnerError || !partner) {
+                    console.error('파트너 정보 조회 오류:', partnerError);
+                    displayEarnings([]);
+                    return;
                 }
-            ];
-
-            displayEarnings(earnings);
+                
+                currentPartner = partner;
+                
+                // 기간 계산
+                let dateFilter = new Date();
+                switch(period) {
+                    case 'week':
+                        dateFilter.setDate(dateFilter.getDate() - 7);
+                        break;
+                    case 'month':
+                        dateFilter.setMonth(dateFilter.getMonth() - 1);
+                        break;
+                    case 'year':
+                        dateFilter.setFullYear(dateFilter.getFullYear() - 1);
+                        break;
+                    default:
+                        dateFilter = null;
+                }
+                
+                // 파트너의 완료된 작업 조회
+                let query = supabaseClient
+                    .from('jobs')
+                    .select(`
+                        *,
+                        space:spaces(name, address, area)
+                    `)
+                    .eq('partner_id', partner.id)
+                    .in('status', ['completed', 'paid'])
+                    .order('completed_at', { ascending: false });
+                
+                if (dateFilter) {
+                    query = query.gte('completed_at', dateFilter.toISOString());
+                }
+                
+                const { data: jobs, error: jobsError } = await query;
+                
+                if (jobsError) {
+                    console.error('작업 내역 조회 오류:', jobsError);
+                    displayEarnings([]);
+                    return;
+                }
+                
+                // 정산 데이터 형식으로 변환
+                const earnings = jobs.map(job => ({
+                    date: job.completed_at || job.created_at,
+                    job: job.space?.name || '정리 작업',
+                    location: `${job.space?.area || ''} ${job.space?.address || ''}`.trim(),
+                    amount: job.price || 0,
+                    status: job.status === 'completed' ? 'completed' : 'paid'
+                }));
+                
+                displayEarnings(earnings);
+                updateEarningsSummary(earnings);
+                
+            } catch (error) {
+                console.error('정산 데이터 로드 오류:', error);
+                displayEarnings([]);
+            }
         }
 
         // 정산 내역 표시
@@ -708,6 +752,20 @@
         function formatDate(dateStr) {
             const date = new Date(dateStr);
             return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+        }
+        
+        // 정산 요약 정보 업데이트
+        function updateEarningsSummary(earnings) {
+            const totalAmount = earnings.reduce((sum, e) => sum + e.amount, 0);
+            const paidAmount = earnings.filter(e => e.status === 'paid')
+                .reduce((sum, e) => sum + e.amount, 0);
+            const pendingAmount = earnings.filter(e => e.status === 'pending' || e.status === 'completed')
+                .reduce((sum, e) => sum + e.amount, 0);
+            
+            // 요약 정보 표시 (필요한 경우 HTML에 요소 추가)
+            console.log('총 수익:', totalAmount);
+            console.log('정산 완료:', paidAmount);
+            console.log('정산 예정:', pendingAmount);
         }
 
         // 수익 차트 초기화
