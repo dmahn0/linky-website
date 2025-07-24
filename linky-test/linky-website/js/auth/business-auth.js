@@ -12,6 +12,7 @@ class BusinessAuth extends AuthManager {
       auth_uid: authUid,
       email: formData.email,
       phone: formData.phone || '',
+      nickname: formData.nickname,
       business_name: formData.businessName,
       business_number: formData.businessNumber,
       business_type: formData.businessType || 'other',
@@ -29,6 +30,7 @@ class BusinessAuth extends AuthManager {
     if (!formData.email) errors.push('이메일을 입력해주세요.');
     if (!formData.password) errors.push('비밀번호를 입력해주세요.');
     if (!formData.phone) errors.push('전화번호를 입력해주세요.');
+    if (!formData.nickname) errors.push('닉네임을 입력해주세요.');
     if (!formData.businessName) errors.push('사업장명을 입력해주세요.');
     if (!formData.businessNumber) errors.push('사업자등록번호를 입력해주세요.');
     if (!formData.businessType) errors.push('사업장 유형을 선택해주세요.');

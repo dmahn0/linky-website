@@ -729,20 +729,32 @@
                 
                 console.log('파트너 대시보드 초기화 시작...');
 
-                // Supabase 클라이언트 확인
-                if (!window.supabaseClient) {
-                    throw new Error('Supabase 클라이언트가 로드되지 않았습니다.');
-                }
+                // Supabase 클라이언트 확인 (타임아웃 추가)
+                const clientCheckPromise = new Promise((resolve, reject) => {
+                    if (!window.supabaseClient) {
+                        reject(new Error('Supabase 클라이언트가 로드되지 않았습니다.'));
+                    } else {
+                        resolve();
+                    }
+                });
 
-                // PartnerAPI 인스턴스 확인 및 생성
-                if (!window.partnerAPI) {
-                    console.log('PartnerAPI 인스턴스 생성...');
-                    window.partnerAPI = new PartnerAPI();
-                }
+                await Promise.race([
+                    clientCheckPromise,
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase 클라이언트 로드 타임아웃')), 5000))
+                ]);
 
-                // 세션 확인
+                // PartnerAPI 인스턴스는 이미 전역에서 생성됨
+                console.log('PartnerAPI 사용 준비 완료');
+
+                // 세션 확인 (타임아웃 추가)
                 console.log('세션 확인 중...');
-                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                const sessionPromise = window.supabaseClient.auth.getSession();
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('세션 확인 타임아웃')), 10000)
+                );
+                
+                const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
+                
                 if (!session) {
                     console.log('세션 없음, 인덱스로 리다이렉트');
                     window.location.href = '../index.html';
@@ -766,22 +778,33 @@
                     return;
                 }
 
-                // 파트너 프로필 조회
+                // 파트너 프로필 조회 (타임아웃 추가)
                 console.log('프로필 조회 중...');
-                const { data: profile, error } = await window.partnerAPI.getProfile(currentUser.id);
-                if (error || !profile) {
-                    showAlert('프로필을 불러올 수 없습니다. 다시 로그인해주세요.');
-                    await window.supabaseClient.auth.signOut();
-                    window.location.href = './index.html';
+                const profilePromise = window.partnerAPI.getProfile(currentUser.id);
+                const profileTimeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('프로필 조회 타임아웃')), 5000)
+                );
+                
+                try {
+                    const { data: profile, error } = await Promise.race([profilePromise, profileTimeoutPromise]);
+                    if (error || !profile) {
+                        console.error('프로필 조회 실패:', error);
+                        showAlert('프로필을 불러올 수 없습니다. 다시 로그인해주세요.');
+                        await window.supabaseClient.auth.signOut();
+                        window.location.href = './index.html';
+                        return;
+                    }
+                    partnerProfile = profile;
+                } catch (timeoutError) {
+                    console.error('프로필 조회 타임아웃:', timeoutError);
+                    showAlert('프로필 로드 시간이 초과되었습니다. 페이지를 새로고침해주세요.');
                     return;
                 }
 
                 // 승인 상태 확인
-                if (profile.status !== 'approved') {
+                if (partnerProfile.status !== 'approved') {
                     showAlert('아직 심사 중입니다. 승인 후 작업을 시작하실 수 있습니다.');
                 }
-
-                partnerProfile = profile;
 
                 // UI 업데이트
                 updateUI();
@@ -804,8 +827,9 @@
         // UI 업데이트
         function updateUI() {
             // 사용자 정보 표시
-            document.getElementById('userName').textContent = partnerProfile.name || '파트너님';
-            document.getElementById('partnerName').textContent = partnerProfile.name || '파트너';
+            const displayName = partnerProfile.nickname || partnerProfile.name || '파트너님';
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('partnerName').textContent = displayName;
 
             // 레벨 표시
             updateLevelDisplay(partnerProfile.level);
@@ -1130,25 +1154,37 @@
         }
 
         // 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM 로드 완료');
             
-            // PartnerAPI 강제 확인 및 생성
-            if (!window.partnerAPI) {
-                console.log('PartnerAPI 인스턴스 수동 생성');
-                window.partnerAPI = new PartnerAPI();
-            }
-            console.log('PartnerAPI 준비 완료:', typeof window.partnerAPI);
+            // 로딩 표시
+            showLoading(true);
             
-            // 30초 타임아웃으로 페이지 초기화
+            // Supabase 클라이언트 대기 (최대 5초)
+            let waited = 0;
+            while (!window.supabaseClient && waited < 5000) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                waited += 100;
+            }
+            
+            if (!window.supabaseClient) {
+                showAlert('Supabase 연결에 실패했습니다. 페이지를 새로고침해주세요.');
+                showLoading(false);
+                return;
+            }
+            
+            console.log('Supabase 클라이언트 준비 완료');
+            
+            // 10초 타임아웃으로 페이지 초기화
             const timeoutId = setTimeout(() => {
                 showAlert('페이지 로딩이 너무 오래 걸립니다. 새로고침 해주세요.', 'error');
                 showLoading(false);
-            }, 30000);
+            }, 10000);
             
             // 페이지 초기화
             initializePage().finally(() => {
                 clearTimeout(timeoutId);
+                console.log('페이지 초기화 완료');
             });
         });
     </script>

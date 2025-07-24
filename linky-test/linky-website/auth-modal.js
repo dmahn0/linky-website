@@ -4,6 +4,8 @@ class AuthModal {
     this.currentModal = null;
     this.currentStep = 1;
     this.formData = {};
+    this.nicknameChecked = false;
+    this.checkedNickname = '';
     this.init();
   }
   
@@ -280,6 +282,21 @@ class AuthModal {
           </div>
           
           <div class="form-group">
+            <label class="form-label">닉네임 *</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" name="nickname" class="form-input" style="flex: 1;" 
+                placeholder="2-20자 영문/숫자/한글" required 
+                pattern="^[a-zA-Z0-9가-힣_-]{2,20}$"
+                onchange="authModal.nicknameChecked = false;">
+              <button type="button" class="btn btn-outline" style="white-space: nowrap;"
+                onclick="authModal.checkNickname()">
+                중복확인
+              </button>
+            </div>
+            <div id="nicknameMessage" style="margin-top: 5px; font-size: 14px;"></div>
+          </div>
+          
+          <div class="form-group">
             <label class="form-label">이메일 *</label>
             <input type="email" name="email" class="form-input" placeholder="이메일을 입력하세요" required>
           </div>
@@ -540,12 +557,60 @@ class AuthModal {
     this.renderSignupStep();
   }
   
+  // 닉네임 중복 체크
+  async checkNickname() {
+    const nicknameInput = document.querySelector('input[name="nickname"]');
+    const messageDiv = document.getElementById('nicknameMessage');
+    const nickname = nicknameInput.value.trim();
+    
+    if (!nickname) {
+      messageDiv.textContent = '닉네임을 입력해주세요.';
+      messageDiv.style.color = '#ef4444';
+      return;
+    }
+    
+    if (!/^[a-zA-Z0-9가-힣_-]{2,20}$/.test(nickname)) {
+      messageDiv.textContent = '닉네임은 2-20자의 영문, 숫자, 한글만 사용 가능합니다.';
+      messageDiv.style.color = '#ef4444';
+      return;
+    }
+    
+    try {
+      // 닉네임 중복 체크 함수 호출
+      const { data, error } = await window.supabaseClient
+        .rpc('is_nickname_available', { check_nickname: nickname });
+      
+      if (error) throw error;
+      
+      if (data) {
+        messageDiv.textContent = '사용 가능한 닉네임입니다.';
+        messageDiv.style.color = '#22c55e';
+        this.nicknameChecked = true;
+        this.checkedNickname = nickname;
+      } else {
+        messageDiv.textContent = '이미 사용 중인 닉네임입니다.';
+        messageDiv.style.color = '#ef4444';
+        this.nicknameChecked = false;
+      }
+    } catch (error) {
+      console.error('닉네임 체크 오류:', error);
+      messageDiv.textContent = '닉네임 확인 중 오류가 발생했습니다.';
+      messageDiv.style.color = '#ef4444';
+    }
+  }
+  
   // 1단계 폼 처리
   handleSignupStep1(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
+    
+    // 닉네임 중복 체크 확인
+    if (!this.nicknameChecked || this.checkedNickname !== data.nickname) {
+      alert('닉네임 중복 확인을 해주세요.');
+      return;
+    }
     
     // 비밀번호 확인
     if (data.password !== data.passwordConfirm) {

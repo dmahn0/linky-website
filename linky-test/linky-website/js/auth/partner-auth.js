@@ -12,6 +12,7 @@ class PartnerAuth extends AuthManager {
       auth_uid: authUid,
       email: formData.email,
       phone: formData.phone || '',
+      nickname: formData.nickname,
       name: formData.name,
       residence: formData.residence,
       work_areas: formData.workAreas || [],
@@ -53,6 +54,7 @@ class PartnerAuth extends AuthManager {
     if (!formData.email) errors.push('이메일을 입력해주세요.');
     if (!formData.password) errors.push('비밀번호를 입력해주세요.');
     if (!formData.name) errors.push('이름을 입력해주세요.');
+    if (!formData.nickname) errors.push('닉네임을 입력해주세요.');
     if (!formData.phone) errors.push('전화번호를 입력해주세요.');
     if (!formData.residence) errors.push('거주 지역을 입력해주세요.');
     if (!formData.workAreas || formData.workAreas.length === 0) {
