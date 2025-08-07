@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>파트너 대시보드 - Linky Partners</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../shared/css/base.css">
+    <link rel="stylesheet" href="../shared/css/components.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Config & Scripts -->
+    <script src="../shared/js/config.js"></script>
+    <script src="../shared/js/auth.js"></script>
+    <script src="../shared/js/api.js"></script>
+    
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--color-primary), #16a34a);
+            color: white;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-xl) var(--spacing-lg);
+        }
+        
+        .welcome-section h1 {
+            margin: 0;
+            color: white;
+        }
+        
+        .welcome-section p {
+            margin: var(--spacing-xs) 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+        
+        .header-actions .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-actions .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .dashboard-content {
+            padding: 0 var(--spacing-lg) var(--spacing-xl);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .rating-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+        
+        .rating-stars {
+            font-size: var(--font-size-2xl);
+            color: #fbbf24;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .rating-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--color-text);
+        }
+        
+        .rating-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-light);
+            margin-top: var(--spacing-xs);
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .action-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-xl);
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            color: var(--color-text);
+        }
+        
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            background: var(--color-surface);
+        }
+        
+        .action-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-primary);
+        }
+        
+        .action-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .action-description {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-light);
+            text-align: center;
+        }
+        
+        .jobs-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .job-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .job-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md);
+            background: var(--color-surface);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .job-card:hover {
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .job-info {
+            flex: 1;
+        }
+        
+        .job-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text);
+        }
+        
+        .job-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-light);
+        }
+        
+        .job-price {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        
+        .job-action {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: var(--spacing-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="welcome-section">
+                    <h1>안녕하세요, <span id="partnerName">파트너</span>님!</h1>
+                    <p>오늘도 멋진 하루 보내세요 💪</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="window.location.href='profile.html'">
+                        프로필 설정
+                    </button>
+                    <button class="btn" id="logoutBtn">
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container dashboard-content">
+        <!-- 통계 카드 -->
+        <div class="stats-grid">
+            <div class="rating-card">
+                <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                <div class="rating-value" id="rating">0.0</div>
+                <div class="rating-label">평균 평점</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completedJobs">0</div>
+                <div class="stat-label">완료한 작업</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeJobs">0</div>
+                <div class="stat-label">진행중인 작업</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₩<span id="monthlyEarnings">0</span></div>
+                <div class="stat-label">이번달 수익</div>
+            </div>
+        </div>
+        
+        <!-- 주요 액션 버튼 -->
+        <div class="action-grid">
+            <a href="jobs.html?filter=available" class="action-card">
+                <div class="action-icon">🔍</div>
+                <div class="action-title">작업 찾기</div>
+                <div class="action-description">새로운 작업을 찾아 지원하세요</div>
+            </a>
+            <a href="jobs.html?filter=my" class="action-card">
+                <div class="action-icon">📋</div>
+                <div class="action-title">내 작업</div>
+                <div class="action-description">진행중인 작업을 관리하세요</div>
+            </a>
+            <a href="earnings.html" class="action-card">
+                <div class="action-icon">💰</div>
+                <div class="action-title">수익 관리</div>
+                <div class="action-description">수익 내역을 확인하세요</div>
+            </a>
+            <a href="schedule.html" class="action-card">
+                <div class="action-icon">📅</div>
+                <div class="action-title">일정 관리</div>
+                <div class="action-description">작업 일정을 확인하세요</div>
+            </a>
+        </div>
+        
+        <!-- 대기중인 작업 -->
+        <div class="jobs-section">
+            <div class="section-header">
+                <h2 class="section-title">🆕 지원 가능한 작업</h2>
+                <a href="jobs.html?filter=available" class="btn btn-sm btn-primary">더 보기</a>
+            </div>
+            <div id="availableJobs" class="job-list">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <div class="empty-state-title">현재 지원 가능한 작업이 없습니다</div>
+                    <div class="empty-state-message">새로운 작업이 등록되면 알려드릴게요!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let userProfile = null;
+        
+        // 페이지 로드시 초기화
+        async function initDashboard() {
+            // 인증 확인
+            const session = await authManager.checkSession();
+            if (!session || session.userType !== 'partner') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            userProfile = session.profile;
+            
+            // 사용자 이름 표시
+            document.getElementById('partnerName').textContent = 
+                userProfile.name || userProfile.nickname || '파트너';
+            
+            // 대시보드 데이터 로드
+            await loadDashboardStats();
+            await loadAvailableJobs();
+        }
+        
+        // 대시보드 통계 로드
+        async function loadDashboardStats() {
+            try {
+                const stats = await partnerAPI.getDashboardStats(currentUser.id);
+                
+                if (stats.success && stats.data) {
+                    // 평점 표시
+                    const rating = stats.data.rating || 0;
+                    document.getElementById('rating').textContent = rating.toFixed(1);
+                    
+                    // 별점 업데이트
+                    const fullStars = Math.floor(rating);
+                    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+                    const emptyStars = 5 - fullStars - halfStar;
+                    const starsHtml = '⭐'.repeat(fullStars) + 
+                                     (halfStar ? '⭐' : '') + 
+                                     '☆'.repeat(emptyStars);
+                    document.querySelector('.rating-stars').textContent = starsHtml;
+                    
+                    // 기타 통계
+                    document.getElementById('completedJobs').textContent = stats.data.completedJobs;
+                    document.getElementById('activeJobs').textContent = stats.data.activeJobs;
+                    document.getElementById('monthlyEarnings').textContent = 
+                        stats.data.monthlyEarnings.toLocaleString('ko-KR');
+                }
+            } catch (error) {
+                console.error('Failed to load dashboard stats:', error);
+            }
+        }
+        
+        // 지원 가능한 작업 로드
+        async function loadAvailableJobs() {
+            try {
+                const result = await partnerAPI.getAvailableJobs();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    const jobs = result.data.slice(0, 3); // 최근 3개만
+                    const jobsHtml = jobs.map(job => createJobCard(job)).join('');
+                    document.getElementById('availableJobs').innerHTML = jobsHtml;
+                }
+            } catch (error) {
+                console.error('Failed to load available jobs:', error);
+            }
+        }
+        
+        // 작업 카드 HTML 생성
+        function createJobCard(job) {
+            const scheduledDate = new Date(job.scheduled_date).toLocaleDateString('ko-KR');
+            const scheduledTime = job.scheduled_time ? job.scheduled_time.slice(0, 5) : '';
+            
+            return `
+                <div class="job-card">
+                    <div class="job-info">
+                        <div class="job-title">${job.title}</div>
+                        <div class="job-meta">
+                            <span>📍 ${job.space?.address || '주소 정보 없음'}</span>
+                            <span>📅 ${scheduledDate} ${scheduledTime}</span>
+                            <span>⏱️ ${job.estimated_duration || 120}분</span>
+                        </div>
+                    </div>
+                    <div class="job-action">
+                        <div class="job-price">₩${(job.base_price || 0).toLocaleString('ko-KR')}</div>
+                        <button class="btn btn-primary btn-sm" onclick="applyForJob('${job.id}')">
+                            지원하기
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 작업 지원
+        async function applyForJob(jobId) {
+            if (!confirm('이 작업에 지원하시겠습니까?')) return;
+            
+            try {
+                const result = await partnerAPI.applyForJob(jobId, currentUser.id);
+                
+                if (result.success) {
+                    alert('지원이 완료되었습니다!');
+                    await loadAvailableJobs(); // 목록 새로고침
+                } else {
+                    alert('지원에 실패했습니다. ' + (result.error || ''));
+                }
+            } catch (error) {
+                console.error('Failed to apply for job:', error);
+                alert('지원 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 로그아웃
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await authManager.logout();
+            window.location.href = 'index.html';
+        });
+        
+        // 초기화 실행
+        initDashboard();
+    </script>
+</body>
+</html>

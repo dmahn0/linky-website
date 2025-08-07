@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Linky 비즈니스 회원가입 - 무인공간 청소 서비스">
+    <meta name="theme-color" content="#10B981">
+    
+    <title>비즈니스 회원가입 - Linky</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- iOS PWA 지원 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Linky Business">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+    
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- UI Core CSS -->
+    <link rel="stylesheet" href="../shared/css/ui-core.css">
+    
+    <!-- UI Components JS -->
+    <script src="../shared/js/ui-components.js" defer></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Config & Auth -->
+    <script src="../shared/js/config.js"></script>
+    <script src="../shared/js/auth.js"></script>
+    
+    <style>
+        body {
+            background: var(--linky-surface-alt);
+            padding-top: var(--header-height);
+        }
+        
+        .signup-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .signup-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--linky-shadow);
+        }
+        
+        .signup-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .signup-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .signup-subtitle {
+            color: var(--linky-text-secondary);
+            font-size: 16px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--linky-border);
+            color: var(--linky-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        
+        .step.active .step-number {
+            background: var(--linky-primary);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: var(--linky-success);
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: var(--linky-text-secondary);
+            white-space: nowrap;
+        }
+        
+        .step.active .step-label {
+            color: var(--linky-primary);
+            font-weight: 600;
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .form-actions .btn {
+            flex: 1;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--linky-success);
+            margin-bottom: 15px;
+        }
+        
+        .success-description {
+            color: var(--linky-text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--linky-border);
+        }
+        
+        .login-link a {
+            color: var(--linky-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .signup-card {
+                padding: 30px 20px;
+            }
+            
+            .signup-title {
+                font-size: 24px;
+            }
+            
+            .step-indicator {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .step {
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 네비게이션 -->
+    <div id="header-container"></div>
+    
+    <!-- 회원가입 컨테이너 -->
+    <div class="signup-container">
+        <div class="signup-card">
+            <div class="signup-header">
+                <h1 class="signup-title">비즈니스 회원가입</h1>
+                <p class="signup-subtitle">무인공간 청소 서비스를 시작해보세요</p>
+            </div>
+            
+            <!-- 단계 표시기 -->
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">기본정보</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">공간정보</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">완료</div>
+                </div>
+            </div>
+            
+            <!-- 회원가입 폼 -->
+            <form id="signupForm">
+                <!-- 1단계: 기본 정보 -->
+                <div class="form-step active" data-step="1">
+                    <div class="form-group">
+                        <label class="form-label" for="email">이메일 *</label>
+                        <input type="email" id="email" class="form-input" placeholder="business@example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password">비밀번호 *</label>
+                        <input type="password" id="password" class="form-input" placeholder="8자 이상 입력하세요" required minlength="8">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="passwordConfirm">비밀번호 확인 *</label>
+                        <input type="password" id="passwordConfirm" class="form-input" placeholder="비밀번호를 다시 입력하세요" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="businessName">사업자명 *</label>
+                        <input type="text" id="businessName" class="form-input" placeholder="사업자명을 입력하세요" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="ownerName">대표자명 *</label>
+                        <input type="text" id="ownerName" class="form-input" placeholder="대표자명을 입력하세요" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="phone">연락처 *</label>
+                        <input type="tel" id="phone" class="form-input" placeholder="010-0000-0000" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+                            다음 단계 →
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 2단계: 공간 정보 -->
+                <div class="form-step" data-step="2">
+                    <div class="form-group">
+                        <label class="form-label" for="spaceType">주요 공간 유형 *</label>
+                        <select id="spaceType" class="form-select" required>
+                            <option value="">공간 유형을 선택하세요</option>
+                            <option value="study">스터디룸</option>
+                            <option value="party">파티룸</option>
+                            <option value="studio">스튜디오</option>
+                            <option value="meeting">회의실</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="spaceCount">보유 공간/사업장 개수 *</label>
+                        <select id="spaceCount" class="form-select" required>
+                            <option value="">개수를 선택하세요</option>
+                            <option value="1">1개</option>
+                            <option value="2">2개</option>
+                            <option value="3">3개</option>
+                            <option value="4">4개</option>
+                            <option value="5">5개</option>
+                            <option value="6-10">6-10개</option>
+                            <option value="11-20">11-20개</option>
+                            <option value="21+">21개 이상</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="address">주소</label>
+                        <input type="text" id="address" class="form-input" placeholder="주소를 입력하세요 (선택사항)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="businessRegistrationNumber">사업자등록번호</label>
+                        <input type="text" id="businessRegistrationNumber" class="form-input" placeholder="000-00-00000 (선택사항)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="specialRequirements">특별 요구사항</label>
+                        <textarea id="specialRequirements" class="form-textarea" rows="3" placeholder="특별한 요구사항이나 문의사항을 입력하세요 (선택사항)"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                            ← 이전 단계
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            회원가입 완료
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 3단계: 완료 -->
+                <div class="form-step" data-step="3">
+                    <div class="success-message">
+                        <div class="success-icon">🎉</div>
+                        <h2 class="success-title">회원가입이 완료되었습니다!</h2>
+                        <p class="success-description">
+                            환영합니다! 이제 Linky 비즈니스 서비스를 이용하실 수 있습니다.<br>
+                            로그인하여 공간을 등록하고 청소 서비스를 신청해보세요.
+                        </p>
+                        <button type="button" class="btn btn-primary" onclick="goToLogin()">
+                            로그인하러 가기
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            
+            <div class="login-link">
+                <p>이미 계정이 있으신가요? <a href="index.html">로그인하기</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 푸터 -->
+    <div id="footer-container"></div>
+    
+    <!-- PWA 설치 프롬프트 -->
+    <div id="install-prompt-container"></div>
+    
+    <script>
+        let currentStep = 1;
+        
+        // 페이지 로드 시 컴포넌트 렌더링
+        document.addEventListener('DOMContentLoaded', function() {
+            // 헤더 렌더링 (회원가입 페이지용 - 네비게이션 제한)
+            document.getElementById('header-container').innerHTML = UIComponents.createHeader({
+                logo: 'Linky',
+                menuItems: [
+                    { href: '../landing/', label: '홈' },
+                    { href: '../business/', label: '비즈니스' },
+                    { href: '../partners/', label: '파트너스' }
+                ],
+                currentPath: window.location.pathname,
+                logoHref: '#' // 로고 클릭 시 이동하지 않도록 설정
+            });
+            
+            // 푸터 렌더링
+            document.getElementById('footer-container').innerHTML = UIComponents.createFooter({
+                copyright: '© 2025 Linky Platform. All rights reserved.',
+                links: [
+                    { href: '/privacy', label: '개인정보처리방침' },
+                    { href: '/terms', label: '이용약관' },
+                    { href: '/support', label: '고객지원' }
+                ]
+            });
+            
+            // PWA 설치 프롬프트 렌더링
+            document.getElementById('install-prompt-container').innerHTML = UIComponents.createInstallPrompt();
+            
+            // TODO: 나중에 안전한 인증 상태 확인 로직 추가
+            // checkAuthStatus();
+        });
+        
+        // 인증 상태 확인
+        async function checkAuthStatus() {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (session && session.user) {
+                    // 실제로 유효한 세션이 있는 경우, 사용자 프로필 확인
+                    const userId = session.user.id;
+                    
+                    // 비즈니스 테이블 확인
+                    const { data: businessData, error: businessError } = await supabase
+                        .from('business_users')
+                        .select('id, status')
+                        .eq('auth_uid', userId)
+                        .single();
+                    
+                    if (businessData && !businessError) {
+                        // 비즈니스로 등록된 사용자
+                        localStorage.setItem('userType', 'business');
+                        window.location.href = 'dashboard.html';
+                        return;
+                    }
+                    
+                    // 파트너스 테이블 확인
+                    const { data: partnerData, error: partnerError } = await supabase
+                        .from('partners_users')
+                        .select('id, status')
+                        .eq('auth_uid', userId)
+                        .single();
+                    
+                    if (partnerData && !partnerError) {
+                        // 파트너스로 등록된 사용자
+                        localStorage.setItem('userType', 'partners');
+                        window.location.href = '../partners/dashboard.html';
+                        return;
+                    }
+                    
+                    // 세션은 있지만 프로필이 없는 경우 (회원가입 미완료)
+                    // localStorage 정리하고 회원가입 진행 허용
+                    localStorage.removeItem('userType');
+                    console.log('Session exists but no profile found - allowing signup');
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                // 오류 발생시 localStorage 정리
+                localStorage.removeItem('userType');
+            }
+        }
+        
+        // 다음 단계로 이동
+        function nextStep(step) {
+            if (validateStep(step)) {
+                currentStep++;
+                updateStepDisplay();
+            }
+        }
+        
+        // 이전 단계로 이동
+        function prevStep(step) {
+            currentStep--;
+            updateStepDisplay();
+        }
+        
+        // 단계 표시 업데이트
+        function updateStepDisplay() {
+            // 단계 표시기 업데이트
+            document.querySelectorAll('.step').forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // 폼 스텝 표시/숨김
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+            if (currentStepElement) {
+                currentStepElement.classList.add('active');
+            }
+        }
+        
+        // 단계별 유효성 검사
+        function validateStep(step) {
+            if (step === 1) {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const passwordConfirm = document.getElementById('passwordConfirm').value;
+                const businessName = document.getElementById('businessName').value;
+                const ownerName = document.getElementById('ownerName').value;
+                const phone = document.getElementById('phone').value;
+                
+                if (!email || !password || !passwordConfirm || !businessName || !ownerName || !phone) {
+                    showErrorMessage('필수 항목을 모두 입력해주세요.');
+                    return false;
+                }
+                
+                if (password.length < 8) {
+                    showErrorMessage('비밀번호는 8자 이상이어야 합니다.');
+                    return false;
+                }
+                
+                if (password !== passwordConfirm) {
+                    showErrorMessage('비밀번호가 일치하지 않습니다.');
+                    return false;
+                }
+                
+                // 이메일 형식 검증
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showErrorMessage('올바른 이메일 형식을 입력해주세요.');
+                    return false;
+                }
+                
+                // 전화번호 형식 검증
+                const phoneRegex = /^010-\d{4}-\d{4}$/;
+                if (!phoneRegex.test(phone)) {
+                    showErrorMessage('전화번호를 010-0000-0000 형식으로 입력해주세요.');
+                    return false;
+                }
+            }
+            
+            hideErrorMessage();
+            return true;
+        }
+        
+        // 회원가입 폼 처리
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!validateStep(2)) {
+                return;
+            }
+            
+            const spaceType = document.getElementById('spaceType').value;
+            const spaceCount = document.getElementById('spaceCount').value;
+            
+            if (!spaceType || !spaceCount) {
+                showErrorMessage('공간 유형과 개수를 선택해주세요.');
+                return;
+            }
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                businessName: document.getElementById('businessName').value,
+                businessType: spaceType,
+                ownerName: document.getElementById('ownerName').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                businessRegistrationNumber: document.getElementById('businessRegistrationNumber').value,
+                spaceCount: spaceCount,
+                specialRequirements: document.getElementById('specialRequirements').value
+            };
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '회원가입 처리중...';
+            
+            hideErrorMessage();
+            
+            try {
+                const result = await signupBusiness(formData);
+                
+                if (result.success) {
+                    currentStep = 3;
+                    updateStepDisplay();
+                } else {
+                    showErrorMessage(result.error || '회원가입에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showErrorMessage('회원가입 중 오류가 발생했습니다.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '회원가입 완료';
+            }
+        });
+        
+        // 비즈니스 회원가입 함수
+        async function signupBusiness(formData) {
+            try {
+                // 1. Supabase Auth로 사용자 생성
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: formData.email,
+                    password: formData.password
+                });
+                
+                if (authError) throw authError;
+                
+                // 2. 비즈니스 사용자 프로필 생성
+                const { data: userData, error: userError } = await supabase
+                    .from('business_users')
+                    .insert({
+                        auth_uid: authData.user.id,
+                        email: formData.email,
+                        business_name: formData.businessName,
+                        business_type: formData.businessType,
+                        owner_name: formData.ownerName,
+                        phone: formData.phone,
+                        address: formData.address,
+                        business_registration_number: formData.businessRegistrationNumber,
+                        space_count: parseInt(formData.spaceCount) || 1,
+                        metadata: {
+                            signup_completed: true,
+                            special_requirements: formData.specialRequirements,
+                            signup_date: new Date().toISOString()
+                        }
+                    })
+                    .select()
+                    .single();
+                
+                if (userError) throw userError;
+                
+                return { success: true, data: userData };
+                
+            } catch (error) {
+                console.error('Business signup error:', error);
+                
+                // 에러 메시지 처리
+                if (error.message.includes('already registered')) {
+                    return { success: false, error: '이미 등록된 이메일입니다.' };
+                } else if (error.message.includes('invalid email')) {
+                    return { success: false, error: '유효하지 않은 이메일입니다.' };
+                } else if (error.message.includes('weak password')) {
+                    return { success: false, error: '비밀번호가 너무 약합니다.' };
+                } else {
+                    return { success: false, error: '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' };
+                }
+            }
+        }
+        
+        // 로그인 페이지로 이동
+        function goToLogin() {
+            window.location.href = 'index.html';
+        }
+        
+        // 에러 메시지 표시
+        function showErrorMessage(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // 에러 메시지 숨기기
+        function hideErrorMessage() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        // 전화번호 자동 포맷팅
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 3 && value.length <= 7) {
+                value = value.replace(/(\d{3})(\d{1,4})/, '$1-$2');
+            } else if (value.length > 7) {
+                value = value.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
+            }
+            e.target.value = value;
+        });
+        
+        // 사업자등록번호 자동 포맷팅
+        document.getElementById('businessRegistrationNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 3 && value.length <= 5) {
+                value = value.replace(/(\d{3})(\d{1,2})/, '$1-$2');
+            } else if (value.length > 5) {
+                value = value.replace(/(\d{3})(\d{2})(\d{1,5})/, '$1-$2-$3');
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

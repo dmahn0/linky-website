@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Linky 무인공간 운영자 포털 - 정리 때문에 시간과 돈을 낭비하지 마세요">
+    <meta name="theme-color" content="#10B981">
+    
+    <title>비즈니스 - Linky</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- iOS PWA 지원 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Linky Business">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+    
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- UI Core CSS -->
+    <link rel="stylesheet" href="../shared/css/ui-core.css">
+    
+    <!-- UI Components JS -->
+    <script src="../shared/js/ui-components.js" defer></script>
+    
+    <style>
+        body {
+            padding-top: var(--header-height);
+        }
+        
+        /* 메트릭 카드 */
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .metric-card {
+            background: white;
+            border: 2px solid var(--linky-primary);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--linky-primary);
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: var(--linky-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* 문제점 섹션 */
+        .problem-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .problem-card {
+            background: var(--linky-surface-alt);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            border: 1px solid var(--linky-border);
+        }
+        
+        .problem-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .problem-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: 12px;
+        }
+        
+        .problem-description {
+            color: var(--linky-text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* 솔루션 그리드 */
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin: 40px 0;
+        }
+        
+        .solution-item {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .solution-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            background: var(--linky-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--linky-primary);
+        }
+        
+        .solution-content h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .solution-content p {
+            color: var(--linky-text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* 요금 카드 */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .pricing-card {
+            background: white;
+            border: 2px solid var(--linky-border);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-card.featured {
+            border-color: var(--linky-primary);
+            transform: scale(1.05);
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--linky-primary);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .pricing-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .pricing-price {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--linky-primary);
+            margin: 16px 0;
+        }
+        
+        .pricing-unit {
+            font-size: 16px;
+            color: var(--linky-text-secondary);
+        }
+        
+        .pricing-features {
+            text-align: left;
+            margin: 24px 0;
+        }
+        
+        .pricing-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            color: var(--linky-text-primary);
+        }
+        
+        /* 사례 섹션 */
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin: 40px 0;
+        }
+        
+        .testimonial-card {
+            background: var(--linky-surface-alt);
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+        }
+        
+        .testimonial-quote {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--linky-text-primary);
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--linky-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .author-info h5 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+        }
+        
+        .author-info p {
+            font-size: 14px;
+            color: var(--linky-text-secondary);
+        }
+        
+        /* CTA 섹션 */
+        .cta-section {
+            background: linear-gradient(135deg, var(--linky-accent) 0%, var(--linky-secondary) 100%);
+            padding: 80px 0;
+            text-align: center;
+            border-radius: 24px;
+            margin: 60px 0;
+        }
+        
+        .cta-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--linky-text-primary);
+            margin-bottom: 16px;
+        }
+        
+        .cta-subtitle {
+            font-size: 18px;
+            color: var(--linky-text-secondary);
+            margin-bottom: 32px;
+        }
+        
+        .discount-badge {
+            display: inline-block;
+            background: var(--linky-primary);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        
+        /* 모달 스타일 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--linky-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: var(--linky-text-light);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--linky-surface-alt);
+            color: var(--linky-text-primary);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--linky-border);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--linky-primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 네비게이션 -->
+    <div id="header-container"></div>
+    
+    <!-- 히어로 섹션 -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">정리 때문에 시간과 돈을<br>낭비하고 계신가요?</h1>
+            <p class="hero-subtitle">
+                직접 정리하느라 시간을 낭비하거나 비싼 청소업체 비용에 부담을 느끼신다면,<br>
+                Linky가 해답입니다.
+            </p>
+            
+            <div class="metrics-container">
+                <div class="metric-card">
+                    <div class="metric-value">60%</div>
+                    <div class="metric-label">예상 비용 절감</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">12,000원</div>
+                    <div class="metric-label">기본 요금</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">24/7</div>
+                    <div class="metric-label">실시간 매칭</div>
+                </div>
+            </div>
+            
+            <div class="hero-buttons">
+                <button class="btn btn-primary btn-lg" onclick="openConsultationModal()">
+                    무료 상담 신청
+                </button>
+                <button class="btn btn-secondary btn-lg" onclick="scrollToSection('pricing')">
+                    요금 확인하기
+                </button>
+                <button class="btn btn-ghost btn-lg" onclick="openLoginModal()">
+                    비즈니스 로그인
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 문제점 섹션 -->
+    <section class="section" id="problems">
+        <div class="container">
+            <h2 class="section-title">이런 문제로 고민이신가요?</h2>
+            
+            <div class="problem-cards">
+                <div class="problem-card">
+                    <div class="problem-icon">😫</div>
+                    <h3 class="problem-title">매일 직접 정리</h3>
+                    <p class="problem-description">
+                        운영 시간 전후로 매번 직접 정리하느라<br>
+                        정작 중요한 일에 집중할 수 없어요
+                    </p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">💸</div>
+                    <h3 class="problem-title">비싼 청소 비용</h3>
+                    <p class="problem-description">
+                        청소 업체 비용이 너무 비싸서<br>
+                        수익성이 떨어져요
+                    </p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">🤔</div>
+                    <h3 class="problem-title">신뢰할 수 없는 품질</h3>
+                    <p class="problem-description">
+                        매번 다른 사람이 와서<br>
+                        일관된 품질을 기대하기 어려워요
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 솔루션 섹션 -->
+    <section class="section" style="background: var(--linky-surface-alt);" id="solutions">
+        <div class="container">
+            <h2 class="section-title">Linky의 스마트한 솔루션</h2>
+            
+            <div class="solution-grid">
+                <div class="solution-item">
+                    <div class="solution-icon">⚡</div>
+                    <div class="solution-content">
+                        <h4>즉시 매칭 시스템</h4>
+                        <p>필요한 시간에 바로 파트너를 매칭해드립니다. 24시간 실시간으로 가능합니다.</p>
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <div class="solution-icon">💰</div>
+                    <div class="solution-content">
+                        <h4>합리적인 고정 가격</h4>
+                        <p>투명하고 합리적인 가격으로 비용 부담을 60% 줄여드립니다.</p>
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <div class="solution-icon">📋</div>
+                    <div class="solution-content">
+                        <h4>간편한 계약 시스템</h4>
+                        <p>복잡한 절차 없이 온라인으로 간편하게 계약하고 관리하세요.</p>
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <div class="solution-icon">✅</div>
+                    <div class="solution-content">
+                        <h4>맞춤형 체크리스트</h4>
+                        <p>공간별 맞춤 체크리스트로 빠짐없이 완벽하게 관리됩니다.</p>
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <div class="solution-icon">🛡️</div>
+                    <div class="solution-content">
+                        <h4>품질 보증 시스템</h4>
+                        <p>AI 기반 품질 검증으로 일관된 고품질 서비스를 보장합니다.</p>
+                    </div>
+                </div>
+                <div class="solution-item">
+                    <div class="solution-icon">📊</div>
+                    <div class="solution-content">
+                        <h4>운영 데이터 제공</h4>
+                        <p>실시간 대시보드로 운영 현황을 한눈에 확인하세요.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 요금 섹션 -->
+    <section class="section" id="pricing">
+        <div class="container">
+            <h2 class="section-title">합리적인 요금제</h2>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3 class="pricing-title">베이직</h3>
+                    <div class="pricing-price">
+                        12,000원<span class="pricing-unit">/시간</span>
+                    </div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">
+                            <span>✓</span> 기본 정리 정돈
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 쓰레기 수거
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 간단한 청소
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 체크리스트 리포트
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-block">선택하기</button>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <span class="pricing-badge">인기</span>
+                    <h3 class="pricing-title">스탠다드</h3>
+                    <div class="pricing-price">
+                        18,000원<span class="pricing-unit">/시간</span>
+                    </div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">
+                            <span>✓</span> 베이직 포함
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 화장실 청소
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 바닥 물청소
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 소모품 체크 및 보충
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 사진 리포트
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block">선택하기</button>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3 class="pricing-title">프리미엄</h3>
+                    <div class="pricing-price">
+                        25,000원<span class="pricing-unit">/시간</span>
+                    </div>
+                    <div class="pricing-features">
+                        <div class="pricing-feature">
+                            <span>✓</span> 스탠다드 포함
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 전문 장비 사용
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 심화 청소
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 월간 리포트
+                        </div>
+                        <div class="pricing-feature">
+                            <span>✓</span> 우선 매칭
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-block">선택하기</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 사례 섹션 -->
+    <section class="section" style="background: var(--linky-surface-alt);" id="cases">
+        <div class="container">
+            <h2 class="section-title">실제 운영자들의 이야기</h2>
+            
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">
+                        "매일 아침 직접 청소하느라 지쳤는데, Linky 덕분에 그 시간에 마케팅에 집중할 수 있게 되었어요. 매출이 30% 늘었습니다!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">김○○</div>
+                        <div class="author-info">
+                            <h5>김대표</h5>
+                            <p>스터디카페 운영 3년차</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">
+                        "청소 업체보다 60% 저렴한데 품질은 오히려 더 좋아요. 체크리스트대로 꼼꼼하게 관리해주시더라구요."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">이○○</div>
+                        <div class="author-info">
+                            <h5>이사장</h5>
+                            <p>무인카페 체인 운영</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <p class="testimonial-quote">
+                        "24시간 운영하는데 새벽 시간대도 파트너 매칭이 가능해서 정말 편해요. 고객 만족도가 크게 올랐습니다."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">박○○</div>
+                        <div class="author-info">
+                            <h5>박대표</h5>
+                            <p>24시간 헬스장 운영</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA 섹션 -->
+    <section class="section" id="consultation">
+        <div class="container">
+            <div class="cta-section">
+                <span class="discount-badge">첫 이용 10% 할인</span>
+                <h2 class="cta-title">지금 바로 시작하세요</h2>
+                <p class="cta-subtitle">
+                    무료 상담을 통해 맞춤형 솔루션을 제안해드립니다
+                </p>
+                
+                <button class="btn btn-primary btn-lg" onclick="openConsultationModal()">
+                    무료 상담 신청하기
+                </button>
+                <a href="signup.html" class="btn btn-secondary btn-lg">
+                    비즈니스 회원가입
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 상담 모달 -->
+    <div id="consultationModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">무료 상담 신청</h3>
+                <button class="modal-close" onclick="closeConsultationModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--linky-text-secondary); margin-bottom: 24px;">
+                    맞춤형 솔루션을 제안해드리기 위해 아래 정보를 입력해주세요.
+                </p>
+                <form id="consultationForm">
+                    <div class="form-group">
+                        <label class="form-label" for="businessName">사업자명</label>
+                        <input type="text" id="businessName" class="form-input" placeholder="사업자명을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contact">연락처</label>
+                        <input type="tel" id="contact" class="form-input" placeholder="010-0000-0000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="spaceType">공간 유형</label>
+                        <select id="spaceType" class="form-select" required>
+                            <option value="">공간 유형을 선택하세요</option>
+                            <option value="study">스터디룸</option>
+                            <option value="party">파티룸</option>
+                            <option value="studio">스튜디오</option>
+                            <option value="meeting">회의실</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="spaceCount">보유 공간/사업장 개수</label>
+                        <select id="spaceCount" class="form-select" required>
+                            <option value="">개수를 선택하세요</option>
+                            <option value="1">1개</option>
+                            <option value="2">2개</option>
+                            <option value="3">3개</option>
+                            <option value="4">4개</option>
+                            <option value="5">5개</option>
+                            <option value="6-10">6-10개</option>
+                            <option value="11-20">11-20개</option>
+                            <option value="21+">21개 이상</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="message">추가 메시지 (선택)</label>
+                        <textarea id="message" class="form-textarea" rows="3" placeholder="궁금하신 점이나 요청사항을 입력하세요"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeConsultationModal()">
+                            취소
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            신청하기
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 로그인 모달 -->
+    <div id="loginModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">비즈니스 로그인</h3>
+                <button class="modal-close" onclick="closeLoginModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--linky-text-secondary); margin-bottom: 24px;">
+                    비즈니스 계정으로 로그인하세요
+                </p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label" for="email">이메일</label>
+                        <input type="email" id="email" class="form-input" placeholder="business@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="password">비밀번호</label>
+                        <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                    </div>
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeLoginModal()">
+                            취소
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            로그인
+                        </button>
+                        <a href="signup.html" class="btn btn-ghost">
+                            회원가입
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 푸터 -->
+    <div id="footer-container"></div>
+    
+    <!-- PWA 설치 프롬프트 -->
+    <div id="install-prompt-container"></div>
+    
+    <script>
+        // 페이지 로드 시 컴포넌트 렌더링
+        document.addEventListener('DOMContentLoaded', function() {
+            // 헤더 렌더링
+            document.getElementById('header-container').innerHTML = UIComponents.createHeader({
+                logo: 'Linky Business',
+                menuItems: [
+                    { href: '#problems', label: '문제점' },
+                    { href: '#solutions', label: '솔루션' },
+                    { href: '#pricing', label: '요금' },
+                    { href: '#cases', label: '사례' },
+                    { href: '#consultation', label: '무료 상담' },
+                    { href: 'javascript:void(0)', label: '로그인', onclick: 'openLoginModal()' }
+                ],
+                currentPath: window.location.pathname
+            });
+            
+            // 푸터 렌더링
+            document.getElementById('footer-container').innerHTML = UIComponents.createFooter({
+                copyright: '© 2025 Linky Platform. All rights reserved.',
+                links: [
+                    { href: '/privacy', label: '개인정보처리방침' },
+                    { href: '/terms', label: '이용약관' },
+                    { href: '/support', label: '고객지원' },
+                    { href: '/contact', label: '문의하기' }
+                ]
+            });
+            
+            // PWA 설치 프롬프트 렌더링
+            document.getElementById('install-prompt-container').innerHTML = UIComponents.createInstallPrompt();
+        });
+        
+        // 스크롤 함수
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // 모달 열기
+        function openConsultationModal() {
+            const modal = document.getElementById('consultationModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // 스크롤 방지
+        }
+        
+        // 모달 닫기
+        function closeConsultationModal() {
+            const modal = document.getElementById('consultationModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // 스크롤 복원
+            document.getElementById('consultationForm').reset(); // 폼 초기화
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('consultationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConsultationModal();
+            }
+        });
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const consultationModal = document.getElementById('consultationModal');
+                const loginModal = document.getElementById('loginModal');
+                
+                if (consultationModal.style.display === 'flex') {
+                    closeConsultationModal();
+                } else if (loginModal.style.display === 'flex') {
+                    closeLoginModal();
+                }
+            }
+        });
+        
+        // 상담 폼 제출
+        document.getElementById('consultationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 폼 데이터 수집
+            const formData = {
+                businessName: document.getElementById('businessName').value,
+                contact: document.getElementById('contact').value,
+                spaceType: document.getElementById('spaceType').value,
+                message: document.getElementById('message').value
+            };
+            
+            // 여기에 실제 제출 로직 추가 (API 호출 등)
+            console.log('상담 신청 데이터:', formData);
+            
+            // 성공 메시지 표시
+            alert('상담 신청이 완료되었습니다. 곧 연락드리겠습니다.');
+            
+            // 모달 닫기
+            closeConsultationModal();
+        });
+        
+        // 로그인 모달 열기
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 로그인 모달 닫기
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.body.style.overflow = '';
+            document.getElementById('loginForm').reset();
+            hideLoginError();
+        }
+        
+        // 로그인 에러 메시지 표시
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        // 로그인 에러 메시지 숨기기
+        function hideLoginError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        // 로그인 모달 외부 클릭 시 닫기
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+        
+        // 로그인 폼 처리
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            // 버튼 비활성화
+            submitBtn.disabled = true;
+            submitBtn.textContent = '로그인 중...';
+            hideLoginError();
+            
+            try {
+                // TODO: 실제 로그인 API 호출
+                console.log('로그인 시도:', { email, userType: 'business' });
+                
+                // 임시로 성공 처리 (실제로는 API 응답에 따라 처리)
+                alert('로그인이 구현되면 대시보드로 이동됩니다.');
+                closeLoginModal();
+                
+            } catch (error) {
+                console.error('로그인 오류:', error);
+                showLoginError('로그인 중 오류가 발생했습니다.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '로그인';
+            }
+        });
+    </script>
+</body>
+</html>
