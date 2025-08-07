@@ -105,11 +105,11 @@ class BusinessAPI extends API {
             const profile = await this.select('business_users', { auth_uid: authUid });
             if (!profile.success) throw new Error('프로필 조회 실패');
 
-            // 공간 수 조회
-            const spaces = await this.select('spaces', { owner_id: authUid });
+            // 공간 수 조회 - business_id 사용 (BIGINT)
+            const spaces = await this.select('spaces', { business_id: profile.data[0]?.id });
             
-            // 작업 통계 조회
-            const jobs = await this.select('jobs', { business_id: authUid });
+            // 작업 통계 조회 - business_id 사용 (BIGINT)
+            const jobs = await this.select('jobs', { business_id: profile.data[0]?.id });
             
             const stats = {
                 profile: profile.data[0],
@@ -128,15 +128,25 @@ class BusinessAPI extends API {
 
     // 공간 관리
     async getSpaces(authUid) {
-        return await this.select('spaces', { owner_id: authUid }, {
+        // 먼저 business_users에서 프로필 조회
+        const profile = await this.select('business_users', { auth_uid: authUid });
+        if (!profile.success || !profile.data[0]) {
+            return { success: false, error: '프로필을 찾을 수 없습니다' };
+        }
+        return await this.select('spaces', { business_id: profile.data[0].id }, {
             order: { column: 'created_at', ascending: false }
         });
     }
 
     async createSpace(authUid, spaceData) {
+        // 먼저 business_users에서 프로필 조회
+        const profile = await this.select('business_users', { auth_uid: authUid });
+        if (!profile.success || !profile.data[0]) {
+            return { success: false, error: '프로필을 찾을 수 없습니다' };
+        }
         const data = {
             ...spaceData,
-            owner_id: authUid,
+            business_id: profile.data[0].id,  // BIGINT ID 사용
             created_at: new Date().toISOString()
         };
         return await this.insert('spaces', data);
@@ -155,20 +165,30 @@ class BusinessAPI extends API {
 
     // 작업 관리
     async getJobs(authUid) {
-        return await this.select('jobs', { business_id: authUid }, {
+        // 먼저 business_users에서 프로필 조회
+        const profile = await this.select('business_users', { auth_uid: authUid });
+        if (!profile.success || !profile.data[0]) {
+            return { success: false, error: '프로필을 찾을 수 없습니다' };
+        }
+        return await this.select('jobs', { business_id: profile.data[0].id }, {
             select: `
                 *,
                 space:spaces(name, address),
-                partner:partner_users(name, phone, rating)
+                partner:partners_users(name, phone, rating)
             `,
             order: { column: 'created_at', ascending: false }
         });
     }
 
     async createJob(authUid, jobData) {
+        // 먼저 business_users에서 프로필 조회
+        const profile = await this.select('business_users', { auth_uid: authUid });
+        if (!profile.success || !profile.data[0]) {
+            return { success: false, error: '프로필을 찾을 수 없습니다' };
+        }
         const data = {
             ...jobData,
-            business_id: authUid,
+            business_id: profile.data[0].id,  // BIGINT ID 사용
             status: 'pending',
             created_at: new Date().toISOString()
         };
@@ -208,12 +228,12 @@ class PartnersAPI extends API {
     // 대시보드 통계 조회
     async getDashboardStats(authUid) {
         try {
-            // 프로필 조회
-            const profile = await this.select('partner_users', { auth_uid: authUid });
+            // 프로필 조회 - 올바른 테이블명 사용
+            const profile = await this.select('partners_users', { auth_uid: authUid });
             if (!profile.success) throw new Error('프로필 조회 실패');
 
-            // 작업 통계 조회
-            const jobs = await this.select('jobs', { partner_id: authUid });
+            // 작업 통계 조회 - partner_id 사용 (BIGINT)
+            const jobs = await this.select('jobs', { partner_id: profile.data[0]?.id });
             
             const stats = {
                 profile: profile.data[0],
@@ -245,7 +265,12 @@ class PartnersAPI extends API {
 
     // 내 작업 조회
     async getMyJobs(authUid) {
-        return await this.select('jobs', { partner_id: authUid }, {
+        // 먼저 partners_users에서 프로필 조회
+        const profile = await this.select('partners_users', { auth_uid: authUid });
+        if (!profile.success || !profile.data[0]) {
+            return { success: false, error: '프로필을 찾을 수 없습니다' };
+        }
+        return await this.select('jobs', { partner_id: profile.data[0].id }, {
             select: `
                 *,
                 space:spaces(name, address),

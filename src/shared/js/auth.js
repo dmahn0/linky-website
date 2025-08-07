@@ -1,11 +1,12 @@
 // Authentication Manager
 class AuthManager {
     constructor() {
-        if (!window.supabase) {
-            const { createClient } = supabase;
-            this.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Supabase 클라이언트 초기화
+        if (typeof supabase !== 'undefined' && supabase.createClient) {
+            this.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } else {
-            this.supabase = window.supabase;
+            console.error('Supabase client not loaded');
+            throw new Error('Supabase 클라이언트가 로드되지 않았습니다.');
         }
         
         this.currentUser = null;
