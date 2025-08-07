@@ -349,8 +349,37 @@
         
         // 로그아웃
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await authManager.logout();
-            window.location.href = 'index.html';
+            console.log('🚪 Logout button clicked');
+            
+            // 확인 메시지
+            if (!confirm('정말 로그아웃 하시겠습니까?')) {
+                return;
+            }
+            
+            // 로딩 표시
+            const logoutBtn = document.getElementById('logoutBtn');
+            const originalText = logoutBtn.textContent;
+            logoutBtn.textContent = '로그아웃 중...';
+            logoutBtn.disabled = true;
+            
+            try {
+                const result = await authManager.logout();
+                
+                if (result.success) {
+                    console.log('✅ Logout successful, redirecting...');
+                    // 랜딩 페이지로 리다이렉트 (비즈니스 로그인 페이지가 없으므로)
+                    window.location.href = '/src/landing/index.html';
+                } else {
+                    console.error('❌ Logout failed:', result.error);
+                    alert('로그아웃 중 오류가 발생했습니다.');
+                    // 실패해도 랜딩 페이지로 이동
+                    window.location.href = '/src/landing/index.html';
+                }
+            } catch (error) {
+                console.error('❌ Logout error:', error);
+                // 에러가 발생해도 랜딩 페이지로 이동
+                window.location.href = '/src/landing/index.html';
+            }
         });
         
         // 초기화 실행

@@ -74,20 +74,41 @@ class AuthManager {
     // 로그아웃
     async logout() {
         try {
+            console.log('🚪 Starting logout process...');
+            
+            // 1. Supabase 로그아웃
             const { error } = await this.supabase.auth.signOut();
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Supabase signOut error:', error);
+                throw error;
+            }
+            
+            console.log('✅ Supabase auth signOut successful');
 
-            // 세션 정보 초기화
+            // 2. 세션 정보 초기화
             this.currentUser = null;
             this.userType = null;
             this.userProfile = null;
             
-            // 로컬 스토리지 정리
+            // 3. 로컬 스토리지 완전 정리
             localStorage.removeItem('userType');
+            localStorage.removeItem('sb-mzihuflrbspvyjknxlad-auth-token'); // Supabase 토큰 제거
+            
+            // 4. 세션 스토리지도 정리
+            sessionStorage.clear();
+            
+            console.log('✅ Local storage and session cleared');
             
             return { success: true };
         } catch (error) {
             console.error('Logout error:', error);
+            // 에러가 발생해도 로컬 데이터는 정리
+            this.currentUser = null;
+            this.userType = null;
+            this.userProfile = null;
+            localStorage.removeItem('userType');
+            sessionStorage.clear();
+            
             return { 
                 success: false, 
                 error: error.message 
