@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 연결 테스트 및 계정 생성</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="src/shared/js/config.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #22c55e;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #16a34a;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error {
+            background: #fee;
+            color: #c00;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Supabase 연결 테스트 및 계정 생성</h1>
+        
+        <!-- 연결 테스트 -->
+        <div class="section">
+            <h2>1. Supabase 연결 테스트</h2>
+            <button onclick="testConnection()">연결 테스트</button>
+            <div id="connectionResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- 테이블 확인 -->
+        <div class="section">
+            <h2>2. 테이블 구조 확인</h2>
+            <button onclick="checkTables()">테이블 확인</button>
+            <div id="tableResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- 테스트 계정 생성 -->
+        <div class="section">
+            <h2>3. 테스트 계정 생성</h2>
+            
+            <div class="form-group">
+                <h3>비즈니스 계정</h3>
+                <input type="email" id="businessEmail" placeholder="이메일" value="test.business@linky.com">
+                <input type="password" id="businessPassword" placeholder="비밀번호" value="Test1234!">
+                <button onclick="createBusinessAccount()">비즈니스 계정 생성</button>
+            </div>
+            
+            <div class="form-group">
+                <h3>파트너 계정</h3>
+                <input type="email" id="partnerEmail" placeholder="이메일" value="test.partner@linky.com">
+                <input type="password" id="partnerPassword" placeholder="비밀번호" value="Test1234!">
+                <button onclick="createPartnerAccount()">파트너 계정 생성</button>
+            </div>
+            
+            <div id="accountResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- 기존 사용자 확인 -->
+        <div class="section">
+            <h2>4. 기존 사용자 확인</h2>
+            <button onclick="listUsers()">사용자 목록 조회</button>
+            <div id="userResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- 로그인 테스트 -->
+        <div class="section">
+            <h2>5. 로그인 테스트</h2>
+            <input type="email" id="loginEmail" placeholder="이메일">
+            <input type="password" id="loginPassword" placeholder="비밀번호">
+            <button onclick="testLogin()">로그인 테스트</button>
+            <div id="loginResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase 클라이언트 초기화
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 연결 테스트
+        async function testConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.style.display = 'block';
+            
+            try {
+                // 간단한 쿼리로 연결 테스트
+                const { data, error } = await supabaseClient
+                    .from('business_users')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `연결 실패: ${error.message}`;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Supabase 연결 성공!\nURL: ${SUPABASE_URL}`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${err.message}`;
+            }
+        }
+
+        // 테이블 확인
+        async function checkTables() {
+            const resultDiv = document.getElementById('tableResult');
+            resultDiv.style.display = 'block';
+            
+            const tables = ['business_users', 'partner_users', 'spaces', 'jobs', 'job_applications'];
+            let results = [];
+            
+            for (const table of tables) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from(table)
+                        .select('*')
+                        .limit(1);
+                    
+                    if (error) {
+                        results.push(`❌ ${table}: ${error.message}`);
+                    } else {
+                        results.push(`✅ ${table}: 존재함`);
+                    }
+                } catch (err) {
+                    results.push(`❌ ${table}: ${err.message}`);
+                }
+            }
+            
+            resultDiv.className = 'result';
+            resultDiv.textContent = results.join('\n');
+        }
+
+        // 비즈니스 계정 생성
+        async function createBusinessAccount() {
+            const email = document.getElementById('businessEmail').value;
+            const password = document.getElementById('businessPassword').value;
+            const resultDiv = document.getElementById('accountResult');
+            resultDiv.style.display = 'block';
+            
+            try {
+                // 1. Auth 사용자 생성
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password
+                });
+                
+                if (authError) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Auth 생성 실패: ${authError.message}`;
+                    return;
+                }
+                
+                // 2. business_users 테이블에 프로필 생성
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('business_users')
+                    .insert({
+                        auth_uid: authData.user.id,
+                        email: email,
+                        business_name: '테스트 비즈니스',
+                        business_type: 'study',
+                        business_address: '서울시 강남구 테헤란로 123',
+                        phone: '010-1234-5678',
+                        business_number: '123-45-67890',
+                        representative_name: '김대표',
+                        status: 'approved'
+                    });
+                
+                if (profileError) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `프로필 생성 실패: ${profileError.message}`;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ 비즈니스 계정 생성 성공!\n이메일: ${email}\n비밀번호: ${password}\nUser ID: ${authData.user.id}`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${err.message}`;
+            }
+        }
+
+        // 파트너 계정 생성
+        async function createPartnerAccount() {
+            const email = document.getElementById('partnerEmail').value;
+            const password = document.getElementById('partnerPassword').value;
+            const resultDiv = document.getElementById('accountResult');
+            resultDiv.style.display = 'block';
+            
+            try {
+                // 1. Auth 사용자 생성
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password
+                });
+                
+                if (authError) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `Auth 생성 실패: ${authError.message}`;
+                    return;
+                }
+                
+                // 2. partner_users 테이블에 프로필 생성
+                const { data: profileData, error: profileError } = await supabaseClient
+                    .from('partner_users')
+                    .insert({
+                        auth_uid: authData.user.id,
+                        email: email,
+                        name: '테스트 파트너',
+                        phone: '010-9876-5432',
+                        residence: '서울시 강남구',
+                        work_areas: ['강남구', '서초구'],
+                        status: 'approved'
+                    });
+                
+                if (profileError) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `프로필 생성 실패: ${profileError.message}`;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ 파트너 계정 생성 성공!\n이메일: ${email}\n비밀번호: ${password}\nUser ID: ${authData.user.id}`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${err.message}`;
+            }
+        }
+
+        // 사용자 목록 조회
+        async function listUsers() {
+            const resultDiv = document.getElementById('userResult');
+            resultDiv.style.display = 'block';
+            
+            try {
+                // 비즈니스 사용자 조회
+                const { data: businessUsers, error: businessError } = await supabaseClient
+                    .from('business_users')
+                    .select('email, business_name, created_at');
+                
+                // 파트너 사용자 조회
+                const { data: partnerUsers, error: partnerError } = await supabaseClient
+                    .from('partner_users')
+                    .select('email, name, created_at');
+                
+                let result = '=== 비즈니스 사용자 ===\n';
+                if (businessUsers && businessUsers.length > 0) {
+                    businessUsers.forEach(user => {
+                        result += `📧 ${user.email} - ${user.business_name}\n`;
+                    });
+                } else {
+                    result += '등록된 비즈니스 사용자 없음\n';
+                }
+                
+                result += '\n=== 파트너 사용자 ===\n';
+                if (partnerUsers && partnerUsers.length > 0) {
+                    partnerUsers.forEach(user => {
+                        result += `📧 ${user.email} - ${user.name}\n`;
+                    });
+                } else {
+                    result += '등록된 파트너 사용자 없음\n';
+                }
+                
+                resultDiv.className = 'result';
+                resultDiv.textContent = result;
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${err.message}`;
+            }
+        }
+
+        // 로그인 테스트
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.style.display = 'block';
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `로그인 실패: ${error.message}`;
+                } else {
+                    // 사용자 타입 확인
+                    const { data: businessUser } = await supabaseClient
+                        .from('business_users')
+                        .select('*')
+                        .eq('auth_uid', data.user.id)
+                        .single();
+                    
+                    const { data: partnerUser } = await supabaseClient
+                        .from('partner_users')
+                        .select('*')
+                        .eq('auth_uid', data.user.id)
+                        .single();
+                    
+                    let userType = 'unknown';
+                    let profileInfo = '';
+                    
+                    if (businessUser) {
+                        userType = 'business';
+                        profileInfo = `\n사업체명: ${businessUser.business_name}`;
+                    } else if (partnerUser) {
+                        userType = 'partner';
+                        profileInfo = `\n이름: ${partnerUser.name}`;
+                    }
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ 로그인 성공!\n이메일: ${data.user.email}\n사용자 타입: ${userType}${profileInfo}\nUser ID: ${data.user.id}`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `오류: ${err.message}`;
+            }
+        }
+
+        // 페이지 로드시 자동 연결 테스트
+        window.onload = function() {
+            console.log('Supabase 테스트 페이지 로드됨');
+            console.log('URL:', SUPABASE_URL);
+        };
+    </script>
+</body>
+</html>

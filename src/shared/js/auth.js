@@ -129,7 +129,7 @@ class AuthManager {
                     tableName = 'partners_users';
                     break;
                 case 'admin':
-                    tableName = 'admins';
+                    tableName = 'admin_users';
                     break;
                 default:
                     throw new Error('Invalid user type');
@@ -194,36 +194,123 @@ class AuthManager {
     // 회원가입
     async signup(email, password, userType, profileData) {
         try {
+            console.log('🔐 Step 1: Starting Supabase Auth signup...');
+            console.log('📧 Email:', email);
+            console.log('👤 User type:', userType);
+            
             // 1. Supabase Auth 회원가입
             const { data: authData, error: authError } = await this.supabase.auth.signUp({
                 email: email,
                 password: password
             });
 
-            if (authError) throw authError;
+            console.log('📋 Auth response:', { 
+                user: authData?.user?.id, 
+                error: authError?.message 
+            });
 
-            // 2. 프로필 생성
-            const tableName = userType === 'business' ? 'business_users' : 'partners_users';
+            if (authError) {
+                console.error('🚨 Auth signup failed:', authError);
+                throw authError;
+            }
+
+            if (!authData?.user?.id) {
+                console.error('🚨 Auth user ID missing:', authData);
+                throw new Error('회원가입 중 사용자 ID를 받을 수 없습니다.');
+            }
+
+            console.log('✅ Auth user created:', authData.user.id);
+            console.log('🔗 Step 2: Creating profile using stored function...');
+
+            // 2. 프로필 생성 - RLS를 우회하기 위해 stored function 사용
+            let profile;
+            let profileError;
             
-            const profileToInsert = {
-                ...profileData,
+            if (userType === 'business') {
+                console.log('📝 Creating business profile with function...');
+                const { data, error } = await this.supabase
+                    .rpc('create_business_profile', {
+                        p_auth_uid: authData.user.id,
+                        p_email: email,
+                        p_business_name: profileData.business_name,
+                        p_business_type: profileData.business_type,
+                        p_owner_name: profileData.owner_name || profileData.representative_name,
+                        p_phone: profileData.phone,
+                        p_address: profileData.address || profileData.business_address,
+                        p_business_registration_number: profileData.business_registration_number
+                    });
+                profile = data;
+                profileError = error;
+            } else if (userType === 'partners') {
+                console.log('📝 Creating partner profile with function...');
+                const { data, error } = await this.supabase
+                    .rpc('create_partner_profile', {
+                        p_auth_uid: authData.user.id,
+                        p_email: email,
+                        p_name: profileData.name,
+                        p_phone: profileData.phone,
+                        p_birth_date: profileData.birth_date || null,
+                        p_gender: profileData.gender || null,
+                        p_address: profileData.address || null,
+                        p_bio: profileData.bio || null,
+                        p_preferred_job_types: profileData.preferred_job_types || null,
+                        p_preferred_areas: profileData.preferred_areas || null
+                    });
+                profile = data;
+                profileError = error;
+            } else {
+                throw new Error('Invalid user type');
+            }
+
+            console.log('📝 Profile creation params:', {
+                userType,
                 auth_uid: authData.user.id,
                 email: email,
-                status: 'pending',
-                created_at: new Date().toISOString()
-            };
+                hasProfile: !!profile,
+                hasError: !!profileError
+            });
 
-            const { data: profile, error: profileError } = await this.supabase
-                .from(tableName)
-                .insert([profileToInsert])
-                .select()
-                .single();
+            console.log('📊 Profile creation result:', { 
+                profile: profile?.id, 
+                error: profileError?.message,
+                errorCode: profileError?.code,
+                errorDetails: profileError?.details
+            });
 
             if (profileError) {
-                // 프로필 생성 실패시 Auth 사용자 삭제 시도
-                console.error('Profile creation failed:', profileError);
-                throw profileError;
+                console.error('🚨 Profile creation failed - attempting Auth cleanup');
+                console.error('Full error details:', profileError);
+                
+                // 프로필 생성 실패시 Auth 사용자 정리 시도 (시도만 하고 에러는 무시)
+                try {
+                    console.log('🗑️ Attempting to clean up Auth user...');
+                    await this.supabase.auth.admin.deleteUser(authData.user.id);
+                    console.log('✅ Auth cleanup successful');
+                } catch (cleanupError) {
+                    console.warn('⚠️ Auth cleanup failed (non-critical):', cleanupError.message);
+                }
+                
+                throw new Error(`프로필 생성 실패: ${profileError.message}`);
             }
+
+            if (!profile) {
+                throw new Error('프로필이 생성되었지만 데이터를 받을 수 없습니다.');
+            }
+
+            console.log('✅ Profile created successfully:', profile.id);
+            console.log('🎯 Step 3: Setting up session...');
+
+            // 3. 회원가입 성공 시 자동 로그인 처리
+            this.currentUser = authData.user;
+            this.userType = userType;
+            this.userProfile = profile;
+            
+            // 로컬 스토리지에 사용자 타입 저장
+            localStorage.setItem('userType', userType);
+
+            console.log('🎉 Signup completed successfully!');
+            console.log('👤 User ID:', authData.user.id);
+            console.log('📋 Profile ID:', profile.id);
 
             return {
                 success: true,
@@ -231,10 +318,12 @@ class AuthManager {
                 profile: profile
             };
         } catch (error) {
-            console.error('Signup error:', error);
+            console.error('🚨 Complete signup process failed:', error);
+            console.error('Error stack:', error.stack);
+            
             return {
                 success: false,
-                error: error.message
+                error: error.message || '회원가입 중 알 수 없는 오류가 발생했습니다.'
             };
         }
     }

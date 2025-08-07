@@ -746,23 +746,41 @@
             hideErrorMessage();
             
             try {
+                console.log('🚀 Starting partner signup process...');
+                console.log('📋 Form data:', {
+                    email: formData.email,
+                    name: formData.name,
+                    phone: formData.phone,
+                    areas: formData.preferredAreas?.length || 0,
+                    skills: formData.preferredJobTypes?.length || 0
+                });
+                
                 const result = await signupPartner(formData);
+                console.log('📊 Signup result:', result);
                 
                 if (result.success) {
+                    console.log('✅ Signup successful! Moving to completion step');
                     // 회원가입 성공 - 완료 화면 표시 후 대시보드로 이동
                     currentStep = 3;
                     updateStepDisplay();
                     
                     // 3초 후 대시보드로 자동 이동
                     setTimeout(() => {
+                        console.log('🎯 Redirecting to dashboard...');
                         window.location.href = 'dashboard.html';
                     }, 3000);
                 } else {
+                    console.error('❌ Signup failed:', result.error);
                     showErrorMessage(result.error || '회원가입에 실패했습니다.');
                 }
             } catch (error) {
-                console.error('Signup error:', error);
-                showErrorMessage('회원가입 중 오류가 발생했습니다.');
+                console.error('🚨 Critical signup error:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    cause: error.cause
+                });
+                showErrorMessage(`회원가입 중 오류가 발생했습니다: ${error.message}`);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '회원가입 완료';

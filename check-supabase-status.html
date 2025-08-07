@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 상태 확인</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #22c55e; }
+        .check-item {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .status { 
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #16a34a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Supabase 연결 상태 확인</h1>
+        
+        <div class="check-item">
+            <h3>1. Supabase 설정값 확인</h3>
+            <div class="code">
+                <strong>URL:</strong> <span id="url"></span><br>
+                <strong>Key (첫 20자):</strong> <span id="key"></span>
+            </div>
+        </div>
+
+        <div class="check-item">
+            <h3>2. 직접 API 호출 테스트</h3>
+            <button onclick="testDirectAPI()">직접 API 테스트</button>
+            <div id="apiResult"></div>
+        </div>
+
+        <div class="check-item">
+            <h3>3. 네트워크 연결 테스트</h3>
+            <button onclick="testNetwork()">네트워크 테스트</button>
+            <div id="networkResult"></div>
+        </div>
+
+        <div class="check-item">
+            <h3>4. 테이블 생성 SQL</h3>
+            <button onclick="showCreateSQL()">테이블 생성 SQL 보기</button>
+            <div id="sqlResult" style="display:none;">
+                <p>Supabase SQL Editor에서 실행하세요:</p>
+                <textarea style="width: 100%; height: 400px; font-family: monospace;" readonly>
+-- business_users 테이블
+CREATE TABLE IF NOT EXISTS business_users (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    auth_uid UUID UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT NOT NULL,
+    business_name TEXT NOT NULL,
+    business_number TEXT NOT NULL,
+    business_type TEXT NOT NULL,
+    business_address TEXT NOT NULL,
+    representative_name TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- partner_users 테이블
+CREATE TABLE IF NOT EXISTS partner_users (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    auth_uid UUID UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT UNIQUE NOT NULL,
+    phone TEXT NOT NULL,
+    name TEXT NOT NULL,
+    residence TEXT NOT NULL,
+    work_areas TEXT[] NOT NULL,
+    status TEXT DEFAULT 'pending',
+    rating DECIMAL(2,1) DEFAULT 0.0,
+    completed_jobs INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- spaces 테이블
+CREATE TABLE IF NOT EXISTS spaces (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    owner_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    address TEXT NOT NULL,
+    size INTEGER,
+    status TEXT DEFAULT 'active',
+    cleaning_frequency TEXT DEFAULT 'weekly',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- jobs 테이블
+CREATE TABLE IF NOT EXISTS jobs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    business_id UUID REFERENCES auth.users(id),
+    partner_id UUID REFERENCES auth.users(id),
+    space_id UUID REFERENCES spaces(id),
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    job_type VARCHAR(50) DEFAULT 'cleaning',
+    scheduled_date DATE NOT NULL,
+    scheduled_time TIME,
+    estimated_duration INTEGER DEFAULT 120,
+    base_price DECIMAL(10,2) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    priority VARCHAR(20) DEFAULT 'normal',
+    special_requirements TEXT,
+    access_notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- job_applications 테이블
+CREATE TABLE IF NOT EXISTS job_applications (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    job_id UUID REFERENCES jobs(id) ON DELETE CASCADE,
+    partner_id UUID REFERENCES auth.users(id),
+    applied_at TIMESTAMPTZ DEFAULT NOW(),
+    message TEXT,
+    status VARCHAR(50) DEFAULT 'pending'
+);
+
+-- RLS (Row Level Security) 활성화
+ALTER TABLE business_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partner_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE spaces ENABLE ROW LEVEL SECURITY;
+ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE job_applications ENABLE ROW LEVEL SECURITY;
+
+-- 기본 정책 생성 (모든 사용자가 읽기 가능 - 테스트용)
+CREATE POLICY "Enable read for all users" ON business_users FOR SELECT USING (true);
+CREATE POLICY "Enable read for all users" ON partner_users FOR SELECT USING (true);
+CREATE POLICY "Enable read for all users" ON spaces FOR SELECT USING (true);
+CREATE POLICY "Enable read for all users" ON jobs FOR SELECT USING (true);
+CREATE POLICY "Enable read for all users" ON job_applications FOR SELECT USING (true);
+
+-- Insert 정책 (인증된 사용자만)
+CREATE POLICY "Enable insert for authenticated users" ON business_users FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable insert for authenticated users" ON partner_users FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable insert for authenticated users" ON spaces FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable insert for authenticated users" ON jobs FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY "Enable insert for authenticated users" ON job_applications FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+                </textarea>
+            </div>
+        </div>
+
+        <div class="check-item">
+            <h3>5. 문제 해결 방법</h3>
+            <div style="background: #f0f8ff; padding: 15px; border-radius: 8px;">
+                <ol>
+                    <li><strong>Supabase Dashboard 접속:</strong> <a href="https://app.supabase.com" target="_blank">https://app.supabase.com</a></li>
+                    <li><strong>프로젝트 선택</strong> 후 Settings → API 확인</li>
+                    <li><strong>URL과 anon key</strong>가 config.js와 일치하는지 확인</li>
+                    <li><strong>SQL Editor</strong>에서 위 테이블 생성 SQL 실행</li>
+                    <li><strong>Authentication → Policies</strong>에서 RLS 정책 확인</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 설정값 표시
+        const SUPABASE_URL = 'https://ivwsjjlvxluqyhcwlcxb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2d3Nqamx2eGx1cXloY3dsY3hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDA0NTcsImV4cCI6MjA1MTk3NjQ1N30.M-vk_Ka1e4_JqvlUgqriJYho6UijtPjnWpS7wfEsWGw';
+        
+        document.getElementById('url').textContent = SUPABASE_URL;
+        document.getElementById('key').textContent = SUPABASE_ANON_KEY.substring(0, 20) + '...';
+
+        // 직접 API 테스트
+        async function testDirectAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = '<p>테스트 중...</p>';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<span class="status success">✅ API 연결 성공</span>';
+                } else {
+                    resultDiv.innerHTML = `<span class="status error">❌ API 연결 실패: ${response.status} ${response.statusText}</span>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="status error">❌ 네트워크 오류: ${error.message}</span>`;
+            }
+        }
+
+        // 네트워크 테스트
+        async function testNetwork() {
+            const resultDiv = document.getElementById('networkResult');
+            resultDiv.innerHTML = '<p>테스트 중...</p>';
+            
+            try {
+                // Supabase 클라이언트 생성
+                const { createClient } = supabase;
+                const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // 간단한 health check
+                const { data, error } = await client.from('business_users').select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    if (error.message.includes('relation') || error.message.includes('does not exist')) {
+                        resultDiv.innerHTML = '<span class="status warning">⚠️ 연결은 성공했지만 테이블이 없습니다. 위의 SQL을 실행하세요.</span>';
+                    } else {
+                        resultDiv.innerHTML = `<span class="status error">❌ 오류: ${error.message}</span>`;
+                    }
+                } else {
+                    resultDiv.innerHTML = '<span class="status success">✅ Supabase 연결 및 테이블 확인 완료</span>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="status error">❌ 오류: ${error.message}</span>`;
+            }
+        }
+
+        function showCreateSQL() {
+            const sqlDiv = document.getElementById('sqlResult');
+            sqlDiv.style.display = sqlDiv.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

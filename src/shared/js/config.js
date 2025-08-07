@@ -1,6 +1,6 @@
 // Supabase Configuration
-const SUPABASE_URL = 'https://ivwsjjlvxluqyhcwlcxb.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2d3Nqamx2eGx1cXloY3dsY3hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDA0NTcsImV4cCI6MjA1MTk3NjQ1N30.M-vk_Ka1e4_JqvlUgqriJYho6UijtPjnWpS7wfEsWGw';
+const SUPABASE_URL = 'https://mzihuflrbspvyjknxlad.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16aWh1ZmxyYnNwdnlqa254bGFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI4MTk3ODgsImV4cCI6MjA2ODM5NTc4OH0.UDwv6eknjWwmbZ9WsRioi3J23_1az9O1pJFlnKgQ88s';
 
 // UI Configuration
 const UI_CONFIG = {

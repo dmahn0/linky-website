@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase CORS 및 연결 테스트</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #22c55e; }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #16a34a; }
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Supabase 연결 문제 해결</h1>
+        
+        <div class="test-section">
+            <h2>1. 기본 연결 테스트 (Fetch API)</h2>
+            <button onclick="testBasicFetch()">Fetch 테스트</button>
+            <div id="fetchResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Supabase 상태 확인</h2>
+            <button onclick="checkSupabaseStatus()">프로젝트 상태 확인</button>
+            <div id="statusResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. 대체 URL 테스트</h2>
+            <button onclick="testAlternativeURL()">대체 URL 테스트</button>
+            <div id="altResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. 수동 설정 가이드</h2>
+            <div class="result info">
+                <strong>🚀 Supabase 프로젝트 확인 단계:</strong>
+
+1. <a href="https://app.supabase.com" target="_blank">Supabase Dashboard</a> 접속
+2. 프로젝트가 있는지 확인
+3. 프로젝트가 없다면:
+   - "New Project" 클릭
+   - 프로젝트 이름: "linky-platform"
+   - 데이터베이스 비밀번호 설정
+   - Region: Singapore 또는 가까운 지역 선택
+
+4. 프로젝트가 있다면:
+   - 프로젝트 클릭
+   - Settings → API 메뉴로 이동
+   - Project URL과 anon key 복사
+
+5. 프로젝트가 일시정지 상태라면:
+   - Dashboard에서 "Resume" 버튼 클릭
+   - 몇 분 기다린 후 다시 시도
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>5. 새 프로젝트 설정용 config.js</h2>
+            <button onclick="generateConfig()">설정 코드 생성</button>
+            <div id="configResult" style="display:none;">
+                <p>아래 내용을 복사해서 <code>src/shared/js/config.js</code>에 붙여넣으세요:</p>
+                <div class="code-block">
+// Supabase Configuration
+const SUPABASE_URL = '<span style="color: red;">여기에_프로젝트_URL_입력</span>';
+const SUPABASE_ANON_KEY = '<span style="color: red;">여기에_ANON_KEY_입력</span>';
+
+// UI Configuration
+const UI_CONFIG = {
+    colors: {
+        primary: '#22c55e',
+        secondary: '#16a34a',
+        background: '#ffffff',
+        text: '#1a1a1a',
+        textLight: '#666666',
+        border: '#e5e7eb',
+        cardBg: '#f8fafc',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        success: '#22c55e'
+    },
+    fonts: {
+        primary: 'Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    },
+    borderRadius: {
+        small: '4px',
+        medium: '8px',
+        large: '12px'
+    },
+    shadows: {
+        small: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        medium: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        large: '0 10px 15px rgba(0, 0, 0, 0.1)'
+    }
+};
+
+// API Configuration
+const API_CONFIG = {
+    baseUrl: SUPABASE_URL,
+    timeout: 10000,
+    retryAttempts: 3
+};
+
+// Routes Configuration
+const ROUTES = {
+    business: {
+        login: '/src/business/index.html',
+        dashboard: '/src/business/dashboard.html',
+        spaces: '/src/business/spaces.html',
+        jobs: '/src/business/jobs.html',
+        profile: '/src/business/profile.html'
+    },
+    partners: {
+        login: '/src/partners/index.html',
+        dashboard: '/src/partners/dashboard.html',
+        jobs: '/src/partners/jobs.html',
+        earnings: '/src/partners/earnings.html',
+        profile: '/src/partners/profile.html'
+    },
+    landing: '/src/landing/index.html'
+};
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>6. 로컬 개발 서버 실행</h2>
+            <div class="result warning">
+                <strong>💡 CORS 문제 해결:</strong>
+                
+로컬에서 파일을 직접 열면 CORS 문제가 발생할 수 있습니다.
+로컬 서버를 실행해보세요:
+
+<strong>방법 1: Python (설치되어 있다면)</strong>
+<code>python -m http.server 8000</code>
+
+<strong>방법 2: Node.js (설치되어 있다면)</strong>
+<code>npx http-server</code>
+
+<strong>방법 3: VS Code Live Server</strong>
+VS Code에서 Live Server 확장 설치 후 사용
+
+그 후 브라우저에서:
+<code>http://localhost:8000</code> 접속
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ivwsjjlvxluqyhcwlcxb.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2d3Nqamx2eGx1cXloY3dsY3hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDA0NTcsImV4cCI6MjA1MTk3NjQ1N30.M-vk_Ka1e4_JqvlUgqriJYho6UijtPjnWpS7wfEsWGw';
+
+        async function testBasicFetch() {
+            const resultDiv = document.getElementById('fetchResult');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '테스트 중...';
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = '✅ Supabase API 연결 성공!';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ HTTP ${response.status}: ${response.statusText}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ 연결 실패: ${error.message}\n\n가능한 원인:\n1. 프로젝트가 일시정지 상태\n2. CORS 정책 문제\n3. 네트워크 연결 문제`;
+            }
+        }
+
+        async function checkSupabaseStatus() {
+            const resultDiv = document.getElementById('statusResult');
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = `
+프로젝트 URL: ${SUPABASE_URL}
+
+이 URL을 브라우저 새 탭에서 직접 열어보세요:
+${SUPABASE_URL}
+
+페이지가 열리면:
+- "Supabase" 로고가 보이면 → 프로젝트가 활성 상태
+- 404 오류가 나오면 → 프로젝트가 없거나 URL이 잘못됨
+- 시간 초과가 되면 → 프로젝트가 일시정지 상태
+
+Supabase 무료 플랜은 1주일 동안 사용하지 않으면 자동으로 일시정지됩니다.
+Dashboard에서 다시 시작할 수 있습니다.
+            `;
+        }
+
+        async function testAlternativeURL() {
+            const resultDiv = document.getElementById('altResult');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '테스트 중...';
+            
+            // Supabase 메인 사이트 접속 테스트
+            try {
+                const response = await fetch('https://supabase.com/api/ping');
+                resultDiv.className = 'result info';
+                resultDiv.innerHTML = `
+인터넷 연결은 정상입니다.
+
+현재 프로젝트 URL: ${SUPABASE_URL}
+
+다음을 확인하세요:
+1. Supabase Dashboard에 로그인
+2. 프로젝트가 "Active" 상태인지 확인
+3. "Paused" 상태라면 "Resume" 클릭
+4. Settings → API에서 URL과 Key 다시 확인
+                `;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ 네트워크 연결을 확인하세요.';
+            }
+        }
+
+        function generateConfig() {
+            document.getElementById('configResult').style.display = 'block';
+        }
+
+        // 페이지 로드시 자동 확인
+        window.onload = function() {
+            console.log('Supabase URL:', SUPABASE_URL);
+            console.log('브라우저에서 이 URL을 직접 열어보세요:', SUPABASE_URL);
+        };
+    </script>
+</body>
+</html>

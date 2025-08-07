@@ -549,11 +549,37 @@
             hideErrorMessage();
             
             try {
-                const result = await signupBusiness(formData);
+                // authManager를 사용한 회원가입
+                const profileData = {
+                    business_name: formData.businessName,
+                    business_type: formData.businessType,
+                    owner_name: formData.ownerName,
+                    phone: formData.phone,
+                    address: formData.address,
+                    business_registration_number: formData.businessRegistrationNumber,
+                    space_count: parseInt(formData.spaceCount) || 1,
+                    status: 'pending',
+                    metadata: {
+                        special_requirements: formData.specialRequirements
+                    }
+                };
+                
+                const result = await authManager.signup(
+                    formData.email,
+                    formData.password,
+                    'business',
+                    profileData
+                );
                 
                 if (result.success) {
+                    // 회원가입 성공 - 완료 화면 표시 후 대시보드로 이동
                     currentStep = 3;
                     updateStepDisplay();
+                    
+                    // 3초 후 대시보드로 자동 이동
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 3000);
                 } else {
                     showErrorMessage(result.error || '회원가입에 실패했습니다.');
                 }
@@ -565,59 +591,6 @@
                 submitBtn.textContent = '회원가입 완료';
             }
         });
-        
-        // 비즈니스 회원가입 함수
-        async function signupBusiness(formData) {
-            try {
-                // 1. Supabase Auth로 사용자 생성
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: formData.email,
-                    password: formData.password
-                });
-                
-                if (authError) throw authError;
-                
-                // 2. 비즈니스 사용자 프로필 생성
-                const { data: userData, error: userError } = await supabase
-                    .from('business_users')
-                    .insert({
-                        auth_uid: authData.user.id,
-                        email: formData.email,
-                        business_name: formData.businessName,
-                        business_type: formData.businessType,
-                        owner_name: formData.ownerName,
-                        phone: formData.phone,
-                        address: formData.address,
-                        business_registration_number: formData.businessRegistrationNumber,
-                        space_count: parseInt(formData.spaceCount) || 1,
-                        metadata: {
-                            signup_completed: true,
-                            special_requirements: formData.specialRequirements,
-                            signup_date: new Date().toISOString()
-                        }
-                    })
-                    .select()
-                    .single();
-                
-                if (userError) throw userError;
-                
-                return { success: true, data: userData };
-                
-            } catch (error) {
-                console.error('Business signup error:', error);
-                
-                // 에러 메시지 처리
-                if (error.message.includes('already registered')) {
-                    return { success: false, error: '이미 등록된 이메일입니다.' };
-                } else if (error.message.includes('invalid email')) {
-                    return { success: false, error: '유효하지 않은 이메일입니다.' };
-                } else if (error.message.includes('weak password')) {
-                    return { success: false, error: '비밀번호가 너무 약합니다.' };
-                } else {
-                    return { success: false, error: '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' };
-                }
-            }
-        }
         
         // 로그인 페이지로 이동
         function goToLogin() {

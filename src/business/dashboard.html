@@ -263,7 +263,7 @@
             
             // 사용자 이름 표시
             document.getElementById('businessName').textContent = 
-                userProfile.business_name || userProfile.email;
+                userProfile?.business_name || currentUser?.email || '사용자';
             
             // 대시보드 데이터 로드
             await loadDashboardStats();
@@ -276,11 +276,11 @@
                 const stats = await businessAPI.getDashboardStats(currentUser.id);
                 
                 if (stats.success && stats.data) {
-                    document.getElementById('spaceCount').textContent = stats.data.spaceCount;
-                    document.getElementById('activeJobs').textContent = stats.data.activeJobs;
-                    document.getElementById('completedJobs').textContent = stats.data.completedJobs;
+                    document.getElementById('spaceCount').textContent = stats.data.spaceCount || 0;
+                    document.getElementById('activeJobs').textContent = stats.data.activeJobs || 0;
+                    document.getElementById('completedJobs').textContent = stats.data.completedJobs || 0;
                     document.getElementById('monthlySpent').textContent = 
-                        stats.data.monthlySpent.toLocaleString('ko-KR');
+                        (stats.data.monthlySpent || 0).toLocaleString('ko-KR');
                 }
             } catch (error) {
                 console.error('Failed to load dashboard stats:', error);
@@ -296,6 +296,15 @@
                     const recentJobs = result.data.slice(0, 5); // 최근 5개만
                     const jobsHtml = recentJobs.map(job => createJobItem(job)).join('');
                     document.getElementById('recentJobs').innerHTML = jobsHtml;
+                } else {
+                    // 작업이 없을 때 기본 메시지 유지
+                    document.getElementById('recentJobs').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div class="empty-state-title">작업이 없습니다</div>
+                            <div class="empty-state-message">새로운 작업을 요청해보세요!</div>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Failed to load recent jobs:', error);

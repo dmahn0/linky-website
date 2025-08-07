@@ -300,15 +300,56 @@
         
         // 페이지 로드시 초기화
         async function initDashboard() {
-            // 인증 확인
-            const session = await authManager.checkSession();
-            if (!session || session.userType !== 'partners') {
-                window.location.href = 'index.html';
-                return;
-            }
+            console.log('🚀 Initializing partner dashboard...');
             
-            currentUser = session.user;
-            userProfile = session.profile;
+            try {
+                // 인증 확인
+                console.log('🔐 Checking authentication session...');
+                const session = await authManager.checkSession();
+                
+                console.log('📋 Session check result:', {
+                    hasSession: !!session,
+                    userType: session?.userType,
+                    userId: session?.user?.id,
+                    hasProfile: !!session?.profile,
+                    profileId: session?.profile?.id,
+                    profileAuthUid: session?.profile?.auth_uid
+                });
+                
+                if (!session) {
+                    console.error('❌ No valid session found - redirecting to login');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                if (session.userType !== 'partners') {
+                    console.error('❌ Wrong user type:', session.userType, '- expected: partners');
+                    console.log('💡 Tip: Check localStorage userType value');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                if (!session.profile) {
+                    console.error('❌ No profile found for user:', session.user?.id);
+                    console.log('💡 This might mean the profile creation failed during signup');
+                    alert('프로필 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                // auth_uid 연결 확인
+                if (!session.profile.auth_uid) {
+                    console.error('❌ Profile exists but auth_uid is null!');
+                    console.log('💡 This is a data sync issue - profile not properly linked to auth');
+                    alert('계정 연결에 문제가 있습니다. 관리자에게 문의해주세요.');
+                    return;
+                }
+                
+                console.log('✅ Authentication successful!');
+                console.log('👤 Partner:', session.profile.name);
+                
+                currentUser = session.user;
+                userProfile = session.profile;
             
             // 사용자 이름 표시
             document.getElementById('partnerName').textContent = 

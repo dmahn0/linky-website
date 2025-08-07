@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>작업 찾기 - Linky Partners</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../shared/css/base.css">
+    <link rel="stylesheet" href="../shared/css/components.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Config & Scripts -->
+    <script src="../shared/js/config.js"></script>
+    <script src="../shared/js/auth.js"></script>
+    <script src="../shared/js/api.js"></script>
+    
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--color-primary), #16a34a);
+            color: white;
+            padding: var(--spacing-2xl) 0;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .page-title {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            margin: 0;
+            color: white;
+        }
+        
+        .page-subtitle {
+            margin-top: var(--spacing-sm);
+            opacity: 0.9;
+        }
+        
+        .filters-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-light);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .jobs-container {
+            display: grid;
+            gap: var(--spacing-lg);
+        }
+        
+        .job-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+            transition: all var(--transition-base);
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .job-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .job-business {
+            color: var(--color-text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .job-price {
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        
+        .job-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .job-description {
+            background: var(--color-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+            color: var(--color-text-secondary);
+        }
+        
+        .job-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-urgent {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .badge-high {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .badge-normal {
+            background: #e0f2fe;
+            color: #0891b2;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-3xl);
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0.5;
+        }
+        
+        .empty-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .empty-message {
+            color: var(--color-text-light);
+        }
+        
+        /* 지원 모달 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+        }
+        
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .modal-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+        
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title">🔍 작업 찾기</h1>
+            <p class="page-subtitle">새로운 청소 작업을 찾아 지원해보세요</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 필터 -->
+        <div class="filters-container">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">지역</label>
+                    <select id="areaFilter" class="form-select">
+                        <option value="">전체 지역</option>
+                        <option value="강남구">강남구</option>
+                        <option value="서초구">서초구</option>
+                        <option value="송파구">송파구</option>
+                        <option value="강동구">강동구</option>
+                        <option value="마포구">마포구</option>
+                        <option value="영등포구">영등포구</option>
+                        <option value="성동구">성동구</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">작업 유형</label>
+                    <select id="typeFilter" class="form-select">
+                        <option value="">전체 유형</option>
+                        <option value="daily_cleaning">일일 청소</option>
+                        <option value="deep_cleaning">딥클리닝</option>
+                        <option value="maintenance">정리정돈</option>
+                        <option value="sanitization">소독</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">요금</label>
+                    <select id="priceFilter" class="form-select">
+                        <option value="">전체 요금</option>
+                        <option value="0-30000">3만원 이하</option>
+                        <option value="30000-50000">3-5만원</option>
+                        <option value="50000-100000">5-10만원</option>
+                        <option value="100000-999999">10만원 이상</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">정렬</label>
+                    <select id="sortBy" class="form-select">
+                        <option value="recent">최신순</option>
+                        <option value="price_high">요금 높은순</option>
+                        <option value="price_low">요금 낮은순</option>
+                        <option value="urgent">긴급순</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 작업 목록 -->
+        <div id="jobsContainer" class="jobs-container">
+            <div class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <div class="empty-title">작업을 불러오는 중...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 지원 모달 -->
+    <div id="applyModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">작업 지원하기</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">지원 메시지</label>
+                    <textarea id="applyMessage" class="form-textarea" rows="4" 
+                        placeholder="비즈니스 운영자에게 보낼 메시지를 작성하세요">안녕하세요! 깨끗하고 꼼꼼한 청소로 만족을 드리겠습니다. 😊</textarea>
+                </div>
+                <div class="alert alert-info">
+                    <strong>💡 팁:</strong> 자신의 경험과 강점을 어필해보세요!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeApplyModal()">
+                    취소
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitApplication()">
+                    지원하기
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let userProfile = null;
+        let availableJobs = [];
+        let selectedJobId = null;
+        
+        // 페이지 초기화
+        async function initPage() {
+            // 인증 확인
+            const session = await authManager.checkSession();
+            if (!session || session.userType !== 'partner') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            userProfile = session.profile;
+            
+            // 작업 목록 로드
+            await loadAvailableJobs();
+            
+            // 필터 이벤트 설정
+            document.getElementById('areaFilter').addEventListener('change', filterJobs);
+            document.getElementById('typeFilter').addEventListener('change', filterJobs);
+            document.getElementById('priceFilter').addEventListener('change', filterJobs);
+            document.getElementById('sortBy').addEventListener('change', filterJobs);
+        }
+        
+        // 작업 목록 로드
+        async function loadAvailableJobs() {
+            try {
+                const result = await partnersAPI.getAvailableJobs();
+                
+                if (result.success && result.data) {
+                    availableJobs = result.data;
+                    filterJobs();
+                } else {
+                    console.error('작업 로드 실패:', result.error);
+                    availableJobs = [];
+                    renderJobs([]);
+                }
+            } catch (error) {
+                console.error('작업 로드 오류:', error);
+                availableJobs = [];
+                renderJobs([]);
+            }
+        }
+        
+        // 작업 필터링 및 정렬
+        function filterJobs() {
+            let filtered = [...availableJobs];
+            
+            // 지역 필터
+            const areaFilter = document.getElementById('areaFilter').value;
+            if (areaFilter) {
+                filtered = filtered.filter(job => 
+                    job.space?.address?.includes(areaFilter)
+                );
+            }
+            
+            // 작업 유형 필터
+            const typeFilter = document.getElementById('typeFilter').value;
+            if (typeFilter) {
+                filtered = filtered.filter(job => job.job_type === typeFilter);
+            }
+            
+            // 요금 필터
+            const priceFilter = document.getElementById('priceFilter').value;
+            if (priceFilter) {
+                const [min, max] = priceFilter.split('-').map(Number);
+                filtered = filtered.filter(job => 
+                    job.base_price >= min && job.base_price <= max
+                );
+            }
+            
+            // 정렬
+            const sortBy = document.getElementById('sortBy').value;
+            switch (sortBy) {
+                case 'price_high':
+                    filtered.sort((a, b) => (b.base_price || 0) - (a.base_price || 0));
+                    break;
+                case 'price_low':
+                    filtered.sort((a, b) => (a.base_price || 0) - (b.base_price || 0));
+                    break;
+                case 'urgent':
+                    filtered.sort((a, b) => {
+                        const priorityOrder = { urgent: 0, high: 1, normal: 2 };
+                        return priorityOrder[a.priority || 'normal'] - priorityOrder[b.priority || 'normal'];
+                    });
+                    break;
+                default: // recent
+                    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
+            
+            renderJobs(filtered);
+        }
+        
+        // 작업 목록 렌더링
+        function renderJobs(jobs) {
+            const container = document.getElementById('jobsContainer');
+            
+            if (jobs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">😔</div>
+                        <div class="empty-title">지원 가능한 작업이 없습니다</div>
+                        <div class="empty-message">필터를 조정하거나 나중에 다시 확인해주세요</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = jobs.map(job => createJobCard(job)).join('');
+        }
+        
+        // 작업 카드 생성
+        function createJobCard(job) {
+            const typeLabels = {
+                'daily_cleaning': '일일 청소',
+                'deep_cleaning': '딥클리닝',
+                'maintenance': '정리정돈',
+                'sanitization': '소독',
+                'custom': '맞춤형'
+            };
+            
+            const priorityBadges = {
+                'urgent': '<span class="badge badge-urgent">긴급</span>',
+                'high': '<span class="badge badge-high">우선</span>',
+                'normal': ''
+            };
+            
+            const scheduledDate = new Date(job.scheduled_date).toLocaleDateString('ko-KR');
+            const scheduledTime = job.scheduled_time ? job.scheduled_time.slice(0, 5) : '시간 미정';
+            
+            return `
+                <div class="job-card">
+                    <div class="job-header">
+                        <div>
+                            <h3 class="job-title">
+                                ${job.title}
+                                ${priorityBadges[job.priority] || ''}
+                            </h3>
+                            <div class="job-business">
+                                🏢 ${job.business?.business_name || '비즈니스'}
+                            </div>
+                        </div>
+                        <div class="job-price">
+                            ₩${(job.base_price || 0).toLocaleString('ko-KR')}
+                        </div>
+                    </div>
+                    
+                    <div class="job-details">
+                        <div class="detail-item">
+                            📍 ${job.space?.address || '주소 정보 없음'}
+                        </div>
+                        <div class="detail-item">
+                            📅 ${scheduledDate} ${scheduledTime}
+                        </div>
+                        <div class="detail-item">
+                            ⏱️ ${job.estimated_duration || 120}분 예상
+                        </div>
+                        <div class="detail-item">
+                            🧹 ${typeLabels[job.job_type] || '일반 청소'}
+                        </div>
+                    </div>
+                    
+                    ${job.description ? `
+                    <div class="job-description">
+                        ${job.description}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="job-actions">
+                        <button class="btn btn-secondary" onclick="viewJobDetails('${job.id}')">
+                            상세보기
+                        </button>
+                        <button class="btn btn-primary" onclick="openApplyModal('${job.id}')">
+                            지원하기
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 지원 모달 열기
+        function openApplyModal(jobId) {
+            selectedJobId = jobId;
+            document.getElementById('applyModal').style.display = 'flex';
+        }
+        
+        // 지원 모달 닫기
+        function closeApplyModal() {
+            selectedJobId = null;
+            document.getElementById('applyModal').style.display = 'none';
+            document.getElementById('applyMessage').value = '안녕하세요! 깨끗하고 꼼꼼한 청소로 만족을 드리겠습니다. 😊';
+        }
+        
+        // 지원 제출
+        async function submitApplication() {
+            if (!selectedJobId) return;
+            
+            const message = document.getElementById('applyMessage').value.trim();
+            if (!message) {
+                alert('지원 메시지를 작성해주세요.');
+                return;
+            }
+            
+            try {
+                const result = await partnersAPI.applyForJob(selectedJobId, userProfile?.id, message);
+                
+                if (result.success) {
+                    alert('지원이 완료되었습니다! 비즈니스의 연락을 기다려주세요.');
+                    closeApplyModal();
+                    await loadAvailableJobs(); // 목록 새로고침
+                } else {
+                    alert('지원에 실패했습니다. ' + (result.error || ''));
+                }
+            } catch (error) {
+                console.error('지원 제출 오류:', error);
+                alert('지원 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 작업 상세보기
+        function viewJobDetails(jobId) {
+            const job = availableJobs.find(j => j.id == jobId);
+            if (!job) return;
+            
+            alert(`작업: ${job.title}\n주소: ${job.space?.address}\n요금: ₩${job.base_price?.toLocaleString('ko-KR')}\n설명: ${job.description || '없음'}`);
+        }
+        
+        // 모달 외부 클릭시 닫기
+        document.getElementById('applyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApplyModal();
+            }
+        });
+        
+        // 페이지 로드시 초기화
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

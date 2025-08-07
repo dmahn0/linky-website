@@ -138,15 +138,12 @@ class BusinessAPI extends API {
         });
     }
 
-    async createSpace(authUid, spaceData) {
-        // 먼저 business_users에서 프로필 조회
-        const profile = await this.select('business_users', { auth_uid: authUid });
-        if (!profile.success || !profile.data[0]) {
-            return { success: false, error: '프로필을 찾을 수 없습니다' };
-        }
+    async createSpace(businessId, spaceData) {
+        // businessId를 직접 받아서 사용
         const data = {
             ...spaceData,
-            business_id: profile.data[0].id,  // BIGINT ID 사용
+            business_id: businessId,  // BIGINT ID 사용
+            status: 'active',
             created_at: new Date().toISOString()
         };
         return await this.insert('spaces', data);
@@ -195,9 +192,16 @@ class BusinessAPI extends API {
         return await this.insert('jobs', data);
     }
 
+    async updateJob(jobId, updates) {
+        return await this.update('jobs', jobId, {
+            ...updates,
+            updated_at: new Date().toISOString()
+        });
+    }
+
     async assignPartner(jobId, partnerId) {
         return await this.update('jobs', jobId, {
-            partner_id: partnerId,
+            assigned_partner_id: partnerId,
             status: 'assigned',
             updated_at: new Date().toISOString()
         });
@@ -232,8 +236,8 @@ class PartnersAPI extends API {
             const profile = await this.select('partners_users', { auth_uid: authUid });
             if (!profile.success) throw new Error('프로필 조회 실패');
 
-            // 작업 통계 조회 - partner_id 사용 (BIGINT)
-            const jobs = await this.select('jobs', { partner_id: profile.data[0]?.id });
+            // 작업 통계 조회 - assigned_partner_id 사용 (BIGINT)
+            const jobs = await this.select('jobs', { assigned_partner_id: profile.data[0]?.id });
             
             const stats = {
                 profile: profile.data[0],
@@ -270,7 +274,7 @@ class PartnersAPI extends API {
         if (!profile.success || !profile.data[0]) {
             return { success: false, error: '프로필을 찾을 수 없습니다' };
         }
-        return await this.select('jobs', { partner_id: profile.data[0].id }, {
+        return await this.select('jobs', { assigned_partner_id: profile.data[0].id }, {
             select: `
                 *,
                 space:spaces(name, address),
@@ -317,7 +321,7 @@ class PartnersAPI extends API {
         });
     }
 
-    // 작업 상태 업데이트
+    // 작업 상태 업데이트 (향상된 버전)
     async updateJobStatus(jobId, status, additionalData = {}) {
         const updates = {
             status: status,
@@ -335,9 +339,14 @@ class PartnersAPI extends API {
         return await this.update('jobs', jobId, updates);
     }
 
+    // 작업 완료 처리
+    async completeJob(jobId, completionData) {
+        return await this.updateJobStatus(jobId, 'completed', completionData);
+    }
+
     // 프로필 업데이트
     async updateProfile(authUid, updates) {
-        return await this.update('partner_users', authUid, {
+        return await this.update('partners_users', authUid, {
             ...updates,
             updated_at: new Date().toISOString()
         }, 'auth_uid');
