@@ -516,8 +516,8 @@
             // 스킬/지역 선택 이벤트 리스너
             setupSelectionHandlers();
             
-            // TODO: 나중에 안전한 인증 상태 확인 로직 추가
-            // checkAuthStatus();
+            // 인증 상태 확인 (로그인된 사용자 리다이렉팅)
+            checkAuthStatus();
         });
         
         // 인증 상태 확인
@@ -749,8 +749,14 @@
                 const result = await signupPartner(formData);
                 
                 if (result.success) {
+                    // 회원가입 성공 - 완료 화면 표시 후 대시보드로 이동
                     currentStep = 3;
                     updateStepDisplay();
+                    
+                    // 3초 후 대시보드로 자동 이동
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 3000);
                 } else {
                     showErrorMessage(result.error || '회원가입에 실패했습니다.');
                 }
@@ -766,43 +772,32 @@
         // 파트너 회원가입 함수
         async function signupPartner(formData) {
             try {
-                // 1. Supabase Auth로 사용자 생성
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: formData.email,
-                    password: formData.password
-                });
+                // authManager를 사용한 회원가입
+                const profileData = {
+                    name: formData.name,
+                    phone: formData.phone,
+                    birth_date: formData.birthDate || null,
+                    gender: formData.gender || null,
+                    preferred_job_types: formData.preferredJobTypes,
+                    preferred_areas: formData.preferredAreas,
+                    bio: formData.bio,
+                    verification_status: 'pending',
+                    availability_status: 'offline',
+                    status: 'pending'
+                };
                 
-                if (authError) throw authError;
+                const result = await authManager.signup(
+                    formData.email,
+                    formData.password,
+                    'partners',
+                    profileData
+                );
                 
-                // 2. 파트너 사용자 프로필 생성
-                const { data: userData, error: userError } = await supabase
-                    .from('partners_users')
-                    .insert({
-                        auth_uid: authData.user.id,
-                        email: formData.email,
-                        name: formData.name,
-                        phone: formData.phone,
-                        birth_date: formData.birthDate || null,
-                        gender: formData.gender || null,
-                        address: formData.address,
-                        bio: formData.bio,
-                        preferred_job_types: formData.preferredJobTypes,
-                        preferred_areas: formData.preferredAreas,
-                        verification_status: 'pending',
-                        availability_status: 'offline',
-                        status: 'pending',
-                        metadata: {
-                            signup_completed: true,
-                            agree_marketing: formData.agreeMarketing,
-                            signup_date: new Date().toISOString()
-                        }
-                    })
-                    .select()
-                    .single();
-                
-                if (userError) throw userError;
-                
-                return { success: true, data: userData };
+                if (result.success) {
+                    return { success: true, data: result.profile };
+                } else {
+                    throw new Error(result.error);
+                }
                 
             } catch (error) {
                 console.error('Partner signup error:', error);

@@ -302,7 +302,7 @@
         async function initDashboard() {
             // 인증 확인
             const session = await authManager.checkSession();
-            if (!session || session.userType !== 'partner') {
+            if (!session || session.userType !== 'partners') {
                 window.location.href = 'index.html';
                 return;
             }
@@ -312,7 +312,7 @@
             
             // 사용자 이름 표시
             document.getElementById('partnerName').textContent = 
-                userProfile.name || userProfile.nickname || '파트너';
+                userProfile?.name || userProfile?.nickname || currentUser?.email || '파트너';
             
             // 대시보드 데이터 로드
             await loadDashboardStats();
@@ -322,7 +322,7 @@
         // 대시보드 통계 로드
         async function loadDashboardStats() {
             try {
-                const stats = await partnerAPI.getDashboardStats(currentUser.id);
+                const stats = await partnersAPI.getDashboardStats(currentUser.id);
                 
                 if (stats.success && stats.data) {
                     // 평점 표시
@@ -408,7 +408,8 @@
             if (!confirm('이 작업에 지원하시겠습니까?')) return;
             
             try {
-                const result = await partnerAPI.applyForJob(jobId, currentUser.id);
+                // 파트너 프로필 ID를 사용해야 함
+                const result = await partnersAPI.applyForJob(jobId, userProfile?.id, '열심히 하겠습니다!');
                 
                 if (result.success) {
                     alert('지원이 완료되었습니다!');
