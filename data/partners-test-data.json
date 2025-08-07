@@ -1,0 +1,364 @@
+{
+  "partners_users": [
+    {
+      "id": 1,
+      "auth_uid": "test-partners-001",
+      "email": "test.partners@linky.com",
+      "name": "김청소",
+      "phone": "010-1111-2222",
+      "birth_date": "1992-03-15",
+      "gender": "female",
+      "address": "서울시 강남구 역삼동 123-45",
+      "profile_image": "/images/partners/partner-001.jpg",
+      "bio": "5년차 전문 청소 파트너입니다. 꼼꼼하고 신속한 작업으로 고객 만족을 최우선으로 합니다.",
+      "rating": 4.8,
+      "completed_jobs": 147,
+      "total_earnings": 5890000,
+      "this_month_earnings": 890000,
+      "verification_status": "verified",
+      "availability_status": "available",
+      "preferred_job_types": [
+        "daily_cleaning",
+        "deep_cleaning",
+        "sanitization"
+      ],
+      "preferred_areas": [
+        "강남구",
+        "서초구",
+        "송파구"
+      ],
+      "skills": [
+        "카페 청소 전문",
+        "스터디카페 관리",
+        "친환경 청소",
+        "시간 엄수"
+      ],
+      "available_hours": {
+        "monday": ["06:00-09:00", "14:00-18:00"],
+        "tuesday": ["06:00-09:00", "14:00-18:00"],
+        "wednesday": ["06:00-12:00"],
+        "thursday": ["06:00-09:00", "14:00-18:00"],
+        "friday": ["06:00-09:00", "14:00-18:00"],
+        "saturday": ["06:00-12:00"],
+        "sunday": ["휴무"]
+      },
+      "emergency_contact": {
+        "name": "김어머니",
+        "phone": "010-9999-8888",
+        "relationship": "가족"
+      },
+      "bank_info": {
+        "bank_name": "국민은행",
+        "account_number": "123456-78-901234",
+        "account_holder": "김청소"
+      },
+      "status": "active",
+      "created_at": "2024-08-15T10:00:00Z",
+      "updated_at": "2025-01-07T14:30:00Z",
+      "last_active_at": "2025-01-07T16:45:00Z"
+    },
+    {
+      "id": 2,
+      "auth_uid": "test-partners-002",
+      "email": "cleaner.pro@linky.com",
+      "name": "이정리",
+      "phone": "010-3333-4444",
+      "birth_date": "1988-07-22",
+      "gender": "male",
+      "address": "서울시 마포구 홍대입구역 근처",
+      "profile_image": "/images/partners/partner-002.jpg",
+      "bio": "헬스장과 운동시설 청소 전문가입니다. 위생과 안전을 최우선으로 하는 청소 서비스를 제공합니다.",
+      "rating": 4.9,
+      "completed_jobs": 203,
+      "total_earnings": 8450000,
+      "this_month_earnings": 1240000,
+      "verification_status": "verified",
+      "availability_status": "available",
+      "preferred_job_types": [
+        "sanitization",
+        "gym_cleaning",
+        "deep_cleaning"
+      ],
+      "preferred_areas": [
+        "마포구",
+        "용산구",
+        "영등포구"
+      ],
+      "skills": [
+        "헬스장 청소 전문",
+        "소독 전문가",
+        "야간 작업 가능",
+        "운동기구 관리"
+      ],
+      "available_hours": {
+        "monday": ["05:00-08:00", "22:00-02:00"],
+        "tuesday": ["05:00-08:00", "22:00-02:00"],
+        "wednesday": ["05:00-08:00", "22:00-02:00"],
+        "thursday": ["05:00-08:00", "22:00-02:00"],
+        "friday": ["05:00-08:00", "22:00-02:00"],
+        "saturday": ["05:00-12:00"],
+        "sunday": ["05:00-12:00"]
+      },
+      "emergency_contact": {
+        "name": "이부인",
+        "phone": "010-7777-6666",
+        "relationship": "배우자"
+      },
+      "bank_info": {
+        "bank_name": "신한은행",
+        "account_number": "110-456-789012",
+        "account_holder": "이정리"
+      },
+      "status": "active",
+      "created_at": "2024-06-10T09:30:00Z",
+      "updated_at": "2025-01-09T05:15:00Z",
+      "last_active_at": "2025-01-09T05:15:00Z"
+    },
+    {
+      "id": 3,
+      "auth_uid": "test-partners-003",
+      "email": "quick.clean@linky.com",
+      "name": "박신속",
+      "phone": "010-5555-6666",
+      "birth_date": "1995-11-08",
+      "gender": "female",
+      "address": "서울시 송파구 잠실동 567-89",
+      "profile_image": "/images/partners/partner-003.jpg",
+      "bio": "빠르고 정확한 청소로 유명한 신입 파트너입니다. 고객의 시간을 소중히 여기며 효율적인 작업을 합니다.",
+      "rating": 4.6,
+      "completed_jobs": 89,
+      "total_earnings": 2340000,
+      "this_month_earnings": 450000,
+      "verification_status": "verified",
+      "availability_status": "available",
+      "preferred_job_types": [
+        "daily_cleaning",
+        "weekly_cleaning",
+        "office_cleaning"
+      ],
+      "preferred_areas": [
+        "송파구",
+        "강남구",
+        "강동구"
+      ],
+      "skills": [
+        "사무실 청소",
+        "스터디카페 청소",
+        "빠른 작업",
+        "친절한 서비스"
+      ],
+      "available_hours": {
+        "monday": ["09:00-18:00"],
+        "tuesday": ["09:00-18:00"],
+        "wednesday": ["09:00-18:00"],
+        "thursday": ["09:00-18:00"],
+        "friday": ["09:00-18:00"],
+        "saturday": ["10:00-15:00"],
+        "sunday": ["휴무"]
+      },
+      "emergency_contact": {
+        "name": "박아버지",
+        "phone": "010-2222-3333",
+        "relationship": "가족"
+      },
+      "bank_info": {
+        "bank_name": "우리은행",
+        "account_number": "1002-456-789123",
+        "account_holder": "박신속"
+      },
+      "status": "active",
+      "created_at": "2024-10-05T11:20:00Z",
+      "updated_at": "2025-01-06T15:30:00Z",
+      "last_active_at": "2025-01-07T09:20:00Z"
+    },
+    {
+      "id": 4,
+      "auth_uid": "test-partners-004",
+      "email": "night.cleaner@linky.com",
+      "name": "최야간",
+      "phone": "010-7777-8888",
+      "birth_date": "1990-05-03",
+      "gender": "male",
+      "address": "서울시 서초구 서초동 890-12",
+      "profile_image": "/images/partners/partner-004.jpg",
+      "bio": "야간 전문 청소 파트너입니다. 24시간 운영 시설의 청소를 전문으로 하며 조용하고 신중한 작업을 합니다.",
+      "rating": 4.7,
+      "completed_jobs": 156,
+      "total_earnings": 6780000,
+      "this_month_earnings": 720000,
+      "verification_status": "verified",
+      "availability_status": "busy",
+      "preferred_job_types": [
+        "night_cleaning",
+        "deep_cleaning",
+        "sanitization"
+      ],
+      "preferred_areas": [
+        "서초구",
+        "강남구",
+        "관악구"
+      ],
+      "skills": [
+        "야간 작업 전문",
+        "24시간 시설 관리",
+        "무인 시설 청소",
+        "보안 의식"
+      ],
+      "available_hours": {
+        "monday": ["22:00-06:00"],
+        "tuesday": ["22:00-06:00"],
+        "wednesday": ["22:00-06:00"],
+        "thursday": ["22:00-06:00"],
+        "friday": ["22:00-06:00"],
+        "saturday": ["20:00-08:00"],
+        "sunday": ["20:00-08:00"]
+      },
+      "emergency_contact": {
+        "name": "최누나",
+        "phone": "010-4444-5555",
+        "relationship": "가족"
+      },
+      "bank_info": {
+        "bank_name": "하나은행",
+        "account_number": "333-456789-01234",
+        "account_holder": "최야간"
+      },
+      "status": "active",
+      "created_at": "2024-07-20T13:45:00Z",
+      "updated_at": "2025-01-08T23:15:00Z",
+      "last_active_at": "2025-01-08T23:15:00Z"
+    }
+  ],
+  "job_applications": [
+    {
+      "id": 1,
+      "job_id": 2,
+      "partners_id": "test-partners-001",
+      "message": "무인카페 청소 경험이 풍부합니다. 커피머신 청소도 전문적으로 할 수 있어요.",
+      "applied_at": "2025-01-07T21:00:00Z",
+      "status": "pending",
+      "estimated_completion_time": 160
+    },
+    {
+      "id": 2,
+      "job_id": 2,
+      "partners_id": "test-partners-004",
+      "message": "야간 청소 전문가입니다. 조용하고 꼼꼼하게 작업하겠습니다.",
+      "applied_at": "2025-01-07T21:30:00Z",
+      "status": "pending",
+      "estimated_completion_time": 170
+    }
+  ],
+  "earnings_history": [
+    {
+      "id": 1,
+      "partners_id": "test-partners-001",
+      "job_id": 1,
+      "amount": 30000,
+      "payment_date": "2025-01-08T00:00:00Z",
+      "payment_status": "paid",
+      "payment_method": "bank_transfer",
+      "transaction_id": "TXN-20250108-001"
+    },
+    {
+      "id": 2,
+      "partners_id": "test-partners-003",
+      "job_id": 4,
+      "amount": 25000,
+      "payment_date": "2025-01-07T00:00:00Z",
+      "payment_status": "paid",
+      "payment_method": "bank_transfer",
+      "transaction_id": "TXN-20250107-001"
+    },
+    {
+      "id": 3,
+      "partners_id": "test-partners-002",
+      "job_id": 3,
+      "amount": 50000,
+      "payment_date": null,
+      "payment_status": "pending",
+      "payment_method": "bank_transfer",
+      "transaction_id": null
+    }
+  ],
+  "reviews": [
+    {
+      "id": 1,
+      "job_id": 4,
+      "business_id": "test-business-001",
+      "partners_id": "test-partners-003",
+      "rating": 5,
+      "comment": "매우 꼼꼼하고 빠르게 청소해주셨습니다. 시간도 정확히 지켜주시고 만족스러워요!",
+      "created_at": "2025-01-06T16:00:00Z"
+    },
+    {
+      "id": 2,
+      "job_id": 1,
+      "business_id": "test-business-001",
+      "partners_id": "test-partners-001",
+      "rating": 5,
+      "comment": "전문적이고 친절한 서비스였습니다. 청소 품질이 우수하고 다음에도 요청하고 싶어요.",
+      "created_at": "2025-01-08T08:30:00Z"
+    }
+  ],
+  "statistics": {
+    "total_partners": 4,
+    "active_partners": 4,
+    "verified_partners": 4,
+    "average_rating": 4.75,
+    "total_jobs_completed_this_month": 12,
+    "total_earnings_this_month": 3300000,
+    "top_performers": [
+      {
+        "partners_id": "test-partners-002",
+        "name": "이정리",
+        "monthly_earnings": 1240000,
+        "jobs_completed": 8,
+        "rating": 4.9
+      },
+      {
+        "partners_id": "test-partners-001",
+        "name": "김청소",
+        "monthly_earnings": 890000,
+        "jobs_completed": 6,
+        "rating": 4.8
+      },
+      {
+        "partners_id": "test-partners-004",
+        "name": "최야간",
+        "monthly_earnings": 720000,
+        "jobs_completed": 4,
+        "rating": 4.7
+      },
+      {
+        "partners_id": "test-partners-003",
+        "name": "박신속",
+        "monthly_earnings": 450000,
+        "jobs_completed": 3,
+        "rating": 4.6
+      }
+    ],
+    "popular_job_types_by_partners": [
+      {
+        "type": "daily_cleaning",
+        "partners_count": 3,
+        "completion_rate": 95
+      },
+      {
+        "type": "deep_cleaning",
+        "partners_count": 3,
+        "completion_rate": 92
+      },
+      {
+        "type": "sanitization",
+        "partners_count": 2,
+        "completion_rate": 98
+      }
+    ],
+    "availability_stats": {
+      "available": 3,
+      "busy": 1,
+      "offline": 0
+    }
+  }
+}

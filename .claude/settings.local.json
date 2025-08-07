@@ -35,7 +35,22 @@
       "Bash(start \"\" \"http://localhost:8000/test-auth.html\")",
       "Bash(psql:*)",
       "Bash(mv:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(npx create-expo-app:*)",
+      "Bash(npm init:*)",
+      "Bash(npx expo start:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(supabase db dump:*)",
+      "Bash(npx eas-cli@latest:*)",
+      "Bash(npx expo install:*)",
+      "Bash(clear)",
+      "Bash(npm start)",
+      "Bash(ipconfig)",
+      "mcp__vercel__list_projects",
+      "mcp__vercel__list_teams",
+      "Bash(true)",
+      "WebFetch(domain:www.linkykorea.com)"
     ],
     "deny": []
   }

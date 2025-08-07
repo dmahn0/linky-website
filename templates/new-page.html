@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[페이지 제목] - Linky Platform</title>
+    
+    <!-- 필수: Shared Styles -->
+    <link rel="stylesheet" href="/src/shared/css/base.css">
+    <link rel="stylesheet" href="/src/shared/css/components.css">
+    
+    <!-- 필수: Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 필수: Config & Auth -->
+    <script src="/src/shared/js/config.js"></script>
+    <script src="/src/shared/js/auth.js"></script>
+    
+    <!-- 선택: API 모듈 -->
+    <script src="/src/shared/js/api.js"></script>
+    
+    <style>
+        /* 페이지별 스타일 - 디자인 시스템 변수만 사용 */
+        .page-container {
+            min-height: 100vh;
+            background: var(--linky-background);
+            padding: var(--spacing-lg);
+        }
+        
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            margin-bottom: var(--spacing-2xl);
+        }
+        
+        .page-title {
+            font-size: 36px; /* H2 */
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .page-subtitle {
+            font-size: 16px; /* Body Regular */
+            color: var(--linky-text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Navigation (선택사항) -->
+        <nav class="nav">
+            <div class="nav-container">
+                <a href="/" class="nav-logo">Linky</a>
+                <ul class="nav-menu">
+                    <li><a href="/dashboard" class="nav-link">대시보드</a></li>
+                    <li><a href="/profile" class="nav-link">프로필</a></li>
+                    <li><a href="#" class="nav-link" id="logoutBtn">로그아웃</a></li>
+                </ul>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <div class="content-section">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">[페이지 제목]</h1>
+                <p class="page-subtitle">[페이지 설명]</p>
+            </div>
+            
+            <!-- Content Grid -->
+            <div class="dashboard-grid">
+                <!-- Card Example -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">카드 제목</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>카드 내용</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary">액션</button>
+                    </div>
+                </div>
+                
+                <!-- Stat Card Example -->
+                <div class="stat-card">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">통계 라벨</div>
+                </div>
+            </div>
+            
+            <!-- Alert Example (숨김 처리됨) -->
+            <div id="alertContainer"></div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden">
+                <div class="spinner-container">
+                    <div class="spinner spinner-md"></div>
+                    <div class="spinner-text">로딩 중...</div>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state hidden">
+                <div class="empty-state-icon">📭</div>
+                <div class="empty-state-title">데이터가 없습니다</div>
+                <div class="empty-state-message">
+                    표시할 내용이 없습니다.
+                </div>
+                <button class="btn btn-primary">새로 만들기</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        // UI 컴포넌트 import
+        import { createAlert, createButton, createCard } from '/js/components/ui/index.js';
+        import { UI_CONFIG } from '/config/ui.config.js';
+        import { API_CONFIG } from '/config/api.config.js';
+        
+        // 전역 변수
+        let currentUser = null;
+        
+        // 초기화
+        async function init() {
+            // 인증 체크
+            const session = await authManager.checkSession();
+            
+            if (!session) {
+                // 로그인 페이지로 리다이렉트
+                window.location.href = '/login';
+                return;
+            }
+            
+            currentUser = session.user;
+            
+            // 사용자 타입 체크 (필요한 경우)
+            if (session.userType !== 'business' && session.userType !== 'partner') {
+                showAlert('접근 권한이 없습니다.', 'error');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+                return;
+            }
+            
+            // 데이터 로드
+            await loadData();
+        }
+        
+        // 데이터 로드
+        async function loadData() {
+            showLoading(true);
+            
+            try {
+                // Supabase 쿼리 예시
+                const { data, error } = await supabase
+                    .from('[테이블명]')
+                    .select('*')
+                    .eq('user_id', currentUser.id);
+                
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    renderData(data);
+                } else {
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showAlert('데이터를 불러오는 중 오류가 발생했습니다.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 데이터 렌더링
+        function renderData(data) {
+            // 데이터를 UI에 표시
+            const container = document.querySelector('.dashboard-grid');
+            container.innerHTML = '';
+            
+            data.forEach(item => {
+                const card = createCard({
+                    title: item.title || '제목 없음',
+                    content: item.description || '내용 없음',
+                    footer: createButton({
+                        text: '자세히 보기',
+                        variant: 'primary',
+                        onClick: () => viewDetail(item.id)
+                    })
+                });
+                container.appendChild(card);
+            });
+        }
+        
+        // 상세 보기
+        function viewDetail(id) {
+            window.location.href = `/detail?id=${id}`;
+        }
+        
+        // 로딩 상태 표시
+        function showLoading(show) {
+            const loadingEl = document.getElementById('loadingState');
+            if (show) {
+                loadingEl.classList.remove('hidden');
+            } else {
+                loadingEl.classList.add('hidden');
+            }
+        }
+        
+        // 빈 상태 표시
+        function showEmptyState() {
+            document.getElementById('emptyState').classList.remove('hidden');
+            document.querySelector('.dashboard-grid').classList.add('hidden');
+        }
+        
+        // 알림 표시
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = createAlert({
+                message,
+                type,
+                dismissible: true
+            });
+            container.appendChild(alert);
+            
+            // 3초 후 자동 제거
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+        
+        // 로그아웃
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                await authManager.logout();
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+                showAlert('로그아웃 중 오류가 발생했습니다.', 'error');
+            }
+        });
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

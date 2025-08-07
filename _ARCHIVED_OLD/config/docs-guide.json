@@ -1,0 +1,658 @@
+{
+  "version": "1.0.0",
+  "description": "상황별 참고 문서 가이드 - 어떤 상황에서 어떤 문서를 봐야 하는지 정의",
+  "lastUpdated": "2025-01-23",
+  
+  "situations": {
+    "new-page": {
+      "title": "새로운 페이지를 만들 때",
+      "description": "HTML 페이지를 새로 생성하는 경우",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/docs/COMPONENT_CATALOG.md",
+          "purpose": "재사용 가능한 컴포넌트 확인",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "복사",
+          "document": "/templates/new-page.html",
+          "purpose": "기본 페이지 구조 템플릿",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "참조",
+          "document": "/config/app.config.js",
+          "purpose": "앱 전체 설정값 확인",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "참조",
+          "document": "/config/ui.config.js",
+          "purpose": "디자인 시스템 값",
+          "required": false
+        }
+      ],
+      "examples": [
+        "business/new-dashboard.html",
+        "partner/job-detail.html"
+      ]
+    },
+    
+    "api-integration": {
+      "title": "API 연동을 할 때",
+      "description": "백엔드 API와 통신하는 코드 작성",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/config/api.config.js",
+          "purpose": "API 엔드포인트 및 설정 확인",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "복사",
+          "document": "/templates/new-api-module.js",
+          "purpose": "API 모듈 템플릿",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "사용",
+          "document": "/js/utils/api-client.js",
+          "purpose": "API 클라이언트 유틸리티",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "참조",
+          "document": "/config/constants.js",
+          "purpose": "API 에러 코드 및 상태값",
+          "required": false
+        }
+      ],
+      "examples": [
+        "/js/api/job-api.js",
+        "/js/api/auth-api.js"
+      ]
+    },
+    
+    "ui-component": {
+      "title": "UI 컴포넌트를 만들 때",
+      "description": "재사용 가능한 UI 컴포넌트 개발",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/docs/COMPONENT_CATALOG.md",
+          "purpose": "유사한 컴포넌트가 있는지 확인",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "참조",
+          "document": "/config/ui.config.js",
+          "purpose": "색상, 폰트, 간격 등 디자인 토큰",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "복사",
+          "document": "/templates/new-component.js",
+          "purpose": "컴포넌트 템플릿",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "업데이트",
+          "document": "/docs/COMPONENT_CATALOG.md",
+          "purpose": "새 컴포넌트 문서화",
+          "required": true
+        }
+      ],
+      "examples": [
+        "/js/components/ui/button.js",
+        "/js/components/ui/card.js"
+      ]
+    },
+    
+    "form-development": {
+      "title": "폼을 만들 때",
+      "description": "사용자 입력 폼 개발",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/docs/COMPONENT_CATALOG.md#폼-컴포넌트",
+          "purpose": "폼 관련 컴포넌트 확인",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "참조",
+          "document": "/config/constants.js",
+          "purpose": "정규식 패턴, 에러 메시지",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "사용",
+          "document": "/js/components/form/form-validator.js",
+          "purpose": "폼 검증 유틸리티",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "참조",
+          "document": "/config/app.config.js#validation",
+          "purpose": "검증 규칙 설정",
+          "required": false
+        }
+      ],
+      "examples": [
+        "로그인 폼",
+        "회원가입 폼",
+        "작업 등록 폼"
+      ]
+    },
+    
+    "database-work": {
+      "title": "데이터베이스 작업을 할 때",
+      "description": "DB 스키마 수정이나 쿼리 작성",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/sql/mvp-schema/",
+          "purpose": "현재 DB 스키마 구조",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "참조",
+          "document": "/config/constants.js",
+          "purpose": "DB 상태값, 타입 정의",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "참조",
+          "document": "/docs/DATABASE_DESIGN.md",
+          "purpose": "전체 DB 설계 이해",
+          "required": false
+        },
+        {
+          "order": 4,
+          "action": "업데이트",
+          "document": "/history.md",
+          "purpose": "스키마 변경 이력 기록",
+          "required": true
+        }
+      ],
+      "examples": [
+        "새 테이블 추가",
+        "컬럼 수정",
+        "인덱스 생성"
+      ]
+    },
+    
+    "pwa-feature": {
+      "title": "PWA 기능을 추가할 때",
+      "description": "Progressive Web App 기능 구현",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/docs/PWA_ARCHITECTURE.md",
+          "purpose": "PWA 전체 아키텍처 이해",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "확인",
+          "document": "/docs/PWA_COMPONENT_ARCHITECTURE.md",
+          "purpose": "PWA 컴포넌트 구조",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "사용",
+          "document": "/docs/COMPONENT_CATALOG.md#pwa-컴포넌트",
+          "purpose": "PWA 관련 컴포넌트",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "참조",
+          "document": "/js/pwa/core/",
+          "purpose": "PWA 핵심 매니저 클래스",
+          "required": false
+        }
+      ],
+      "examples": [
+        "오프라인 지원",
+        "푸시 알림",
+        "앱 설치 프롬프트"
+      ]
+    },
+    
+    "code-quality": {
+      "title": "코드 품질 검사를 할 때",
+      "description": "커밋 전 코드 품질 확인",
+      "steps": [
+        {
+          "order": 1,
+          "action": "읽기",
+          "document": "/scripts/README.md",
+          "purpose": "검사 스크립트 사용법",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "실행",
+          "document": "node scripts/check-hardcoding.js",
+          "purpose": "하드코딩 검사",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "실행",
+          "document": "node scripts/check-duplicates.js",
+          "purpose": "중복 코드 검사",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "실행",
+          "document": "node scripts/pre-commit-check.js",
+          "purpose": "통합 검사",
+          "required": true
+        }
+      ],
+      "commands": [
+        "node scripts/pre-commit-check.js",
+        "npm run check:quality"
+      ]
+    },
+    
+    "project-understanding": {
+      "title": "프로젝트 구조를 파악할 때",
+      "description": "프로젝트 전체 이해가 필요한 경우",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/PROJECT_STRUCTURE.md",
+          "purpose": "파일/폴더 구조 파악",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "확인",
+          "document": "/history.md",
+          "purpose": "주요 변경 이력 확인",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "확인",
+          "document": "/CLAUDE.md",
+          "purpose": "개발 가이드라인",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "확인",
+          "document": "/docs/",
+          "purpose": "전체 문서 목록",
+          "required": false
+        }
+      ]
+    },
+    
+    "debugging": {
+      "title": "디버깅을 할 때",
+      "description": "오류를 찾고 수정하는 경우",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/config/app.config.js#dev",
+          "purpose": "개발 모드 설정 확인",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "참조",
+          "document": "/config/constants.js#ERROR_MESSAGES",
+          "purpose": "에러 메시지 정의",
+          "required": false
+        },
+        {
+          "order": 3,
+          "action": "사용",
+          "document": "브라우저 개발자 도구",
+          "purpose": "콘솔, 네트워크 탭 확인",
+          "required": true
+        }
+      ]
+    },
+    
+    "deployment": {
+      "title": "배포를 준비할 때",
+      "description": "프로덕션 배포 준비",
+      "steps": [
+        {
+          "order": 1,
+          "action": "실행",
+          "document": "node scripts/pre-commit-check.js",
+          "purpose": "전체 코드 품질 검사",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "확인",
+          "document": "/config/app.config.js",
+          "purpose": "환경별 설정 확인",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "확인",
+          "document": "TODO 주석",
+          "purpose": "미완성 작업 확인",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "업데이트",
+          "document": "/history.md",
+          "purpose": "릴리즈 노트 작성",
+          "required": true
+        }
+      ]
+    },
+    
+    "new-component": {
+      "title": "새 컴포넌트를 만들 때",
+      "description": "재사용 가능한 컴포넌트 생성",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/docs/COMPONENT_CATALOG.md",
+          "purpose": "기존 컴포넌트 중 유사한 것이 있는지 확인",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "작성",
+          "document": "/templates/component-request.md",
+          "purpose": "컴포넌트 생성 요청서 작성",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "검토",
+          "document": "컴포넌트 생성 요청서",
+          "purpose": "검토 및 승인 받기",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "복사",
+          "document": "/templates/new-component.js",
+          "purpose": "승인 후 템플릿 사용하여 개발",
+          "required": true
+        },
+        {
+          "order": 5,
+          "action": "업데이트",
+          "document": "/docs/COMPONENT_CATALOG.md",
+          "purpose": "새 컴포넌트 문서화",
+          "required": true
+        }
+      ],
+      "examples": [
+        "UI 컴포넌트 (Button, Card, Modal)",
+        "폼 컴포넌트 (InputField, SelectBox)",
+        "데이터 컴포넌트 (DataTable, Chart)"
+      ]
+    },
+    
+    "supabase-setup": {
+      "title": "Supabase 설정할 때",
+      "description": "Supabase 프로젝트 설정 및 구성",
+      "steps": [
+        {
+          "order": 1,
+          "action": "확인",
+          "document": "/docs/SUPABASE_SETUP.md",
+          "purpose": "Supabase 설정 가이드 전체 읽기",
+          "required": true
+        },
+        {
+          "order": 2,
+          "action": "생성",
+          "document": "Supabase 프로젝트",
+          "purpose": "환경별 프로젝트 생성 (dev/staging/prod)",
+          "required": true
+        },
+        {
+          "order": 3,
+          "action": "업데이트",
+          "document": "/config/api.config.js",
+          "purpose": "실제 Supabase URL과 키 설정",
+          "required": true
+        },
+        {
+          "order": 4,
+          "action": "실행",
+          "document": "/sql/*.sql",
+          "purpose": "데이터베이스 스키마 생성",
+          "required": true
+        },
+        {
+          "order": 5,
+          "action": "설정",
+          "document": "RLS 정책",
+          "purpose": "Row Level Security 설정",
+          "required": true
+        },
+        {
+          "order": 6,
+          "action": "테스트",
+          "document": "/js/utils/supabase-client.js",
+          "purpose": "연결 및 인증 테스트",
+          "required": true
+        }
+      ],
+      "examples": [
+        "개발 환경 Supabase 프로젝트",
+        "프로덕션 환경 Supabase 프로젝트",
+        "RLS 정책 설정"
+      ]
+    }
+  },
+  
+  "quick-reference": {
+    "must-check-before-coding": [
+      "/docs/COMPONENT_CATALOG.md",
+      "/config/*.js",
+      "/templates/"
+    ],
+    "must-run-before-commit": [
+      "node scripts/pre-commit-check.js"
+    ],
+    "must-update-after-change": [
+      "/history.md",
+      "/docs/COMPONENT_CATALOG.md (컴포넌트 추가 시)"
+    ]
+  },
+  
+  "file-purposes": {
+    "/CLAUDE.md": "개발 필수 가이드 - 빠른 참조 (30초 체크)",
+    "/CLAUDE-DETAILED.md": "개발 가이드 상세 버전",
+    "/PROJECT_STRUCTURE.md": "전체 프로젝트 구조",
+    "/history.md": "프로젝트 변경 이력",
+    "/docs/COMPONENT_CATALOG.md": "재사용 가능한 컴포넌트 목록",
+    "/docs/SUPABASE_SETUP.md": "Supabase 설정 및 구성 가이드",
+    "/docs/PWA_ARCHITECTURE.md": "PWA 아키텍처 설계",
+    "/config/app.config.js": "애플리케이션 전체 설정",
+    "/config/api.config.js": "API 엔드포인트 및 설정",
+    "/config/ui.config.js": "UI/디자인 시스템 값",
+    "/config/constants.js": "애플리케이션 상수",
+    "/templates/": "코드 템플릿 모음",
+    "/scripts/": "코드 품질 검사 도구"
+  },
+  
+  "essential-documents": {
+    "getting-started": {
+      "title": "프로젝트 시작하기",
+      "description": "새로운 개발자가 프로젝트를 이해하기 위한 필수 문서",
+      "documents": [
+        {
+          "path": "/CLAUDE.md",
+          "purpose": "개발 필수 가이드 및 코딩 규칙",
+          "priority": 1,
+          "required": true
+        },
+        {
+          "path": "/PROJECT_STRUCTURE.md",
+          "purpose": "전체 프로젝트 파일/폴더 구조",
+          "priority": 2,
+          "required": true
+        },
+        {
+          "path": "/history.md",
+          "purpose": "프로젝트 주요 변경 이력",
+          "priority": 3,
+          "required": false
+        }
+      ]
+    },
+    
+    "development": {
+      "title": "개발 작업",
+      "description": "실제 코딩 시 필수로 참고해야 할 문서",
+      "documents": [
+        {
+          "path": "/docs/COMPONENT_CATALOG.md",
+          "purpose": "재사용 가능한 컴포넌트 목록 및 사용법",
+          "priority": 1,
+          "required": true
+        },
+        {
+          "path": "/config/",
+          "purpose": "모든 설정 파일 (app, api, ui, constants)",
+          "priority": 1,
+          "required": true
+        },
+        {
+          "path": "/templates/",
+          "purpose": "새 파일 생성 시 사용할 템플릿",
+          "priority": 2,
+          "required": true
+        }
+      ]
+    },
+    
+    "architecture": {
+      "title": "아키텍처 이해",
+      "description": "시스템 설계를 이해하기 위한 문서",
+      "documents": [
+        {
+          "path": "/docs/DATABASE_DESIGN.md",
+          "purpose": "데이터베이스 전체 설계",
+          "priority": 1,
+          "required": false
+        },
+        {
+          "path": "/docs/PWA_ARCHITECTURE.md",
+          "purpose": "PWA 아키텍처 설계",
+          "priority": 2,
+          "required": false
+        },
+        {
+          "path": "/docs/PWA_COMPONENT_ARCHITECTURE.md",
+          "purpose": "PWA 컴포넌트 구조",
+          "priority": 3,
+          "required": false
+        }
+      ]
+    },
+    
+    "quality-assurance": {
+      "title": "코드 품질 관리",
+      "description": "코드 품질을 유지하기 위한 도구와 가이드",
+      "documents": [
+        {
+          "path": "/scripts/README.md",
+          "purpose": "코드 품질 검사 스크립트 사용법",
+          "priority": 1,
+          "required": true
+        },
+        {
+          "path": "/scripts/check-hardcoding.js",
+          "purpose": "하드코딩 검사 도구",
+          "priority": 2,
+          "required": true
+        },
+        {
+          "path": "/scripts/check-duplicates.js",
+          "purpose": "중복 코드 검사 도구",
+          "priority": 2,
+          "required": true
+        },
+        {
+          "path": "/scripts/pre-commit-check.js",
+          "purpose": "커밋 전 통합 검사",
+          "priority": 1,
+          "required": true
+        }
+      ]
+    },
+    
+    "reference": {
+      "title": "참고 문서",
+      "description": "필요시 참고하는 상세 문서",
+      "documents": [
+        {
+          "path": "/config/docs-guide.json",
+          "purpose": "상황별 문서 가이드 정의",
+          "priority": 1,
+          "required": false
+        },
+        {
+          "path": "/sql/mvp-schema/",
+          "purpose": "현재 데이터베이스 스키마",
+          "priority": 2,
+          "required": false
+        }
+      ]
+    }
+  },
+  
+  "reading-order": {
+    "new-developer": [
+      "/CLAUDE.md (필수 - 5분)",
+      "/PROJECT_STRUCTURE.md",
+      "/docs/COMPONENT_CATALOG.md",
+      "/CLAUDE-DETAILED.md (필요시)"
+    ],
+    "before-coding": [
+      "/CLAUDE.md (30초 체크)",
+      "/docs/COMPONENT_CATALOG.md",
+      "/config/*.js",
+      "/templates/"
+    ],
+    "before-commit": [
+      "node scripts/pre-commit-check.js"
+    ]
+  }
+}

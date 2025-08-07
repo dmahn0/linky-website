@@ -3,7 +3,7 @@
  * PWA 오프라인 지원 및 캐싱 전략
  */
 
-const CACHE_NAME = 'linky-v1.0.1-auth-fix';
+const CACHE_NAME = 'linky-v1.1.0-job-system';
 const urlsToCache = [
   '/',
   '/src/landing/index.html',

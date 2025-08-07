@@ -159,7 +159,7 @@ class BusinessAPI extends API {
             select: `
                 *,
                 space:spaces(name, address),
-                partner:partners_users(name, phone, rating)
+                partner:partner_users(name, phone, rating)
             `,
             order: { column: 'created_at', ascending: false }
         });
@@ -209,7 +209,7 @@ class PartnersAPI extends API {
     async getDashboardStats(authUid) {
         try {
             // 프로필 조회
-            const profile = await this.select('partners_users', { auth_uid: authUid });
+            const profile = await this.select('partner_users', { auth_uid: authUid });
             if (!profile.success) throw new Error('프로필 조회 실패');
 
             // 작업 통계 조회
@@ -257,6 +257,16 @@ class PartnersAPI extends API {
 
     // 작업 지원
     async applyForJob(jobId, partnerId, message = '') {
+        // 중복 지원 확인
+        const existingApplication = await this.select('job_applications', {
+            job_id: jobId,
+            partner_id: partnerId
+        });
+        
+        if (existingApplication.success && existingApplication.data.length > 0) {
+            return { success: false, error: '이미 지원한 작업입니다.' };
+        }
+        
         const application = {
             job_id: jobId,
             partner_id: partnerId,
@@ -265,6 +275,21 @@ class PartnersAPI extends API {
             status: 'pending'
         };
         return await this.insert('job_applications', application);
+    }
+
+    // 내 지원 내역 조회
+    async getMyApplications(partnerId) {
+        return await this.select('job_applications', { partner_id: partnerId }, {
+            select: `
+                *,
+                job:jobs(
+                    *,
+                    space:spaces(name, address),
+                    business:business_users(business_name)
+                )
+            `,
+            order: { column: 'applied_at', ascending: false }
+        });
     }
 
     // 작업 상태 업데이트
@@ -287,7 +312,7 @@ class PartnersAPI extends API {
 
     // 프로필 업데이트
     async updateProfile(authUid, updates) {
-        return await this.update('partners_users', authUid, {
+        return await this.update('partner_users', authUid, {
             ...updates,
             updated_at: new Date().toISOString()
         }, 'auth_uid');

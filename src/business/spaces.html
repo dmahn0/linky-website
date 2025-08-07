@@ -571,24 +571,25 @@
         // 공간 목록 로드
         async function loadSpaces() {
             try {
-                // TODO: 실제 API 호출로 교체
-                // const result = await businessAPI.getSpaces(currentUser.id);
+                const result = await businessAPI.getSpaces(currentUser.id);
                 
-                // 임시 데이터
-                spaces = [
-                    {
-                        id: 1,
-                        name: '강남점 스터디카페',
-                        type: 'study',
-                        address: '서울시 강남구 테헤란로 123',
-                        size: 80,
-                        status: 'active',
-                        openTime: '09:00',
-                        closeTime: '22:00',
-                        cleaningFrequency: 'daily',
-                        monthlyJobs: 25
-                    }
-                ];
+                if (result.success) {
+                    spaces = result.data.map(space => ({
+                        id: space.id,
+                        name: space.name,
+                        type: space.type,
+                        address: space.address,
+                        size: space.size,
+                        status: space.status || 'active',
+                        openTime: space.open_time,
+                        closeTime: space.close_time,
+                        cleaningFrequency: space.cleaning_frequency,
+                        monthlyJobs: space.monthly_jobs || 0
+                    }));
+                } else {
+                    console.error('공간 로드 실패:', result.error);
+                    spaces = [];
+                }
                 
                 renderSpaces();
                 
@@ -722,23 +723,33 @@
             submitBtn.textContent = '등록 중...';
             
             try {
-                // TODO: 실제 API 호출
-                // const result = await businessAPI.createSpace(formData);
-                
-                // 임시로 로컬 배열에 추가
-                const newSpace = {
-                    id: Date.now(),
-                    ...formData,
-                    status: 'active',
-                    monthlyJobs: 0
+                // API 데이터 포맷으로 변환
+                const apiData = {
+                    name: formData.name,
+                    type: formData.type,
+                    size: formData.size,
+                    address: formData.address,
+                    description: formData.description,
+                    open_time: formData.openTime,
+                    close_time: formData.closeTime,
+                    access_instructions: formData.accessInstructions,
+                    cleaning_frequency: formData.cleaningFrequency,
+                    preferred_time: formData.preferredTime,
+                    special_requirements: formData.specialRequirements
                 };
                 
-                spaces.push(newSpace);
-                renderSpaces();
-                await loadStats();
+                const result = await businessAPI.createSpace(currentUser.id, apiData);
                 
-                alert('공간이 성공적으로 등록되었습니다!');
-                closeSpaceModal();
+                if (result.success) {
+                    // 공간 목록 새로고침
+                    await loadSpaces();
+                    await loadStats();
+                    
+                    alert('공간이 성공적으로 등록되었습니다!');
+                    closeSpaceModal();
+                } else {
+                    throw new Error(result.error);
+                }
                 
             } catch (error) {
                 console.error('공간 등록 실패:', error);

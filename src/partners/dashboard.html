@@ -352,12 +352,26 @@
         // 지원 가능한 작업 로드
         async function loadAvailableJobs() {
             try {
-                const result = await partnerAPI.getAvailableJobs();
+                const result = await partnersAPI.getAvailableJobs();
                 
-                if (result.success && result.data && result.data.length > 0) {
-                    const jobs = result.data.slice(0, 3); // 최근 3개만
-                    const jobsHtml = jobs.map(job => createJobCard(job)).join('');
+                let availableJobs = [];
+                if (result.success) {
+                    availableJobs = result.data.slice(0, 3); // 최근 3개만
+                } else {
+                    console.error('지원 가능한 작업 조회 실패:', result.error);
+                }
+                
+                if (availableJobs.length > 0) {
+                    const jobsHtml = availableJobs.map(job => createJobCard(job)).join('');
                     document.getElementById('availableJobs').innerHTML = jobsHtml;
+                } else {
+                    document.getElementById('availableJobs').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div class="empty-state-title">현재 지원 가능한 작업이 없습니다</div>
+                            <div class="empty-state-message">새로운 작업이 등록되면 알려드릴게요!</div>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Failed to load available jobs:', error);
