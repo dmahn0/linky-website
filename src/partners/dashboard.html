@@ -493,18 +493,22 @@
                         await authManager.supabase.auth.signOut({ scope: 'global' });
                     }
                     
-                    // replace를 사용하여 히스토리 스택에서 현재 페이지 제거
-                    window.location.replace('/src/partners/index.html');
+                    // 잠시 대기 후 리다이렉트 (완전한 정리를 위해)
+                    console.log('🔄 Redirecting to index.html...');
+                    setTimeout(() => {
+                        window.location.replace('index.html');
+                    }, 100);
                 } else {
                     console.error('❌ Logout failed:', result.error);
                     alert('로그아웃 중 오류가 발생했습니다.');
                     // 실패해도 로그인 페이지로 이동
-                    window.location.replace('/src/partners/index.html');
+                    window.location.replace('index.html');
                 }
             } catch (error) {
                 console.error('❌ Logout error:', error);
+                alert('로그아웃 중 오류가 발생했습니다: ' + error.message);
                 // 에러가 발생해도 로그인 페이지로 이동
-                window.location.replace('/src/partners/index.html');
+                window.location.replace('index.html');
             }
         });
         
