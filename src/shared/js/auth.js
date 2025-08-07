@@ -1,9 +1,16 @@
 // Authentication Manager
 class AuthManager {
     constructor() {
-        // Supabase 클라이언트 초기화
+        // Supabase 클라이언트 초기화 - 자동 토큰 갱신 설정 포함
         if (typeof supabase !== 'undefined' && supabase.createClient) {
-            this.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            this.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true,
+                    storage: window.localStorage  // 명시적으로 localStorage 지정
+                }
+            });
         } else {
             console.error('Supabase client not loaded');
             throw new Error('Supabase 클라이언트가 로드되지 않았습니다.');
@@ -12,6 +19,19 @@ class AuthManager {
         this.currentUser = null;
         this.userType = null;
         this.userProfile = null;
+        
+        // 로그아웃 이벤트 리스너 추가
+        this.supabase.auth.onAuthStateChange((event, session) => {
+            console.log('🔄 Auth state changed:', event, session ? 'Session exists' : 'No session');
+            
+            if (event === 'SIGNED_OUT') {
+                console.log('🚪 SIGNED_OUT event detected - cleaning up...');
+                this.currentUser = null;
+                this.userType = null;
+                this.userProfile = null;
+                localStorage.removeItem('userType');
+            }
+        });
     }
 
     // 로그인
@@ -76,8 +96,12 @@ class AuthManager {
         try {
             console.log('🚪 Starting logout process...');
             
-            // 1. Supabase 로그아웃
-            const { error } = await this.supabase.auth.signOut();
+            // 1. 먼저 현재 세션 확인
+            const { data: { session: currentSession } } = await this.supabase.auth.getSession();
+            console.log('📋 Current session before logout:', currentSession ? 'Exists' : 'None');
+            
+            // 2. Supabase 로그아웃 - scope 명시
+            const { error } = await this.supabase.auth.signOut({ scope: 'global' });
             if (error) {
                 console.error('❌ Supabase signOut error:', error);
                 throw error;
@@ -85,19 +109,47 @@ class AuthManager {
             
             console.log('✅ Supabase auth signOut successful');
 
-            // 2. 세션 정보 초기화
+            // 3. 세션 재확인
+            const { data: { session: afterSession } } = await this.supabase.auth.getSession();
+            console.log('📋 Session after logout:', afterSession ? 'Still exists!' : 'Cleared');
+
+            // 4. 세션 정보 초기화
             this.currentUser = null;
             this.userType = null;
             this.userProfile = null;
             
-            // 3. 로컬 스토리지 완전 정리
-            localStorage.removeItem('userType');
-            localStorage.removeItem('sb-mzihuflrbspvyjknxlad-auth-token'); // Supabase 토큰 제거
+            // 5. 모든 Supabase 관련 localStorage 키 제거
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                // Supabase 관련 키 패턴
+                if (key && (
+                    key.includes('supabase') || 
+                    key.includes('auth') || 
+                    key === 'userType' ||
+                    key.startsWith('sb-')
+                )) {
+                    keysToRemove.push(key);
+                }
+            }
             
-            // 4. 세션 스토리지도 정리
+            // 실제 제거
+            keysToRemove.forEach(key => {
+                console.log(`🗑️ Removing localStorage key: ${key}`);
+                localStorage.removeItem(key);
+            });
+            
+            // 6. 세션 스토리지 정리
             sessionStorage.clear();
             
-            console.log('✅ Local storage and session cleared');
+            // 7. 쿠키 정리 (만약 있다면)
+            document.cookie.split(";").forEach(function(c) { 
+                if (c.includes('supabase') || c.includes('auth')) {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                }
+            });
+            
+            console.log('✅ All auth data cleared');
             
             return { success: true };
         } catch (error) {
@@ -106,7 +158,16 @@ class AuthManager {
             this.currentUser = null;
             this.userType = null;
             this.userProfile = null;
-            localStorage.removeItem('userType');
+            
+            // 모든 인증 관련 데이터 강제 정리
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.includes('supabase') || key.includes('auth') || key === 'userType')) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
             sessionStorage.clear();
             
             return { 

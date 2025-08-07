@@ -484,18 +484,27 @@
                 
                 if (result.success) {
                     console.log('✅ Logout successful, redirecting...');
-                    // 메인 페이지로 리다이렉트
-                    window.location.href = '/src/partners/index.html';
+                    
+                    // 세션이 완전히 정리되었는지 한번 더 확인
+                    const { data: { session } } = await authManager.supabase.auth.getSession();
+                    if (session) {
+                        console.error('⚠️ Warning: Session still exists after logout!');
+                        // 강제로 한번 더 시도
+                        await authManager.supabase.auth.signOut({ scope: 'global' });
+                    }
+                    
+                    // replace를 사용하여 히스토리 스택에서 현재 페이지 제거
+                    window.location.replace('/src/partners/index.html');
                 } else {
                     console.error('❌ Logout failed:', result.error);
                     alert('로그아웃 중 오류가 발생했습니다.');
                     // 실패해도 로그인 페이지로 이동
-                    window.location.href = '/src/partners/index.html';
+                    window.location.replace('/src/partners/index.html');
                 }
             } catch (error) {
                 console.error('❌ Logout error:', error);
                 // 에러가 발생해도 로그인 페이지로 이동
-                window.location.href = '/src/partners/index.html';
+                window.location.replace('/src/partners/index.html');
             }
         });
         
