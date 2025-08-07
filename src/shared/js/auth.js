@@ -17,18 +17,34 @@ class AuthManager {
     // 로그인
     async login(email, password, userType) {
         try {
+            console.log('🔐 Login attempt:', { email, userType });
+            
             // 1. Supabase 인증
             const { data: authData, error: authError } = await this.supabase.auth.signInWithPassword({
                 email: email,
                 password: password
             });
 
-            if (authError) throw authError;
+            if (authError) {
+                console.error('❌ Auth error:', authError);
+                throw authError;
+            }
+
+            console.log('✅ Auth successful, user ID:', authData.user.id);
+            console.log('📋 Session info:', authData.session ? 'Session established' : 'No session');
+
+            // 세션이 확립될 때까지 잠시 대기
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // 2. 사용자 타입 확인 및 프로필 조회
+            console.log('🔍 Getting user profile for:', { authUid: authData.user.id, userType });
             const profile = await this.getUserProfile(authData.user.id, userType);
             
+            console.log('📊 Profile result:', profile ? `Found profile ID: ${profile.id}` : 'No profile found');
+            
             if (!profile) {
+                console.error('❌ No profile found for user type:', userType);
+                console.log('💡 Tip: Check if profile exists in', userType === 'partners' ? 'partners_users' : 'business_users', 'table');
                 await this.logout();
                 throw new Error('해당 사용자 타입으로 등록된 계정이 없습니다.');
             }
@@ -135,13 +151,51 @@ class AuthManager {
                     throw new Error('Invalid user type');
             }
 
-            const { data, error } = await this.supabase
-                .from(tableName)
-                .select('*')
-                .eq('auth_uid', authUid)
-                .single();
+            console.log('📂 Querying table:', tableName, 'for auth_uid:', authUid);
+            
+            // 현재 세션 확인
+            const { data: { session } } = await this.supabase.auth.getSession();
+            console.log('🔑 Current session auth.uid():', session?.user?.id);
+            
+            // RLS 문제를 피하기 위해 stored function 사용
+            let data, error;
+            
+            if (userType === 'partners') {
+                console.log('🔍 Using get_partner_profile function...');
+                const result = await this.supabase.rpc('get_partner_profile', {
+                    p_auth_uid: authUid
+                });
+                data = result.data;
+                error = result.error;
+            } else if (userType === 'business') {
+                console.log('🔍 Using get_business_profile function...');
+                const result = await this.supabase.rpc('get_business_profile', {
+                    p_auth_uid: authUid
+                });
+                data = result.data;
+                error = result.error;
+            } else {
+                // admin이나 다른 타입은 기존 방식 사용
+                const result = await this.supabase
+                    .from(tableName)
+                    .select('*')
+                    .eq('auth_uid', authUid)
+                    .single();
+                data = result.data;
+                error = result.error;
+            }
 
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Profile query error:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
+                throw error;
+            }
+            
+            console.log('✅ Profile found:', data ? `ID: ${data.id}, Email: ${data.email}` : 'No data');
             return data;
         } catch (error) {
             console.error('Get profile error:', error);

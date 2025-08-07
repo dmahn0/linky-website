@@ -62,7 +62,8 @@
                     console.log('🔍 Verifying database insertion...');
                     setTimeout(async () => {
                         try {
-                            const { data, error } = await supabase
+                            // authManager.supabase를 사용해야 함
+                            const { data, error } = await authManager.supabase
                                 .from('partners_users')
                                 .select('*')
                                 .eq('email', testEmail)
@@ -72,6 +73,9 @@
                             
                             if (data && data.auth_uid) {
                                 resultsDiv.innerHTML += '<p>✅ Database verification successful - auth_uid properly linked!</p>';
+                                resultsDiv.innerHTML += `<p>✅ Profile Name: ${data.name}</p>`;
+                                resultsDiv.innerHTML += `<p>✅ Status: ${data.status}</p>`;
+                                resultsDiv.innerHTML += `<p>✅ Created at: ${new Date(data.created_at).toLocaleString('ko-KR')}</p>`;
                             } else {
                                 resultsDiv.innerHTML += '<p>❌ Database verification failed - auth_uid is null</p>';
                             }
