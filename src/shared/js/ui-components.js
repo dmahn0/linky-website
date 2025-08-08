@@ -57,62 +57,57 @@ const UIComponents = {
         const { logo = 'Linky', menuItems = [], currentPath = '/', logoHref = '/' } = options;
         
         return `
-            <header class="header-nav">
-                <div class="header-nav-inner" style="display: flex; align-items: center; position: relative;">
-                    <a href="${logoHref}" class="logo">${logo}</a>
-                    <nav style="flex: 1; display: flex; justify-content: flex-end;">
-                        <ul class="nav-menu" id="navMenu" style="display: flex; align-items: center; margin: 0;">
+            <header class="nav-header" style="background: white; padding: 16px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100;">
+                <div class="nav-container" style="max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <a href="${logoHref}" class="nav-brand" style="font-size: 20px; font-weight: 700; color: var(--linky-primary); text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                        <span>🔗</span>
+                        <span>${logo}</span>
+                    </a>
+                    <nav>
+                        <ul class="nav-links" id="navMenu" style="list-style: none; padding: 0; margin: 0; display: flex; gap: 32px; align-items: center;">
                             ${menuItems.map((item, index) => {
                                 // 마지막 항목이 로그인인 경우 버튼으로 처리
                                 if (item.label === '로그인' && index === menuItems.length - 1) {
-                                    return `<li style="margin-left: 20px;"><button class="btn btn-primary btn-sm" onclick="${item.href.replace('javascript:', '')}">${item.label}</button></li>`;
+                                    return `<li><button class="btn btn-primary" onclick="${item.href.replace('javascript:', '')}" style="padding: 8px 20px; font-size: 14px;">${item.label}</button></li>`;
                                 }
-                                return `<li><a href="${item.href}" class="${currentPath === item.href ? 'active' : ''}" ${item.onclick ? `onclick="${item.onclick}"` : ''}>${item.label}</a></li>`;
+                                return `<li><a href="${item.href}" style="color: var(--linky-text-primary); text-decoration: none; font-weight: 500; transition: color 0.3s;" onmouseover="this.style.color='var(--linky-primary)'" onmouseout="this.style.color='var(--linky-text-primary)'" ${item.onclick ? `onclick="${item.onclick}"` : ''}>${item.label}</a></li>`;
                             }).join('')}
                         </ul>
                     </nav>
-                    <button class="nav-mobile-toggle" onclick="toggleMobileMenu()" style="display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--linky-text-primary); margin-left: 20px;">☰</button>
+                    <button class="nav-mobile-toggle" onclick="toggleMobileMenu()" style="display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--linky-text-primary);">☰</button>
                 </div>
             </header>
             <style>
+                .nav-links-mobile {
+                    display: flex !important;
+                    flex-direction: column;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    background: white;
+                    padding: 16px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    z-index: 100;
+                    gap: 8px;
+                }
+                .nav-links-mobile li {
+                    width: 100%;
+                }
+                .nav-links-mobile a, .nav-links-mobile button {
+                    display: block;
+                    width: 100%;
+                    text-align: center;
+                    padding: 12px;
+                }
                 @media (max-width: 768px) {
-                    .nav-menu {
+                    .nav-links {
                         display: none !important;
-                    }
-                    .nav-menu.nav-links-mobile {
-                        display: flex !important;
-                        flex-direction: column;
-                        position: absolute;
-                        top: 100%;
-                        left: 0;
-                        right: 0;
-                        background: white;
-                        padding: 16px;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                        z-index: 1000;
-                    }
-                    .nav-menu.nav-links-mobile li {
-                        width: 100%;
-                        margin: 8px 0;
-                    }
-                    .nav-menu.nav-links-mobile a {
-                        display: block;
-                        padding: 12px;
-                        text-align: center;
-                        border-radius: 8px;
-                        transition: background 0.3s;
-                    }
-                    .nav-menu.nav-links-mobile a:hover {
-                        background: var(--linky-surface-alt);
-                    }
-                    .nav-menu.nav-links-mobile button {
-                        width: 100%;
-                        margin: 8px 0;
                     }
                     .nav-mobile-toggle {
                         display: block !important;
                     }
-                    .header-nav-inner {
+                    .nav-container {
                         position: relative;
                     }
                 }
@@ -283,9 +278,9 @@ const UIComponents = {
 
 // 모바일 메뉴 토글 함수
 function toggleMobileMenu() {
-    const navMenu = document.getElementById('navMenu');
-    if (navMenu) {
-        navMenu.classList.toggle('nav-links-mobile');
+    const navLinks = document.querySelector('.nav-links');
+    if (navLinks) {
+        navLinks.classList.toggle('nav-links-mobile');
     }
 }
 
