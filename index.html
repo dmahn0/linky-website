@@ -2,13 +2,179 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=/src/landing/index.html">
-    <title>Redirecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zero-Training AI로 누구나 즉시 일할 수 있는 무인공간 관리 플랫폼">
+    <meta name="theme-color" content="#10B981">
+    
+    <title>Linky - 무인공간 관리 플랫폼</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- iOS PWA 지원 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Linky">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+    
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- UI Core CSS -->
+    <link rel="stylesheet" href="/src/shared/css/ui-core.css">
+    
+    <!-- UI Components JS -->
+    <script src="/src/shared/js/ui-components.js" defer></script>
 </head>
 <body>
+    <!-- 동적으로 생성되는 헤더 -->
+    <div id="header-container"></div>
+    
+    <!-- 메인 히어로 섹션 -->
+    <div id="hero-container"></div>
+    
+    <!-- 주요 특징 섹션 -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">왜 Linky인가요?</h2>
+            <div id="features-container"></div>
+        </div>
+    </section>
+    
+    <!-- 서비스 카드 섹션 -->
+    <section class="section" style="background: var(--linky-surface-alt);">
+        <div class="container">
+            <h2 class="section-title">시작하기</h2>
+            <div id="services-container"></div>
+        </div>
+    </section>
+    
+    <!-- CTA 섹션 -->
+    <section class="section">
+        <div class="container" style="text-align: center;">
+            <h2 class="section-title">지금 바로 시작하세요</h2>
+            <p style="color: var(--linky-text-secondary); margin-bottom: 40px; font-size: 18px;">
+                교육 없이, 경험 없이도 바로 시작할 수 있습니다
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary btn-lg" onclick="location.href='/src/business/'">
+                    🏢 운영자로 시작
+                </button>
+                <button class="btn btn-secondary btn-lg" onclick="location.href='/src/partners/'">
+                    🚀 파트너스로 시작
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 푸터 -->
+    <div id="footer-container"></div>
+    
+    <!-- PWA 설치 프롬프트 -->
+    <div id="install-prompt-container"></div>
+    
     <script>
-        // JavaScript 리다이렉트 (meta refresh가 작동하지 않을 경우 백업)
-        window.location.href = '/src/landing/index.html';
+        // 페이지 로드 시 컴포넌트 렌더링
+        document.addEventListener('DOMContentLoaded', function() {
+            // 헤더 렌더링
+            document.getElementById('header-container').innerHTML = UIComponents.createHeader({
+                logo: 'Linky',
+                menuItems: [
+                    { href: '/', label: '홈' },
+                    { href: '/src/business/', label: '운영자' },
+                    { href: '/src/partners/', label: '파트너스' },
+                    { href: '#features', label: '특징' },
+                    { href: '#contact', label: '문의' }
+                ],
+                currentPath: '/'
+            });
+            
+            // 히어로 섹션 렌더링
+            document.getElementById('hero-container').innerHTML = UIComponents.createHeroSection({
+                title: '무인공간 관리의 새로운 기준',
+                subtitle: 'Zero-Training AI로 누구나 즉시 일할 수 있는<br>무인공간 관리 플랫폼, Linky',
+                buttons: [
+                    {
+                        text: '운영자로 시작하기',
+                        variant: 'primary',
+                        size: 'lg',
+                        onClick: "location.href='/src/business/'"
+                    },
+                    {
+                        text: '파트너스로 시작하기',
+                        variant: 'secondary',
+                        size: 'lg',
+                        onClick: "location.href='/src/partners/'"
+                    }
+                ]
+            });
+            
+            // 특징 그리드 렌더링
+            document.getElementById('features-container').innerHTML = UIComponents.createFeatureGrid([
+                {
+                    icon: '🤖',
+                    title: 'Zero-Training AI',
+                    description: '교육 없이 AI가 실시간으로 안내하여 누구나 즉시 작업을 시작할 수 있습니다'
+                },
+                {
+                    icon: '💰',
+                    title: '고수익 일자리',
+                    description: '시급 최대 2.5만원의 고수익으로 원하는 시간에 원하는 만큼 일하세요'
+                },
+                {
+                    icon: '🔒',
+                    title: '품질 보증',
+                    description: 'AI 기반 체크리스트와 검증 시스템으로 일관된 고품질 서비스를 보장합니다'
+                },
+                {
+                    icon: '📊',
+                    title: '실시간 모니터링',
+                    description: '운영 현황을 실시간으로 확인하고 데이터 기반 의사결정을 내리세요'
+                },
+                {
+                    icon: '🚀',
+                    title: '즉시 시작',
+                    description: '복잡한 절차 없이 회원가입만으로 바로 서비스를 시작할 수 있습니다'
+                },
+                {
+                    icon: '🤝',
+                    title: '신뢰할 수 있는 파트너',
+                    description: '검증된 파트너 네트워크로 안심하고 업무를 맡길 수 있습니다'
+                }
+            ]);
+            
+            // 서비스 카드 렌더링
+            document.getElementById('services-container').innerHTML = UIComponents.createCardGrid([
+                {
+                    title: '무인공간 운영자',
+                    content: '카페, 스터디룸, 헬스장 등 무인공간을 운영하시나요? AI가 최적의 파트너를 매칭해드립니다.',
+                    footer: '<button class="btn btn-primary btn-sm" onclick="location.href=\'/src/business/\'">시작하기</button>'
+                },
+                {
+                    title: '긱 워커 파트너스',
+                    content: '원하는 시간에 원하는 만큼 일하세요. AI가 모든 작업을 실시간으로 안내합니다.',
+                    footer: '<button class="btn btn-primary btn-sm" onclick="location.href=\'/src/partners/\'">시작하기</button>'
+                },
+                {
+                    title: '기업 솔루션',
+                    content: '다수의 무인공간을 운영하는 기업을 위한 맞춤형 관리 솔루션을 제공합니다.',
+                    footer: '<button class="btn btn-ghost btn-sm" onclick="alert(\'준비 중입니다\')">문의하기</button>'
+                }
+            ]);
+            
+            // 푸터 렌더링
+            document.getElementById('footer-container').innerHTML = UIComponents.createFooter({
+                copyright: '© 2025 Linky Platform. All rights reserved.',
+                links: [
+                    { href: '/privacy', label: '개인정보처리방침' },
+                    { href: '/terms', label: '이용약관' },
+                    { href: '/contact', label: '문의하기' }
+                ]
+            });
+            
+            // PWA 설치 프롬프트 렌더링
+            document.getElementById('install-prompt-container').innerHTML = UIComponents.createInstallPrompt();
+        });
     </script>
 </body>
 </html>
