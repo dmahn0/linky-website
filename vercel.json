@@ -8,6 +8,7 @@
   "devCommand": "",
   "cleanUrls": false,
   "trailingSlash": false,
+  "public": true,
   "rewrites": [
     { "source": "/", "destination": "/src/landing/index.html" },
     { "source": "/index.html", "destination": "/src/landing/index.html" },
