@@ -155,12 +155,12 @@ const UIComponents = {
         return `
             <div class="card-grid">
                 ${cards.map(card => `
-                    <div class="card">
+                    <div class="card" style="text-align: center;">
                         ${card.image ? `<div class="card-image">${card.image}</div>` : ''}
                         <h3 class="card-title">${card.title}</h3>
                         <p class="card-content">${card.content}</p>
                         ${card.footer ? `
-                            <div class="card-footer">
+                            <div class="card-footer" style="display: flex; justify-content: center;">
                                 ${card.footer}
                             </div>
                         ` : ''}
