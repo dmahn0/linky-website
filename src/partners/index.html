@@ -30,8 +30,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Config & Auth -->
-    <script src="/src/shared/js/config.js"></script>
-    <script src="/src/shared/js/auth.js"></script>
+    <script src="../shared/js/config.js"></script>
+    <script src="../shared/js/auth.js"></script>
     
     <style>
         body {
@@ -734,10 +734,10 @@
                 <div class="process-step">
                     <div class="process-number">2</div>
                     <div class="process-icon">✅</div>
-                    <h3 class="process-title">심사 및 교육</h3>
+                    <h3 class="process-title">가입 심사</h3>
                     <p class="process-description">
-                        신원 확인 후<br>
-                        온라인 교육을 이수합니다
+                        간단한 신원 확인 후<br>
+                        작업을 시작할 수 있습니다
                     </p>
                 </div>
                 
@@ -980,18 +980,27 @@
     <script>
         // 페이지 로드 시 컴포넌트 렌더링
         document.addEventListener('DOMContentLoaded', function() {
-            // 헤더 렌더링
-            document.getElementById('header-container').innerHTML = UIComponents.createHeader({
-                logo: 'Linky',
-                menuItems: [
-                    { href: '/', label: '홈' },
-                    { href: '../business/', label: '운영자' },
-                    { href: '../partners/', label: '파트너스' },
-                    { href: '#benefits', label: '혜택' },
-                    { href: '#calculator', label: '수익계산' }
-                ],
-                currentPath: window.location.pathname
-            });
+            // 헤더 렌더링 (커스텀 헤더 with 로그인 버튼)
+            document.getElementById('header-container').innerHTML = `
+                <header class="header-nav">
+                    <div class="header-nav-inner">
+                        <a href="/" class="logo">Linky Partners</a>
+                        <nav style="flex: 1;">
+                            <ul class="nav-menu">
+                                <li><a href="/">홈</a></li>
+                                <li><a href="/src/business/">운영자</a></li>
+                                <li><a href="/src/partners/" class="active">파트너스</a></li>
+                                <li><a href="#benefits">혜택</a></li>
+                                <li><a href="#calculator">수익계산</a></li>
+                            </ul>
+                        </nav>
+                        <div style="margin-left: auto; margin-right: 20px;">
+                            <button class="btn btn-primary btn-sm" onclick="openLoginModal()">로그인</button>
+                        </div>
+                        <button class="mobile-menu-btn">☰</button>
+                    </div>
+                </header>
+            `;
             
             // 푸터 렌더링
             document.getElementById('footer-container').innerHTML = UIComponents.createFooter({
