@@ -1,0 +1,119 @@
+{
+  "name": "linky-platform",
+  "version": 2,
+  "framework": null,
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "installCommand": "",
+  "devCommand": "",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      }
+    }
+  ],
+  "rewrites": [
+    { "source": "/", "destination": "/src/landing/index.html" },
+    { "source": "/business", "destination": "/src/business/index.html" },
+    { "source": "/business/", "destination": "/src/business/index.html" },
+    { "source": "/business/dashboard", "destination": "/src/business/dashboard.html" },
+    { "source": "/business/spaces", "destination": "/src/business/spaces.html" },
+    { "source": "/business/jobs", "destination": "/src/business/jobs.html" },
+    { "source": "/business/signup", "destination": "/src/business/signup.html" },
+    { "source": "/partners", "destination": "/src/partners/index.html" },
+    { "source": "/partners/", "destination": "/src/partners/index.html" },
+    { "source": "/partners/dashboard", "destination": "/src/partners/dashboard.html" },
+    { "source": "/partners/signup", "destination": "/src/partners/signup.html" },
+    { "source": "/partners/jobs", "destination": "/src/partners/jobs.html" },
+    { "source": "/partners/available-jobs", "destination": "/src/partners/available-jobs.html" },
+    { "source": "/partners/my-jobs", "destination": "/src/partners/my-jobs.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.css",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.jpg",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.ico",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "SUPABASE_URL": "@supabase_url",
+    "SUPABASE_ANON_KEY": "@supabase_anon_key"
+  }
+}
