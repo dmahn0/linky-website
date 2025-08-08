@@ -10,8 +10,6 @@
   "trailingSlash": false,
   "public": true,
   "rewrites": [
-    { "source": "/", "destination": "/src/landing/index.html" },
-    { "source": "/index.html", "destination": "/src/landing/index.html" },
     { "source": "/business", "destination": "/src/business/index.html" },
     { "source": "/business/", "destination": "/src/business/index.html" },
     { "source": "/business/dashboard", "destination": "/src/business/dashboard.html" },
