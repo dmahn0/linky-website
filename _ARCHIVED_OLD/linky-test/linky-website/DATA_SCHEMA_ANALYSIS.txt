@@ -1,0 +1,139 @@
+# Linky 플랫폼 데이터 스키마 분석 보고서
+작성일: 2025-07-22
+
+## 1. 사용자 데이터 스키마 구조
+
+### 1.1 현재 사용 중인 users 테이블 구조
+```
+users 테이블:
+- uid (primary key, auth.users 참조)
+- email (string, required)
+- name (string, required)
+- type (enum: 'business' | 'partner', required)
+- status (enum: 'pending' | 'approved', default: 'pending')
+- phone (string, optional)
+- created_at (timestamp)
+- residence (string, partner 타입일 때 필수)
+- workAreas (array, partner 타입일 때 필수)
+```
+
+### 1.2 각 페이지별 데이터 사용 패턴
+
+#### 1.2.1 메인 페이지 (index.html)
+- 사용 필드: type, name/email
+- 테이블 쿼리: 없음 (auth-modal.js 의존)
+- 용도: 사용자 타입에 따른 대시보드 리다이렉트
+
+#### 1.2.2 비즈니스 페이지 (business/index.html)
+```javascript
+// 사용자 조회 쿼리
+.from('users')
+.select('*')
+.eq('uid', session.user.id)
+.single()
+```
+- 사용 필드: type, status, name/email
+- 확인 사항: type === 'business' && status === 'approved'
+
+#### 1.2.3 파트너 페이지 (partners/index.html)
+```javascript
+// 사용자 조회 쿼리 (비즈니스와 동일)
+.from('users')
+.select('*')
+.eq('uid', session.user.id)
+.single()
+```
+- 사용 필드: type, status, name/email
+- 확인 사항: type === 'partner' && status === 'approved'
+
+## 2. 회원가입/로그인 스키마 (auth-modal.js)
+
+### 2.1 회원가입 시 저장되는 데이터
+
+#### 2.1.1 공통 필드
+```javascript
+{
+  uid: authData.user.id,
+  email: userData.email,
+  name: userData.name,
+  type: userData.type,
+  status: 'pending',
+  created_at: new Date().toISOString(),
+  phone: userData.phone // optional
+}
+```
+
+#### 2.1.2 파트너 추가 필드
+```javascript
+{
+  residence: userData.residence || '서울시',
+  workAreas: userData.workAreas || ['강남구']
+}
+```
+
+#### 2.1.3 비즈니스 추가 필드 (현재 주석 처리됨)
+```javascript
+// 아래 필드들은 수집하지만 저장하지 않음
+businessName: userData.businessName,
+businessNumber: userData.businessNumber,
+businessType: userData.businessType,
+businessAddress: userData.businessAddress
+```
+
+### 2.2 로그인 시 조회되는 데이터
+- 전체 users 레코드 조회 (select('*'))
+- uid로 매칭
+
+## 3. 발견된 불일치 및 문제점
+
+### 3.1 스키마 불일치
+1. **비즈니스 타입 필드 누락**
+   - UI에서 수집: businessName, businessNumber, businessType, businessAddress
+   - DB에 저장: 없음 (주석 처리됨)
+   - 원인: 테이블에 해당 컬럼이 없거나 제약 조건 문제
+
+2. **파트너 타입 제약 조건**
+   - residence와 workAreas가 필수 필드로 보임
+   - 기본값으로 처리하고 있어 실제 사용자 입력과 다를 수 있음
+
+### 3.2 데이터 타입 불일치
+1. **workAreas 필드**
+   - UI: 체크박스 배열로 수집
+   - DB: 배열 타입으로 저장 (PostgreSQL array?)
+   - 잠재적 문제: 배열 직렬화 방식
+
+2. **availableTimes 필드**
+   - UI: 수집함
+   - DB: 저장하지 않음
+
+### 3.3 제약 조건 관련
+1. **valid_partner_data 제약 조건**
+   - 파트너 타입일 때 residence와 workAreas 필수
+   - 커밋 메시지에서 이 제약 조건 위반 언급됨
+
+2. **valid_business_data 제약 조건**
+   - 비즈니스 타입에 대한 제약 조건 존재
+   - 필수 필드가 누락되어 회원가입 실패
+
+## 4. 권장 사항
+
+### 4.1 즉시 필요한 조치
+1. Supabase 데이터베이스에서 실제 테이블 스키마 확인
+2. 누락된 비즈니스 필드 추가 또는 UI에서 제거
+3. 제약 조건에 맞는 필수 필드 검증 강화
+
+### 4.2 장기적 개선사항
+1. 비즈니스와 파트너를 위한 별도 테이블 고려
+2. 사용자 타입별 필드를 JSON 컬럼으로 통합 고려
+3. 마이그레이션 스크립트 작성하여 기존 데이터 정리
+
+### 4.3 코드 수정 필요 부분
+1. auth-modal.js의 주석 처리된 비즈니스 필드 활성화
+2. 필수 필드 검증 로직 추가
+3. 에러 메시지 개선 (어떤 필드가 문제인지 명시)
+
+## 5. 추가 조사 필요사항
+1. Supabase 대시보드에서 실제 테이블 구조 확인
+2. RLS(Row Level Security) 정책 확인
+3. 제약 조건(Constraints) 상세 내용 확인
+4. 기존 사용자 데이터 마이그레이션 상태 확인

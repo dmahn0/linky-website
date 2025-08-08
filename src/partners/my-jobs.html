@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 작업 - Linky Partners</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../shared/css/base.css">
+    <link rel="stylesheet" href="../shared/css/components.css">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Config & Scripts -->
+    <script src="../shared/js/config.js"></script>
+    <script src="../shared/js/auth.js"></script>
+    <script src="../shared/js/api.js"></script>
+    
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--color-primary), #16a34a);
+            color: white;
+            padding: var(--spacing-2xl) 0;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .page-title {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            margin: 0;
+            color: white;
+        }
+        
+        .page-subtitle {
+            margin-top: var(--spacing-sm);
+            opacity: 0.9;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .stat-label {
+            color: var(--color-text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .tabs-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: var(--spacing-md);
+            border: none;
+            background: transparent;
+            color: var(--color-text-light);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .tab-button:hover {
+            background: var(--color-surface);
+        }
+        
+        .tab-button.active {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .jobs-container {
+            display: grid;
+            gap: var(--spacing-lg);
+        }
+        
+        .job-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+            transition: all var(--transition-base);
+            position: relative;
+        }
+        
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .job-status-badge {
+            position: absolute;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-assigned {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .status-in_progress {
+            background: #e0f2fe;
+            color: #0891b2;
+        }
+        
+        .status-completed {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .status-pending_review {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .job-header {
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .job-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .job-business {
+            color: var(--color-text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .job-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-sm);
+        }
+        
+        .job-price-info {
+            background: var(--color-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .price-label {
+            color: var(--color-text-light);
+            font-size: var(--font-size-sm);
+        }
+        
+        .price-value {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        
+        .job-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-3xl);
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0.5;
+        }
+        
+        .empty-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .empty-message {
+            color: var(--color-text-light);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        /* 작업 완료 모달 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-2xl);
+        }
+        
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .modal-title {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+        
+        .modal-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title">📋 내 작업</h1>
+            <p class="page-subtitle">진행중인 작업을 관리하고 완료 보고를 제출하세요</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 통계 -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="todayJobs">0</div>
+                <div class="stat-label">오늘 작업</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="weekJobs">0</div>
+                <div class="stat-label">이번주 작업</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="monthCompleted">0</div>
+                <div class="stat-label">이번달 완료</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₩<span id="monthEarnings">0</span></div>
+                <div class="stat-label">이번달 수익</div>
+            </div>
+        </div>
+        
+        <!-- 탭 -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="assigned" onclick="switchTab('assigned')">
+                    배정됨
+                </button>
+                <button class="tab-button" data-tab="in_progress" onclick="switchTab('in_progress')">
+                    진행중
+                </button>
+                <button class="tab-button" data-tab="completed" onclick="switchTab('completed')">
+                    완료
+                </button>
+                <button class="tab-button" data-tab="applied" onclick="switchTab('applied')">
+                    지원중
+                </button>
+            </div>
+        </div>
+        
+        <!-- 작업 목록 -->
+        <div id="jobsContainer" class="jobs-container">
+            <div class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <div class="empty-title">작업을 불러오는 중...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 작업 완료 모달 -->
+    <div id="completeModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">작업 완료 보고</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">완료 사진 (선택)</label>
+                    <input type="file" id="completionPhoto" class="form-input" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">완료 메모</label>
+                    <textarea id="completionNotes" class="form-textarea" rows="4" 
+                        placeholder="작업 완료 내용이나 특이사항을 작성하세요"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">실제 작업 시간 (분)</label>
+                    <input type="number" id="actualDuration" class="form-input" value="120">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeCompleteModal()">
+                    취소
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitCompletion()">
+                    완료 보고
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let userProfile = null;
+        let myJobs = [];
+        let currentTab = 'assigned';
+        let selectedJobId = null;
+        
+        // 페이지 초기화
+        async function initPage() {
+            // 인증 확인
+            const session = await authManager.checkSession();
+            if (!session || session.userType !== 'partner') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            userProfile = session.profile;
+            
+            // 작업 목록 로드
+            await loadMyJobs();
+            updateStats();
+        }
+        
+        // 내 작업 로드
+        async function loadMyJobs() {
+            try {
+                const result = await partnersAPI.getMyJobs(currentUser.id);
+                
+                if (result.success && result.data) {
+                    myJobs = result.data;
+                    filterJobs();
+                } else {
+                    console.error('작업 로드 실패:', result.error);
+                    myJobs = [];
+                    renderJobs([]);
+                }
+            } catch (error) {
+                console.error('작업 로드 오류:', error);
+                myJobs = [];
+                renderJobs([]);
+            }
+        }
+        
+        // 통계 업데이트
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todayJobs = myJobs.filter(job => 
+                new Date(job.scheduled_date).toDateString() === today
+            ).length;
+            
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            const weekJobs = myJobs.filter(job => 
+                new Date(job.scheduled_date) >= weekStart
+            ).length;
+            
+            const currentMonth = new Date().getMonth();
+            const monthCompleted = myJobs.filter(job => 
+                job.status === 'completed' && 
+                new Date(job.completed_at || job.updated_at).getMonth() === currentMonth
+            ).length;
+            
+            const monthEarnings = myJobs
+                .filter(job => 
+                    job.status === 'completed' && 
+                    new Date(job.completed_at || job.updated_at).getMonth() === currentMonth
+                )
+                .reduce((sum, job) => sum + (job.final_price || job.base_price || 0), 0);
+            
+            document.getElementById('todayJobs').textContent = todayJobs;
+            document.getElementById('weekJobs').textContent = weekJobs;
+            document.getElementById('monthCompleted').textContent = monthCompleted;
+            document.getElementById('monthEarnings').textContent = monthEarnings.toLocaleString('ko-KR');
+        }
+        
+        // 탭 전환
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // 탭 버튼 활성화 상태 변경
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            
+            filterJobs();
+        }
+        
+        // 작업 필터링
+        function filterJobs() {
+            let filtered = [];
+            
+            switch (currentTab) {
+                case 'assigned':
+                    filtered = myJobs.filter(job => job.status === 'assigned');
+                    break;
+                case 'in_progress':
+                    filtered = myJobs.filter(job => job.status === 'in_progress');
+                    break;
+                case 'completed':
+                    filtered = myJobs.filter(job => job.status === 'completed');
+                    break;
+                case 'applied':
+                    // 지원중인 작업은 별도 API 필요
+                    filtered = [];
+                    break;
+            }
+            
+            // 날짜순 정렬
+            filtered.sort((a, b) => new Date(b.scheduled_date) - new Date(a.scheduled_date));
+            
+            renderJobs(filtered);
+        }
+        
+        // 작업 목록 렌더링
+        function renderJobs(jobs) {
+            const container = document.getElementById('jobsContainer');
+            
+            if (jobs.length === 0) {
+                const emptyMessages = {
+                    'assigned': '배정된 작업이 없습니다',
+                    'in_progress': '진행중인 작업이 없습니다',
+                    'completed': '완료한 작업이 없습니다',
+                    'applied': '지원중인 작업이 없습니다'
+                };
+                
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-title">${emptyMessages[currentTab]}</div>
+                        <div class="empty-message">
+                            <a href="available-jobs.html" class="btn btn-primary">
+                                새 작업 찾아보기
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = jobs.map(job => createJobCard(job)).join('');
+        }
+        
+        // 작업 카드 생성
+        function createJobCard(job) {
+            const statusLabels = {
+                'assigned': '배정됨',
+                'in_progress': '진행중',
+                'completed': '완료',
+                'pending_review': '리뷰 대기'
+            };
+            
+            const statusClasses = {
+                'assigned': 'status-assigned',
+                'in_progress': 'status-in_progress',
+                'completed': 'status-completed',
+                'pending_review': 'status-pending_review'
+            };
+            
+            const scheduledDate = new Date(job.scheduled_date).toLocaleDateString('ko-KR');
+            const scheduledTime = job.scheduled_time ? job.scheduled_time.slice(0, 5) : '시간 미정';
+            
+            return `
+                <div class="job-card">
+                    <span class="job-status-badge ${statusClasses[job.status]}">
+                        ${statusLabels[job.status]}
+                    </span>
+                    
+                    <div class="job-header">
+                        <h3 class="job-title">${job.title}</h3>
+                        <div class="job-business">
+                            🏢 ${job.business?.business_name || '비즈니스'}
+                        </div>
+                    </div>
+                    
+                    <div class="job-details">
+                        <div class="detail-item">
+                            📍 ${job.space?.address || '주소 정보 없음'}
+                        </div>
+                        <div class="detail-item">
+                            📅 ${scheduledDate} ${scheduledTime}
+                        </div>
+                        <div class="detail-item">
+                            ⏱️ ${job.estimated_duration || 120}분 예상
+                        </div>
+                        <div class="detail-item">
+                            📞 ${job.business?.phone || '연락처 없음'}
+                        </div>
+                    </div>
+                    
+                    <div class="job-price-info">
+                        <span class="price-label">작업 요금</span>
+                        <span class="price-value">₩${(job.base_price || 0).toLocaleString('ko-KR')}</span>
+                    </div>
+                    
+                    <div class="job-actions">
+                        ${job.status === 'assigned' ? `
+                            <button class="btn btn-primary" onclick="startJob('${job.id}')">
+                                작업 시작
+                            </button>
+                        ` : ''}
+                        ${job.status === 'in_progress' ? `
+                            <button class="btn btn-success" onclick="openCompleteModal('${job.id}')">
+                                작업 완료
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-secondary" onclick="viewJobDetails('${job.id}')">
+                            상세보기
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 작업 시작
+        async function startJob(jobId) {
+            if (!confirm('작업을 시작하시겠습니까?')) return;
+            
+            try {
+                const result = await partnersAPI.updateJobStatus(jobId, 'in_progress');
+                
+                if (result.success) {
+                    alert('작업이 시작되었습니다!');
+                    await loadMyJobs();
+                } else {
+                    alert('작업 시작에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('작업 시작 오류:', error);
+                alert('작업 시작 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 완료 모달 열기
+        function openCompleteModal(jobId) {
+            selectedJobId = jobId;
+            const job = myJobs.find(j => j.id == jobId);
+            if (job) {
+                document.getElementById('actualDuration').value = job.estimated_duration || 120;
+            }
+            document.getElementById('completeModal').style.display = 'flex';
+        }
+        
+        // 완료 모달 닫기
+        function closeCompleteModal() {
+            selectedJobId = null;
+            document.getElementById('completeModal').style.display = 'none';
+            document.getElementById('completionNotes').value = '';
+            document.getElementById('completionPhoto').value = '';
+        }
+        
+        // 작업 완료 제출
+        async function submitCompletion() {
+            if (!selectedJobId) return;
+            
+            const notes = document.getElementById('completionNotes').value;
+            const actualDuration = document.getElementById('actualDuration').value;
+            
+            try {
+                const completionData = {
+                    status: 'completed',
+                    completion_notes: notes,
+                    actual_duration: parseInt(actualDuration),
+                    completed_at: new Date().toISOString()
+                };
+                
+                const result = await partnersAPI.completeJob(selectedJobId, completionData);
+                
+                if (result.success) {
+                    alert('작업이 완료되었습니다! 비즈니스의 확인을 기다려주세요.');
+                    closeCompleteModal();
+                    await loadMyJobs();
+                    updateStats();
+                } else {
+                    alert('작업 완료 처리에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('작업 완료 오류:', error);
+                alert('작업 완료 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 작업 상세보기
+        function viewJobDetails(jobId) {
+            const job = myJobs.find(j => j.id == jobId);
+            if (!job) return;
+            
+            alert(`작업: ${job.title}\n주소: ${job.space?.address}\n일정: ${new Date(job.scheduled_date).toLocaleDateString('ko-KR')}\n요금: ₩${job.base_price?.toLocaleString('ko-KR')}`);
+        }
+        
+        // 모달 외부 클릭시 닫기
+        document.getElementById('completeModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCompleteModal();
+            }
+        });
+        
+        // 페이지 로드시 초기화
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

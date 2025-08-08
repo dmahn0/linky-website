@@ -1,0 +1,158 @@
+<header class="dashboard-header">
+    <div class="header-container">
+        <div class="header-left">
+            <div class="logo">
+                <a href="../index.html">🔗 Linky Business</a>
+            </div>
+        </div>
+        <div class="header-right">
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link active">대시보드</a>
+                <a href="spaces.html" class="nav-link">공간 관리</a>
+                <a href="jobs.html" class="nav-link">작업 관리</a>
+                <a href="billings.html" class="nav-link">정산</a>
+            </nav>
+            <div class="user-menu">
+                <span class="user-name" id="headerUserName">사용자</span>
+                <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<style>
+.dashboard-header {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-left .logo a {
+    font-size: 24px;
+    font-weight: bold;
+    color: #22c55e;
+    text-decoration: none;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    color: #666;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    color: #22c55e;
+    background: #f0fdf4;
+}
+
+.nav-link.active {
+    color: #22c55e;
+    background: #f0fdf4;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-name {
+    color: #333;
+    font-weight: 500;
+}
+
+.btn-logout {
+    padding: 6px 16px;
+    background: #f3f4f6;
+    color: #666;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+    }
+}
+</style>
+
+<script>
+// 로그아웃 함수
+async function handleLogout() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+        try {
+            // Supabase 로그아웃
+            await window.supabaseClient.auth.signOut();
+            
+            // localStorage와 sessionStorage 클리어
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // 비즈니스 인덱스 페이지로 이동 (현재 business 폴더 안에 있으므로)
+            window.location.href = './index.html';
+        } catch (error) {
+            console.error('로그아웃 오류:', error);
+            alert('로그아웃 중 오류가 발생했습니다.');
+        }
+    }
+}
+
+// 사용자 이름 표시
+async function updateHeaderUserName() {
+    try {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (session) {
+            // 비즈니스 프로필 조회
+            const { data: profile } = await window.supabaseClient
+                .from('business_users')
+                .select('company_name, name')
+                .eq('auth_uid', session.user.id)
+                .single();
+            
+            if (profile) {
+                document.getElementById('headerUserName').textContent = 
+                    profile.company_name || profile.name || '사용자';
+            }
+        }
+    } catch (error) {
+        console.error('프로필 로드 오류:', error);
+    }
+}
+
+// 헤더 로드 시 실행
+updateHeaderUserName();
+</script>

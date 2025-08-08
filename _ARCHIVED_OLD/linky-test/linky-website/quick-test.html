@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>빠른 테스트</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .btn:hover {
+            background: #16a34a;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            background: #d1fae5;
+            border: 1px solid #22c55e;
+            color: #065f46;
+        }
+        
+        .error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .info {
+            background: #e0f2fe;
+            border: 1px solid #0ea5e9;
+            color: #0c4a6e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 빠른 연결 테스트</h1>
+        
+        <button class="btn" onclick="testConnection()">1. Supabase 연결 테스트</button>
+        
+        <button class="btn" onclick="testSignup()">2. 회원가입 테스트</button>
+        
+        <button class="btn" onclick="openDebugPage()">3. 상세 디버깅 페이지 열기</button>
+        
+        <button class="btn" onclick="openMainSite()">4. 메인 사이트로 이동</button>
+        
+        <div id="result" class="result info">테스트를 선택하세요...</div>
+    </div>
+    
+    <!-- Supabase 설정 로드 -->
+    <script src="supabase-config.js"></script>
+    
+    <script>
+        // 결과 표시 함수
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+        
+        // 1. 기본 연결 테스트
+        async function testConnection() {
+            showResult('Supabase 연결 테스트 중...', 'info');
+            
+            try {
+                if (!window.supabaseClient) {
+                    throw new Error('Supabase 클라이언트가 로드되지 않았습니다.');
+                }
+                
+                // 간단한 쿼리로 연결 테스트
+                const { data, error } = await window.supabaseClient
+                    .from('business_users')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                showResult('✅ Supabase 연결 성공!\\nbusiness_users 테이블에 접근 가능', 'success');
+                
+            } catch (error) {
+                showResult(`❌ 연결 실패:\\n${error.message}\\n\\n상세 정보:\\n${JSON.stringify(error, null, 2)}`, 'error');
+            }
+        }
+        
+        // 2. 회원가입 테스트
+        async function testSignup() {
+            showResult('회원가입 테스트 중...', 'info');
+            
+            try {
+                if (!window.supabaseClient) {
+                    throw new Error('Supabase 클라이언트가 로드되지 않았습니다.');
+                }
+                
+                // 테스트 이메일 생성
+                const testEmail = `test-${Date.now()}@example.com`;
+                
+                showResult(`회원가입 테스트 시작...\\n이메일: ${testEmail}`, 'info');
+                
+                // Auth 회원가입 테스트
+                const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
+                    email: testEmail,
+                    password: 'test123456'
+                });
+                
+                if (authError) {
+                    throw authError;
+                }
+                
+                showResult(`✅ 인증 회원가입 성공!\\n사용자 ID: ${authData.user.id}\\n이메일: ${authData.user.email}`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ 회원가입 테스트 실패:\\n${error.message}\\n\\n상세 정보:\\n${JSON.stringify(error, null, 2)}`, 'error');
+            }
+        }
+        
+        // 3. 디버깅 페이지 열기
+        function openDebugPage() {
+            window.open('debug-connection.html', '_blank');
+        }
+        
+        // 4. 메인 사이트로 이동
+        function openMainSite() {
+            window.location.href = 'index.html';
+        }
+        
+        // 페이지 로드 시 자동 연결 테스트
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.supabaseClient) {
+                    showResult('✅ Supabase 클라이언트 로드됨\\n위의 버튼들로 테스트를 진행하세요.', 'success');
+                } else {
+                    showResult('❌ Supabase 클라이언트 로드 실패\\nsupabase-config.js를 확인하세요.', 'error');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

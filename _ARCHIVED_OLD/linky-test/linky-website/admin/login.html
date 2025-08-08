@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인 - Linky</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .login-content {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -12px rgba(79, 70, 229, 0.4);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .back-link a:hover {
+            color: #4f46e5;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 반응형 */
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 10px;
+            }
+            
+            .login-content {
+                padding: 30px 20px;
+            }
+        }
+
+        /* 보안 강화 */
+        .security-info {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-logo">🔐</div>
+            <div class="login-title">관리자 인증</div>
+            <div class="login-subtitle">Linky Administration</div>
+        </div>
+        
+        <div class="login-content">
+            <div class="warning-box">
+                ⚠️ 관리자 전용 로그인 페이지입니다
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="email">관리자 이메일</label>
+                    <input type="email" id="email" name="email" required 
+                           placeholder="admin@linkykorea.com" autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    <span class="btn-text">관리자 로그인</span>
+                    <div class="btn-loading">
+                        <div class="spinner"></div>
+                        <span>인증 중...</span>
+                    </div>
+                </button>
+            </form>
+            
+            <div class="back-link">
+                <a href="../index.html">← 메인으로 돌아가기</a> |
+                <a href="signup.html">관리자 계정 생성</a>
+            </div>
+            
+            <div class="security-info">
+                보안을 위해 이 페이지는 관리자만 접근할 수 있습니다.<br>
+                접근 시도는 모두 기록됩니다.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+
+        // 페이지 로드 시 이미 로그인된 관리자인지 확인
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkExistingAuth();
+        });
+
+        // 기존 인증 확인
+        async function checkExistingAuth() {
+            try {
+                if (!window.supabaseClient) {
+                    console.log('Supabase client not ready, waiting...');
+                    setTimeout(checkExistingAuth, 500);
+                    return;
+                }
+
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
+                
+                if (user) {
+                    // 관리자인지 확인 (간단한 조회)
+                    const { data: adminData, error } = await window.supabaseClient
+                        .from('admins')
+                        .select('id, name, role')
+                        .eq('auth_uid', user.id)
+                        .limit(1);
+                    
+                    if (!error && adminData && adminData.length > 0) {
+                        // 이미 로그인된 관리자면 대시보드로 리다이렉트
+                        console.log('이미 로그인된 관리자:', adminData[0].name);
+                        window.location.href = 'dashboard.html';
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('기존 인증 확인 중 오류:', error);
+            }
+        }
+
+        // 로그인 폼 제출
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (isLoading) return;
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            await handleLogin(email, password);
+        });
+
+        // 로그인 처리
+        async function handleLogin(email, password) {
+            setLoading(true);
+            hideError();
+
+            try {
+                if (!window.supabaseClient) {
+                    throw new Error('시스템 초기화 중입니다. 잠시 후 다시 시도해주세요.');
+                }
+
+                // 1. Supabase Auth 로그인
+                const { data: { user }, error: authError } = await window.supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (authError) {
+                    throw new Error(getAuthErrorMessage(authError));
+                }
+
+                if (!user) {
+                    throw new Error('로그인에 실패했습니다.');
+                }
+
+                // 2. 관리자 권한 확인 (RLS 비활성화로 직접 조회 가능)
+                const { data: adminData, error: adminError } = await window.supabaseClient
+                    .from('admins')
+                    .select('*')
+                    .eq('auth_uid', user.id)
+                    .limit(1);
+
+                if (adminError) {
+                    console.error('관리자 조회 오류:', adminError);
+                    await window.supabaseClient.auth.signOut();
+                    throw new Error('시스템 오류가 발생했습니다.');
+                }
+
+                if (!adminData || adminData.length === 0) {
+                    // 관리자가 아니면 즉시 로그아웃
+                    await window.supabaseClient.auth.signOut();
+                    throw new Error('관리자 권한이 없습니다. 접근이 거부되었습니다.');
+                }
+
+                // 3. 성공 - 관리자 대시보드로 리다이렉트
+                console.log('관리자 로그인 성공:', adminData[0].name);
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                console.error('관리자 로그인 오류:', error);
+                showError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // 로딩 상태 설정
+        function setLoading(loading) {
+            isLoading = loading;
+            const btnText = document.querySelector('.btn-text');
+            const btnLoading = document.querySelector('.btn-loading');
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (loading) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'flex';
+                loginBtn.disabled = true;
+            } else {
+                btnText.style.display = 'block';
+                btnLoading.style.display = 'none';
+                loginBtn.disabled = false;
+            }
+        }
+
+        // 에러 메시지 표시
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // 에러 메시지 숨기기
+        function hideError() {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.style.display = 'none';
+        }
+
+        // 인증 에러 메시지 변환
+        function getAuthErrorMessage(error) {
+            switch (error.message) {
+                case 'Invalid login credentials':
+                    return '이메일 또는 비밀번호가 올바르지 않습니다.';
+                case 'Email not confirmed':
+                    return '이메일 인증이 필요합니다.';
+                case 'Too many requests':
+                    return '너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.';
+                case 'User not found':
+                    return '등록되지 않은 사용자입니다.';
+                default:
+                    return error.message || '로그인에 실패했습니다.';
+            }
+        }
+
+        // 보안: 개발자 도구 비활성화 시도
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 우클릭 비활성화
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>

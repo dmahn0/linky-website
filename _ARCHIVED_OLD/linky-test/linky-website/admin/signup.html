@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 회원가입 - Linky</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .signup-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+
+        .signup-header {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .signup-logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .signup-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .signup-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .signup-content {
+            padding: 40px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .signup-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -12px rgba(220, 38, 38, 0.4);
+        }
+
+        .signup-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-loading {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message, .success-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .back-link a:hover {
+            color: #dc2626;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .password-requirements {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #4b5563;
+            margin-top: 8px;
+        }
+
+        .password-requirements ul {
+            margin: 8px 0 0 16px;
+        }
+
+        /* 반응형 */
+        @media (max-width: 480px) {
+            .signup-container {
+                margin: 10px;
+            }
+            
+            .signup-content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-header">
+            <div class="signup-logo">🛡️</div>
+            <div class="signup-title">관리자 계정 생성</div>
+            <div class="signup-subtitle">Linky Administrator Registration</div>
+        </div>
+        
+        <div class="signup-content">
+            <div class="warning-box">
+                ⚠️ 관리자 계정 생성은 시스템 설정 목적으로만 사용하세요
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+            
+            <form id="adminSignupForm">
+                <div class="form-group">
+                    <label for="email">관리자 이메일 *</label>
+                    <input type="email" id="email" name="email" required 
+                           placeholder="admin@linkykorea.com" autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">관리자 이름 *</label>
+                    <input type="text" id="name" name="name" required 
+                           placeholder="홍길동" autocomplete="name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">비밀번호 *</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="최소 8자 이상" autocomplete="new-password">
+                    <div class="password-requirements">
+                        <strong>비밀번호 요구사항:</strong>
+                        <ul>
+                            <li>최소 8자 이상</li>
+                            <li>영문자, 숫자 포함 권장</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passwordConfirm">비밀번호 확인 *</label>
+                    <input type="password" id="passwordConfirm" name="passwordConfirm" required 
+                           placeholder="비밀번호를 다시 입력하세요" autocomplete="new-password">
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">관리자 등급</label>
+                    <select id="role" name="role">
+                        <option value="admin">일반 관리자</option>
+                        <option value="super_admin" selected>수퍼 관리자</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="signup-btn" id="signupBtn">
+                    <span class="btn-text">관리자 계정 생성</span>
+                    <div class="btn-loading">
+                        <div class="spinner"></div>
+                        <span>계정 생성 중...</span>
+                    </div>
+                </button>
+            </form>
+            
+            <div class="back-link">
+                <a href="login.html">← 로그인 페이지로</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+
+        // 회원가입 폼 제출
+        document.getElementById('adminSignupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (isLoading) return;
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                name: document.getElementById('name').value,
+                password: document.getElementById('password').value,
+                passwordConfirm: document.getElementById('passwordConfirm').value,
+                role: document.getElementById('role').value
+            };
+            
+            await handleSignup(formData);
+        });
+
+        // 회원가입 처리
+        async function handleSignup(formData) {
+            setLoading(true);
+            hideMessages();
+
+            try {
+                // 1. 입력 검증
+                validateForm(formData);
+
+                if (!window.supabaseClient) {
+                    throw new Error('시스템 초기화 중입니다. 잠시 후 다시 시도해주세요.');
+                }
+
+                // 2. Supabase Auth에 사용자 생성
+                const { data: { user }, error: authError } = await window.supabaseClient.auth.signUp({
+                    email: formData.email,
+                    password: formData.password,
+                    options: {
+                        data: {
+                            name: formData.name,
+                            role: 'admin'
+                        }
+                    }
+                });
+
+                if (authError) throw authError;
+
+                if (!user) {
+                    throw new Error('사용자 생성에 실패했습니다.');
+                }
+
+                // 3. admins 테이블에 관리자 레코드 생성 (RLS 비활성화로 직접 INSERT 가능)
+                const { data: adminData, error: adminError } = await window.supabaseClient
+                    .from('admins')
+                    .insert({
+                        auth_uid: user.id,
+                        email: formData.email,
+                        name: formData.name,
+                        role: formData.role,
+                        permissions: getPermissionsByRole(formData.role),
+                        created_at: new Date().toISOString()
+                    })
+                    .select()
+                    .single();
+
+                if (adminError) throw adminError;
+
+                // 4. 성공 메시지 표시
+                showSuccess(`
+                    관리자 계정이 성공적으로 생성되었습니다!
+                    
+                    이메일: ${formData.email}
+                    이름: ${formData.name}
+                    등급: ${formData.role}
+                    
+                    3초 후 로그인 페이지로 이동합니다...
+                `);
+
+                // 5. 폼 초기화 및 리다이렉트
+                document.getElementById('adminSignupForm').reset();
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 3000);
+
+            } catch (error) {
+                console.error('관리자 회원가입 오류:', error);
+                showError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // 폼 검증
+        function validateForm(formData) {
+            if (!formData.email || !formData.name || !formData.password || !formData.passwordConfirm) {
+                throw new Error('모든 필수 항목을 입력해주세요.');
+            }
+
+            if (formData.password !== formData.passwordConfirm) {
+                throw new Error('비밀번호가 일치하지 않습니다.');
+            }
+
+            if (formData.password.length < 8) {
+                throw new Error('비밀번호는 최소 8자 이상이어야 합니다.');
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                throw new Error('올바른 이메일 형식을 입력해주세요.');
+            }
+        }
+
+        // 권한 설정
+        function getPermissionsByRole(role) {
+            const basePermissions = {
+                manage_users: true,
+                manage_spaces: true,
+                manage_jobs: true,
+                view_analytics: true
+            };
+
+            if (role === 'super_admin') {
+                return {
+                    ...basePermissions,
+                    manage_admins: true,
+                    manage_payments: true,
+                    system_settings: true
+                };
+            }
+
+            return basePermissions;
+        }
+
+        // 로딩 상태 설정
+        function setLoading(loading) {
+            isLoading = loading;
+            const btnText = document.querySelector('.btn-text');
+            const btnLoading = document.querySelector('.btn-loading');
+            const signupBtn = document.getElementById('signupBtn');
+
+            if (loading) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'flex';
+                signupBtn.disabled = true;
+            } else {
+                btnText.style.display = 'block';
+                btnLoading.style.display = 'none';
+                signupBtn.disabled = false;
+            }
+        }
+
+        // 에러 메시지 표시
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // 성공 메시지 표시
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        // 메시지 숨기기
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // 페이지 로드 시 기존 관리자 확인
+        window.onload = async () => {
+            try {
+                // Supabase 로드 대기
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabaseClient) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+
+                const { data, error } = await window.supabaseClient
+                    .from('admins')
+                    .select('id')
+                    .limit(5);
+
+                if (error) {
+                    console.log('관리자 확인 중 오류:', error);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    showError(`이미 ${data.length}명의 관리자가 존재합니다. 추가 관리자는 기존 관리자가 생성해야 합니다.`);
+                }
+            } catch (error) {
+                console.log('관리자 확인 중 오류:', error);
+            }
+        };
+    </script>
+</body>
+</html>

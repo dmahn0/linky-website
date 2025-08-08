@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연결 디버깅</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #22c55e;
+            padding-bottom: 10px;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        
+        .btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #16a34a;
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            background: #d1fae5;
+            border-color: #22c55e;
+            color: #065f46;
+        }
+        
+        .error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Supabase 연결 디버깅</h1>
+        
+        <div class="test-section">
+            <h2>1. Supabase 설정 로드</h2>
+            <button class="btn" onclick="testSupabaseConfig()">설정 확인</button>
+            <div id="configResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. 기본 연결 테스트</h2>
+            <button class="btn" onclick="testBasicConnection()">연결 테스트</button>
+            <div id="connectionResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. 인증 테스트</h2>
+            <button class="btn" onclick="testAuth()">인증 상태 확인</button>
+            <div id="authResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. 테이블 접근 테스트</h2>
+            <button class="btn" onclick="testTables()">테이블 확인</button>
+            <div id="tableResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. 비즈니스 회원가입 시뮬레이션</h2>
+            <button class="btn" onclick="testBusinessSignup()">회원가입 시뮬레이션</button>
+            <div id="signupResult" class="result"></div>
+        </div>
+    </div>
+    
+    <!-- Supabase 설정 스크립트 포함 -->
+    <script src="supabase-config.js"></script>
+    
+    <script>
+        // 전역 변수
+        let supabaseClient = null;
+        
+        // 1. Supabase 설정 확인
+        async function testSupabaseConfig() {
+            const resultDiv = document.getElementById('configResult');
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '설정 확인 중...';
+            
+            try {
+                // supabase-config.js에서 로드된 클라이언트 확인
+                if (window.supabaseClient) {
+                    supabaseClient = window.supabaseClient;
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Supabase 클라이언트 로드됨
+URL: ${supabaseClient.supabaseUrl || '확인불가'}
+Key: ${supabaseClient.supabaseKey ? '설정됨' : '설정안됨'}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = '❌ supabase-config.js에서 클라이언트를 찾을 수 없습니다.';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 설정 로드 오류: ${error.message}`;
+            }
+        }
+        
+        // 2. 기본 연결 테스트
+        async function testBasicConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '연결 테스트 중...';
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase 클라이언트가 초기화되지 않았습니다.');
+                }
+                
+                // 간단한 RPC 호출로 연결 테스트
+                const { data, error } = await supabaseClient
+                    .from('business_users')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Supabase 연결 성공
+business_users 테이블 레코드 수: ${data || '확인불가'}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 연결 실패: ${error.message}
+코드: ${error.code || '없음'}
+상세: ${JSON.stringify(error, null, 2)}`;
+            }
+        }
+        
+        // 3. 인증 상태 테스트
+        async function testAuth() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '인증 상태 확인 중...';
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase 클라이언트가 초기화되지 않았습니다.');
+                }
+                
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultDiv.className = 'result success';
+                if (session) {
+                    resultDiv.textContent = `✅ 로그인됨
+사용자 ID: ${session.user.id}
+이메일: ${session.user.email}
+생성일: ${new Date(session.user.created_at).toLocaleString()}`;
+                } else {
+                    resultDiv.textContent = '✅ 인증 시스템 정상 (현재 로그아웃 상태)';
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 인증 확인 실패: ${error.message}`;
+            }
+        }
+        
+        // 4. 테이블 접근 테스트
+        async function testTables() {
+            const resultDiv = document.getElementById('tableResult');
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '테이블 접근 테스트 중...';
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase 클라이언트가 초기화되지 않았습니다.');
+                }
+                
+                const tables = ['business_users', 'partner_users', 'spaces', 'jobs'];
+                const results = [];
+                
+                for (const table of tables) {
+                    try {
+                        const { data, error } = await supabaseClient
+                            .from(table)
+                            .select('*', { count: 'exact', head: true });
+                        
+                        if (error) {
+                            results.push(`❌ ${table}: ${error.message}`);
+                        } else {
+                            results.push(`✅ ${table}: 접근 가능 (${data || 0}개 레코드)`);
+                        }
+                    } catch (e) {
+                        results.push(`❌ ${table}: ${e.message}`);
+                    }
+                }
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = results.join('\\n');
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 테이블 테스트 실패: ${error.message}`;
+            }
+        }
+        
+        // 5. 비즈니스 회원가입 시뮬레이션
+        async function testBusinessSignup() {
+            const resultDiv = document.getElementById('signupResult');
+            resultDiv.className = 'result loading';
+            resultDiv.textContent = '회원가입 시뮬레이션 중...';
+            
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase 클라이언트가 초기화되지 않았습니다.');
+                }
+                
+                // 테스트 회원가입 데이터
+                const testEmail = `test-${Date.now()}@example.com`;
+                const testPassword = 'test123456';
+                
+                resultDiv.textContent += '\\n1. 회원가입 시도...';
+                
+                // Supabase Auth 회원가입
+                const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                    email: testEmail,
+                    password: testPassword
+                });
+                
+                if (authError) {
+                    throw authError;
+                }
+                
+                resultDiv.textContent += '\\n✅ 인증 회원가입 성공';
+                resultDiv.textContent += `\\n   사용자 ID: ${authData.user.id}`;
+                
+                // business_users 테이블에 프로필 생성
+                resultDiv.textContent += '\\n2. 비즈니스 프로필 생성 시도...';
+                
+                const profileData = {
+                    auth_uid: authData.user.id,
+                    email: testEmail,
+                    phone: '010-1234-5678',
+                    business_name: '테스트 회사',
+                    business_number: '123-45-67890',
+                    business_type: 'office',
+                    business_address: '서울시 테스트구 테스트동',
+                    representative_name: '테스트 대표',
+                    status: 'pending'
+                };
+                
+                const { data: profileResult, error: profileError } = await supabaseClient
+                    .from('business_users')
+                    .insert(profileData)
+                    .select()
+                    .single();
+                
+                if (profileError) {
+                    throw profileError;
+                }
+                
+                resultDiv.textContent += '\\n✅ 비즈니스 프로필 생성 성공';
+                
+                // spaces 테이블에 첫 공간 생성
+                resultDiv.textContent += '\\n3. 첫 공간 생성 시도...';
+                
+                const spaceData = {
+                    owner_id: authData.user.id,
+                    name: '테스트 사무실',
+                    type: 'office',
+                    area: 100,
+                    address: '서울시 테스트구 테스트동 123',
+                    detail_address: '5층 501호',
+                    cleaning_frequency: 'weekly',
+                    notes: '테스트용 공간'
+                };
+                
+                const { data: spaceResult, error: spaceError } = await supabaseClient
+                    .from('spaces')
+                    .insert(spaceData)
+                    .select()
+                    .single();
+                
+                if (spaceError) {
+                    throw spaceError;
+                }
+                
+                resultDiv.textContent += '\\n✅ 첫 공간 생성 성공';
+                
+                // 테스트 데이터 정리
+                resultDiv.textContent += '\\n4. 테스트 데이터 정리...';
+                
+                await supabaseClient.from('spaces').delete().eq('id', spaceResult.id);
+                await supabaseClient.from('business_users').delete().eq('id', profileResult.id);
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent += '\\n\\n✅ 전체 회원가입 플로우 정상 작동!';
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `\\n\\n❌ 시뮬레이션 실패: ${error.message}
+코드: ${error.code || '없음'}
+상세: ${JSON.stringify(error, null, 2)}`;
+            }
+        }
+        
+        // 페이지 로드 시 자동으로 설정 확인
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(testSupabaseConfig, 500);
+        });
+    </script>
+</body>
+</html>

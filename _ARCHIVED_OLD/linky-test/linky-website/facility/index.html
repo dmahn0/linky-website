@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky - 시설물 관리 서비스</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 헤더 */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #374151;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #22c55e;
+        }
+
+        /* 추후 오픈 예정 배너 */
+        .coming-soon-banner {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #92400e;
+            padding: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coming-soon-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .coming-soon-text {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .coming-soon-icon {
+            font-size: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* 히어로 섹션 */
+        .hero-section {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto 40px;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-white {
+            background: white;
+            color: #d97706;
+        }
+
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #f59e0b;
+            border: 2px solid #f59e0b;
+        }
+
+        .btn-secondary:hover {
+            background: #fef3c7;
+        }
+        
+        .btn-disabled {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: not-allowed;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .btn-disabled:hover {
+            background: #d1d5db;
+            color: #6b7280;
+            transform: none;
+        }
+
+        /* 서비스 섹션 */
+        .services-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #1f2937;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-header {
+            background: #f59e0b;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .service-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .service-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .service-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .service-content {
+            padding: 30px;
+        }
+
+        .service-description {
+            color: #6b7280;
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+
+        .service-features {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .service-features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            color: #374151;
+        }
+
+        .service-features li:before {
+            content: "✓";
+            color: #f59e0b;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .service-pricing {
+            background: #fef3c7;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .price-label {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .price-amount {
+            color: #d97706;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* 프로세스 섹션 */
+        .process-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .process-step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        .step-description {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* 파트너 섹션 */
+        .partners-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .partner-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .partner-logo {
+            width: 80px;
+            height: 80px;
+            background: #fef3c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+
+        .partner-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .partner-category {
+            color: #f59e0b;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .partner-description {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 신청 폼 섹션 */
+        .application-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .application-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .application-form {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        /* 로딩 상태 */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .hero-title {
+                font-size: 32px;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-features {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="../" class="logo">🔗 Linky</a>
+                <nav class="nav-menu">
+                    <a href="../">홈</a>
+                    <a href="../business/">사업자</a>
+                    <a href="../business/direct-spaces.html">직영공간</a>
+                    <a href="../education/">교육/컨설팅</a>
+                    <a href="index.html">시설관리</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 추후 오픈 예정 배너 -->
+    <div class="coming-soon-banner">
+        <div class="container">
+            <div class="coming-soon-text">
+                <span class="coming-soon-icon">🚧</span>
+                <span>시설 관리 서비스는 추후 오픈 예정입니다</span>
+                <span class="coming-soon-icon">🚧</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 히어로 섹션 -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">토탈 시설물 관리 서비스</h1>
+            <p class="hero-subtitle">
+                정리부터 수리, 유지보수까지 무인공간 운영의 모든 것을 책임집니다
+            </p>
+            
+            <div class="hero-features">
+                <div class="feature-item">
+                    <div class="feature-icon">🔧</div>
+                    <div class="feature-title">시설 수리</div>
+                    <div class="feature-desc">전기, 배관, 에어컨 등 전문 수리</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🛠️</div>
+                    <div class="feature-title">정기 점검</div>
+                    <div class="feature-desc">예방적 유지보수로 사전 관리</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-title">스마트 관리</div>
+                    <div class="feature-desc">IoT 센서로 실시간 모니터링</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💰</div>
+                    <div class="feature-title">비용 절감</div>
+                    <div class="feature-desc">통합 관리로 30% 비용 절약</div>
+                </div>
+            </div>
+            
+            <a href="#services" class="btn btn-white">
+                서비스 둘러보기 →
+            </a>
+        </div>
+    </section>
+
+    <!-- 서비스 섹션 -->
+    <section id="services" class="services-section">
+        <div class="container">
+            <h2 class="section-title">시설물 관리 서비스</h2>
+            
+            <div class="services-grid">
+                <!-- 기본 유지보수 -->
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-icon">🔧</div>
+                        <h3 class="service-title">기본 유지보수</h3>
+                        <div class="service-subtitle">월 1회 정기 점검</div>
+                    </div>
+                    <div class="service-content">
+                        <p class="service-description">
+                            전문가가 월 1회 방문하여 시설물 전반을 점검하고 
+                            간단한 수리 및 유지보수를 진행합니다.
+                        </p>
+                        
+                        <ul class="service-features">
+                            <li>전기 시설 점검 및 간단 수리</li>
+                            <li>배관 누수 점검 및 보수</li>
+                            <li>에어컨 필터 교체 및 청소</li>
+                            <li>조명 교체 및 점검</li>
+                            <li>도어락 및 보안 시설 점검</li>
+                            <li>월간 점검 리포트 제공</li>
+                        </ul>
+                        
+                        <div class="service-pricing">
+                            <div class="price-label">월 정기 요금</div>
+                            <div class="price-amount">150,000원~</div>
+                        </div>
+                        
+                        <button class="btn btn-disabled" style="width: 100%;" disabled>
+                            🚧 추후 오픈 예정
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 프리미엄 관리 -->
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-icon">⭐</div>
+                        <h3 class="service-title">프리미엄 관리</h3>
+                        <div class="service-subtitle">24시간 모니터링</div>
+                    </div>
+                    <div class="service-content">
+                        <p class="service-description">
+                            IoT 센서를 통한 실시간 모니터링과 예방적 유지보수로 
+                            시설물 문제를 사전에 방지합니다.
+                        </p>
+                        
+                        <ul class="service-features">
+                            <li>기본 유지보수 모든 서비스 포함</li>
+                            <li>IoT 센서 설치 및 모니터링</li>
+                            <li>24시간 응급 출동 서비스</li>
+                            <li>예방적 부품 교체</li>
+                            <li>전문 기술진 우선 배정</li>
+                            <li>주간 상태 리포트</li>
+                        </ul>
+                        
+                        <div class="service-pricing">
+                            <div class="price-label">월 정기 요금</div>
+                            <div class="price-amount">350,000원~</div>
+                        </div>
+                        
+                        <button class="btn btn-disabled" style="width: 100%;" disabled>
+                            🚧 추후 오픈 예정
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 응급 수리 -->
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-icon">🚨</div>
+                        <h3 class="service-title">응급 수리</h3>
+                        <div class="service-subtitle">즉시 출동 서비스</div>
+                    </div>
+                    <div class="service-content">
+                        <p class="service-description">
+                            갑작스런 시설물 고장이나 문제 발생 시 
+                            전문가가 즉시 출동하여 응급 조치를 진행합니다.
+                        </p>
+                        
+                        <ul class="service-features">
+                            <li>24시간 신고 접수</li>
+                            <li>2시간 내 현장 출동</li>
+                            <li>응급 임시 조치</li>
+                            <li>부품 긴급 조달</li>
+                            <li>원인 분석 및 재발 방지</li>
+                            <li>수리 완료 보고서</li>
+                        </ul>
+                        
+                        <div class="service-pricing">
+                            <div class="price-label">건당 요금</div>
+                            <div class="price-amount">80,000원~</div>
+                        </div>
+                        
+                        <button class="btn btn-disabled" style="width: 100%;" disabled>
+                            🚧 추후 오픈 예정
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 프로세스 섹션 -->
+    <section class="process-section">
+        <div class="container">
+            <h2 class="section-title">서비스 진행 과정</h2>
+            
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">신청 및 상담</h3>
+                    <p class="step-description">
+                        온라인 신청 후 전문가가 
+                        현장 상황을 파악하고 맞춤 서비스를 제안합니다
+                    </p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">현장 진단</h3>
+                    <p class="step-description">
+                        전문가가 직접 방문하여 
+                        시설물 상태를 정밀 진단하고 계획을 수립합니다
+                    </p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">서비스 실행</h3>
+                    <p class="step-description">
+                        계획에 따라 정기 점검, 수리, 
+                        유지보수를 체계적으로 진행합니다
+                    </p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">결과 보고</h3>
+                    <p class="step-description">
+                        작업 완료 후 상세한 리포트와 
+                        향후 관리 방안을 제공합니다
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 파트너 업체 섹션 -->
+    <section class="partners-section">
+        <div class="container">
+            <h2 class="section-title">검증된 전문 파트너</h2>
+            
+            <div class="partners-grid">
+                <div class="partner-card">
+                    <div class="partner-logo">⚡</div>
+                    <h3 class="partner-name">전기공사 전문</h3>
+                    <div class="partner-category">전기 시설</div>
+                    <p class="partner-description">
+                        전기 설비 설치, 수리, 점검 전문 업체로 
+                        안전하고 신속한 전기 관련 서비스를 제공합니다.
+                    </p>
+                </div>
+                
+                <div class="partner-card">
+                    <div class="partner-logo">🔧</div>
+                    <h3 class="partner-name">배관공사 전문</h3>
+                    <div class="partner-category">배관 시설</div>
+                    <p class="partner-description">
+                        상하수도, 난방, 가스 배관 등 
+                        모든 배관 관련 설치 및 수리를 담당합니다.
+                    </p>
+                </div>
+                
+                <div class="partner-card">
+                    <div class="partner-logo">❄️</div>
+                    <h3 class="partner-name">냉난방 전문</h3>
+                    <div class="partner-category">공조 시설</div>
+                    <p class="partner-description">
+                        에어컨, 히터, 환기 시설 등 
+                        실내 환경 관리 전문 업체입니다.
+                    </p>
+                </div>
+                
+                <div class="partner-card">
+                    <div class="partner-logo">🖥️</div>
+                    <h3 class="partner-name">IT 시설 관리</h3>
+                    <div class="partner-category">정보통신</div>
+                    <p class="partner-description">
+                        인터넷, 보안 시스템, 스마트 기기 등 
+                        IT 인프라 구축 및 관리를 담당합니다.
+                    </p>
+                </div>
+                
+                <div class="partner-card">
+                    <div class="partner-logo">🏗️</div>
+                    <h3 class="partner-name">인테리어 보수</h3>
+                    <div class="partner-category">시설 보수</div>
+                    <p class="partner-description">
+                        도배, 페인트, 바닥재 교체 등 
+                        실내 인테리어 보수 전문 업체입니다.
+                    </p>
+                </div>
+                
+                <div class="partner-card">
+                    <div class="partner-logo">🔒</div>
+                    <h3 class="partner-name">보안 시설</h3>
+                    <div class="partner-category">보안 관리</div>
+                    <p class="partner-description">
+                        CCTV, 출입 통제, 도어락 등 
+                        보안 시설 설치 및 관리 전문업체입니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 신청 폼 섹션 -->
+    <section id="application" class="application-section">
+        <div class="container">
+            <div class="application-container">
+                <h2 class="section-title">시설 관리 서비스 신청</h2>
+                
+                <form class="application-form" id="facilityForm">
+                    <div class="form-group">
+                        <label class="form-label">희망 서비스 *</label>
+                        <select name="serviceType" class="form-select" required>
+                            <option value="">선택해주세요</option>
+                            <option value="basic">기본 유지보수 (150,000원/월)</option>
+                            <option value="premium">프리미엄 관리 (350,000원/월)</option>
+                            <option value="emergency">응급 수리 (80,000원/건)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">사업장명 *</label>
+                            <input type="text" name="businessName" class="form-input" placeholder="예: 강남 스터디카페" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">담당자명 *</label>
+                            <input type="text" name="contactName" class="form-input" placeholder="홍길동" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">연락처 *</label>
+                            <input type="tel" name="phone" class="form-input" placeholder="010-0000-0000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">이메일</label>
+                            <input type="email" name="email" class="form-input" placeholder="example@email.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">사업장 주소 *</label>
+                        <input type="text" name="address" class="form-input" placeholder="서울시 강남구 논현동 123-45" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">공간 종류 *</label>
+                            <select name="spaceType" class="form-select" required>
+                                <option value="">선택해주세요</option>
+                                <option value="studyroom">스터디룸/스터디카페</option>
+                                <option value="partyroom">파티룸/모임공간</option>
+                                <option value="unmanned">무인매장/무인카페</option>
+                                <option value="office">공유오피스/코워킹스페이스</option>
+                                <option value="other">기타</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">공간 크기</label>
+                            <select name="spaceSize" class="form-select">
+                                <option value="">선택해주세요</option>
+                                <option value="small">30평 이하</option>
+                                <option value="medium">31-60평</option>
+                                <option value="large">61-100평</option>
+                                <option value="xlarge">100평 이상</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">관리 희망 시설 (복수 선택 가능)</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="facilities" value="electric" id="electric">
+                                <label for="electric">전기 시설</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="facilities" value="plumbing" id="plumbing">
+                                <label for="plumbing">배관 시설</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="facilities" value="hvac" id="hvac">
+                                <label for="hvac">냉난방 시설</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="facilities" value="security" id="security">
+                                <label for="security">보안 시설</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="facilities" value="it" id="it">
+                                <label for="it">IT 시설</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="facilities" value="interior" id="interior">
+                                <label for="interior">인테리어</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">현재 시설 상태 및 문제점</label>
+                        <textarea name="currentIssues" class="form-textarea" placeholder="현재 시설물의 상태나 발생하고 있는 문제점을 자세히 설명해주세요"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">기타 문의사항</label>
+                        <textarea name="inquiry" class="form-textarea" placeholder="추가 문의사항이나 특별한 요청사항이 있으시면 작성해주세요"></textarea>
+                    </div>
+                    
+                    <button type="button" class="btn btn-disabled" style="width: 100%; padding: 20px; font-size: 18px;" disabled>
+                        🚧 추후 오픈 예정
+                    </button>
+                    
+                    <p style="text-align: center; margin-top: 20px; color: #6b7280; font-size: 14px;">
+                        * 신청 후 24시간 내에 전문가가 연락드려 현장 진단 일정을 안내해드립니다.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supabase 설정 및 스크립트 -->
+    <script src="../supabase-config.js"></script>
+    <script>
+        // 신청 모달 열기
+        function openApplicationModal(serviceType) {
+            const serviceSelect = document.querySelector('select[name="serviceType"]');
+            if (serviceType === 'basic') {
+                serviceSelect.value = 'basic';
+            } else if (serviceType === 'premium') {
+                serviceSelect.value = 'premium';
+            } else if (serviceType === 'emergency') {
+                serviceSelect.value = 'emergency';
+            }
+            
+            // 신청 섹션으로 스크롤
+            document.getElementById('application').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // 신청 폼 처리
+        document.getElementById('facilityForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loading = submitBtn.querySelector('.loading');
+            
+            // 로딩 상태
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loading.style.display = 'inline-block';
+            
+            try {
+                const formData = new FormData(form);
+                
+                // 체크박스 데이터 처리
+                const facilities = [];
+                const facilityCheckboxes = form.querySelectorAll('input[name="facilities"]:checked');
+                facilityCheckboxes.forEach(checkbox => {
+                    facilities.push(checkbox.value);
+                });
+                
+                const applicationData = {
+                    serviceType: formData.get('serviceType'),
+                    businessName: formData.get('businessName'),
+                    contactName: formData.get('contactName'),
+                    phone: formData.get('phone'),
+                    email: formData.get('email'),
+                    address: formData.get('address'),
+                    spaceType: formData.get('spaceType'),
+                    spaceSize: formData.get('spaceSize'),
+                    facilities: facilities,
+                    currentIssues: formData.get('currentIssues'),
+                    inquiry: formData.get('inquiry'),
+                    status: 'pending',
+                    createdAt: new Date().toISOString(),
+                    submittedAt: new Date().toISOString() || new Date()
+                };
+
+                // Supabase가 초기화되었다면 데이터베이스에 저장
+                if (typeof window.supabaseClient !== 'undefined' && window.supabaseClient) {
+                    const { data, error } = await window.supabaseClient
+                        .from('facility_applications')
+                        .insert([applicationData]);
+                    if (error) {
+                        console.error('Supabase 저장 오류:', error);
+                    }
+                } else {
+                    console.log('Supabase 미초기화 - 로컬 저장:', applicationData);
+                }
+                
+                alert('시설 관리 서비스 신청이 완료되었습니다!\n24시간 내에 전문가가 연락드리겠습니다.');
+                form.reset();
+                
+            } catch (error) {
+                console.error('신청 오류:', error);
+                alert('신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline';
+                loading.style.display = 'none';
+            }
+        });
+
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

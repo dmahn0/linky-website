@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linky 간이영수증</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .receipt-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .receipt-body {
+            padding: 40px;
+        }
+
+        .receipt-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            width: 120px;
+        }
+
+        .info-value {
+            color: #1f2937;
+            flex: 1;
+            text-align: right;
+        }
+
+        .service-details {
+            margin: 30px 0;
+        }
+
+        .service-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #22c55e;
+        }
+
+        .service-list {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+            color: #22c55e;
+        }
+
+        .amount-section {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .amount-label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .amount-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .notice {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .signature-box {
+            text-align: center;
+            flex: 1;
+        }
+
+        .signature-label {
+            font-weight: 600;
+            margin-bottom: 40px;
+            color: #374151;
+        }
+
+        .signature-line {
+            border-bottom: 2px solid #374151;
+            width: 150px;
+            margin: 0 auto;
+        }
+
+        .signature-name {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .editable {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px dashed #ffc107;
+            min-width: 80px;
+            display: inline-block;
+        }
+
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+            transition: all 0.3s;
+        }
+
+        .print-btn:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .print-btn {
+                display: none;
+            }
+            
+            .receipt-container {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+            
+            .editable {
+                background: transparent;
+                border: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .receipt-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .print-btn {
+                position: static;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .signature-section {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()">📄 인쇄하기</button>
+    
+    <div class="receipt-container">
+        <div class="header">
+            <h1>🔗 Linky</h1>
+            <div class="subtitle">무인공간 정리 서비스</div>
+        </div>
+        
+        <div class="receipt-body">
+            <div class="receipt-info">
+                <div class="info-row">
+                    <span class="info-label">영수증 번호</span>
+                    <span class="info-value editable" contenteditable="true">LINK-20250110-001</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">발행일자</span>
+                    <span class="info-value" id="currentDate"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">고객명</span>
+                    <span class="info-value editable" contenteditable="true">홍길동</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">사업장명</span>
+                    <span class="info-value editable" contenteditable="true">강남 스터디카페</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">연락처</span>
+                    <span class="info-value editable" contenteditable="true">010-1234-5678</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">서비스 주소</span>
+                    <span class="info-value editable" contenteditable="true">서울시 강남구 논현동 123-45</span>
+                </div>
+            </div>
+            
+            <div class="service-details">
+                <div class="service-title">서비스 내역</div>
+                <div class="service-list">
+                    <div class="service-item">
+                        <span>기본 정리 서비스 (15평 이하)</span>
+                        <span class="editable" contenteditable="true">12,000원</span>
+                    </div>
+                    <div class="service-item">
+                        <span>화장실</span>
+                        <span class="editable" contenteditable="true">3,000원</span>
+                    </div>
+                    <div class="service-item">
+                        <span>설거지</span>
+                        <span class="editable" contenteditable="true">     </span>
+                    </div>
+                    <div class="service-item">
+                        <span><strong>총 금액</strong></span>
+                        <span class="editable" contenteditable="true" style="color: #22c55e; font-weight: bold;">18,000원</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="amount-section">
+                <div class="amount-label">결제 금액</div>
+                <div class="amount-value">₩ <span class="editable" contenteditable="true">18,000</span></div>
+            </div>
+            
+            <div class="notice">
+                <strong>⚠️ 안내사항</strong><br>
+                • 본 영수증은 간이영수증으로 부가세 신고용 증빙서류로는 사용할 수 없습니다.<br>
+                • 현재 법인설립 준비 중이며, 완료 후 정식 세금계산서 발급이 가능합니다.<br>
+                • 서비스 관련 문의: 010-5106-3107 (dmahnlgh@gmail.com)<br>
+                • 영수증 재발급이나 세금계산서 전환은 언제든 연락주세요.
+            </div>
+            
+        
+        <div class="footer">
+            <p><strong>Linky</strong> | 대표: 안동민 | 이메일: dmahnlgh@gmail.com | 연락처: 010-5106-3107</p>
+            <p>주소: 서울시 [주소 입력] | 무인공간 정리 전문 서비스</p>
+            <p style="margin-top: 8px; font-size: 11px;">※ 본 영수증은 간이영수증이며, 사업자등록 완료 시 정식 세금계산서로 교체 발급 가능합니다.</p>
+        </div>
+    </div>
+
+    <script>
+        // 현재 날짜 자동 입력
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ko-KR');
+        
+        // 편집 가능한 영역 클릭 시 안내
+        document.querySelectorAll('.editable').forEach(element => {
+            element.addEventListener('click', function() {
+                this.style.background = '#e0f2fe';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.style.background = '#fff3cd';
+            });
+        });
+        
+        // 총 금액 자동 계산 (선택적)
+        function calculateTotal() {
+            const amounts = document.querySelectorAll('.service-item span:last-child .editable');
+            let total = 0;
+            
+            for (let i = 0; i < amounts.length - 1; i++) {
+                const amount = parseInt(amounts[i].textContent.replace(/[^0-9]/g, '')) || 0;
+                total += amount;
+            }
+            
+            // 총 금액 업데이트
+            amounts[amounts.length - 1].textContent = total.toLocaleString() + '원';
+            
+            // 결제 금액도 업데이트
+            document.querySelector('.amount-value .editable').textContent = total.toLocaleString();
+        }
+        
+        // Enter 키로 다음 필드로 이동
+        document.querySelectorAll('.editable').forEach((element, index, elements) => {
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const nextIndex = (index + 1) % elements.length;
+                    elements[nextIndex].focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

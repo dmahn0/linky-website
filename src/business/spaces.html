@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공간 관리 - Linky Business</title>
+    
+    <!-- UI Core CSS -->
+    <link rel="stylesheet" href="../shared/css/ui-core.css">
+    
+    <!-- UI Components JS -->
+    <script src="../shared/js/ui-components.js" defer></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Config & Auth & API -->
+    <script src="../shared/js/config.js"></script>
+    <script src="../shared/js/auth.js"></script>
+    <script src="../shared/js/api.js"></script>
+    
+    <style>
+        body {
+            padding-top: var(--header-height);
+            background: var(--linky-background);
+        }
+        
+        .page-header {
+            background: white;
+            border-bottom: 1px solid var(--linky-border);
+            padding: 32px 0;
+            margin-bottom: 32px;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            color: var(--linky-text-secondary);
+            font-size: 16px;
+        }
+        
+        .spaces-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .spaces-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .spaces-stats {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--linky-primary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--linky-text-secondary);
+        }
+        
+        .spaces-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .space-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px var(--linky-shadow);
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .space-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--linky-shadow);
+        }
+        
+        .space-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .space-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .space-type {
+            font-size: 14px;
+            color: var(--linky-text-secondary);
+            background: var(--linky-accent);
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        
+        .space-address {
+            color: var(--linky-text-secondary);
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .space-features {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: var(--linky-text-secondary);
+        }
+        
+        .space-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .space-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-inactive {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+        
+        /* 공간 등록 모달 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid var(--linky-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: var(--linky-text-light);
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--linky-surface-alt);
+            color: var(--linky-text-primary);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-section {
+            margin-bottom: 32px;
+        }
+        
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--linky-text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .operating-hours {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 16px 24px 24px;
+            border-top: 1px solid var(--linky-border);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px var(--linky-shadow);
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--linky-text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .empty-state-message {
+            color: var(--linky-text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .spaces-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .spaces-stats {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .spaces-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .operating-hours {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 네비게이션 -->
+    <div id="header-container"></div>
+    
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+        <div class="container">
+            <h1 class="page-title">공간 관리</h1>
+            <p class="page-subtitle">청소 서비스를 받을 공간을 등록하고 관리하세요</p>
+        </div>
+    </div>
+    
+    <div class="spaces-container">
+        <!-- 공간 통계 및 액션 -->
+        <div class="spaces-header">
+            <div class="spaces-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalSpaces">0</div>
+                    <div class="stat-label">전체 공간</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="activeSpaces">0</div>
+                    <div class="stat-label">활성 공간</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="monthlyJobs">0</div>
+                    <div class="stat-label">이번달 작업</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-lg" onclick="openSpaceModal()">
+                + 공간 등록
+            </button>
+        </div>
+        
+        <!-- 공간 목록 -->
+        <div id="spacesGrid" class="spaces-grid">
+            <div class="empty-state">
+                <div class="empty-state-icon">🏢</div>
+                <div class="empty-state-title">등록된 공간이 없습니다</div>
+                <div class="empty-state-message">
+                    첫 번째 공간을 등록하여 청소 서비스를 시작해보세요
+                </div>
+                <button class="btn btn-primary" onclick="openSpaceModal()">
+                    공간 등록하기
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 공간 등록 모달 -->
+    <div id="spaceModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">새 공간 등록</h3>
+                <button class="modal-close" onclick="closeSpaceModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="spaceForm">
+                    <!-- 기본 정보 -->
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            🏢 기본 정보
+                        </h4>
+                        <div class="form-group">
+                            <label class="form-label" for="spaceName">공간명 *</label>
+                            <input type="text" id="spaceName" class="form-input" placeholder="예: 강남점 스터디카페" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="spaceType">공간 유형 *</label>
+                                <select id="spaceType" class="form-select" required>
+                                    <option value="">선택하세요</option>
+                                    <option value="study">스터디룸</option>
+                                    <option value="party">파티룸</option>
+                                    <option value="studio">스튜디오</option>
+                                    <option value="meeting">회의실</option>
+                                    <option value="other">기타</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="spaceSize">공간 크기 (㎡)</label>
+                                <input type="number" id="spaceSize" class="form-input" placeholder="예: 50">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="spaceAddress">주소 *</label>
+                            <input type="text" id="spaceAddress" class="form-input" placeholder="서울시 강남구 테헤란로 123" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="spaceDescription">공간 설명</label>
+                            <textarea id="spaceDescription" class="form-textarea" rows="3" placeholder="공간의 특징이나 주의사항을 입력하세요"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- 운영 정보 -->
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            ⏰ 운영 정보
+                        </h4>
+                        <div class="operating-hours">
+                            <div class="form-group">
+                                <label class="form-label" for="openTime">운영 시작 시간</label>
+                                <input type="time" id="openTime" class="form-input" value="09:00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="closeTime">운영 종료 시간</label>
+                                <input type="time" id="closeTime" class="form-input" value="22:00">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="accessInstructions">출입 방법</label>
+                            <textarea id="accessInstructions" class="form-textarea" rows="2" placeholder="도어락 비밀번호, 키박스 위치 등을 입력하세요"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- 청소 설정 -->
+                    <div class="form-section">
+                        <h4 class="section-title">
+                            🧹 청소 설정
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="cleaningFrequency">청소 주기</label>
+                                <select id="cleaningFrequency" class="form-select">
+                                    <option value="daily">매일</option>
+                                    <option value="weekly">주 1회</option>
+                                    <option value="biweekly">주 2회</option>
+                                    <option value="on_demand">요청시</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="preferredTime">선호 시간대</label>
+                                <select id="preferredTime" class="form-select">
+                                    <option value="morning">오전 (09-12시)</option>
+                                    <option value="afternoon">오후 (12-18시)</option>
+                                    <option value="evening">저녁 (18-22시)</option>
+                                    <option value="flexible">유연</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="specialRequirements">특별 요구사항</label>
+                            <textarea id="specialRequirements" class="form-textarea" rows="2" placeholder="특별한 청소 요구사항이나 주의사항"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeSpaceModal()">
+                    취소
+                </button>
+                <button type="submit" form="spaceForm" class="btn btn-primary">
+                    공간 등록
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 푸터 -->
+    <div id="footer-container"></div>
+    
+    <script>
+        let currentUser = null;
+        let userProfile = null;
+        let spaces = [];
+        
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 헤더 렌더링 (대시보드용)
+            document.getElementById('header-container').innerHTML = UIComponents.createHeader({
+                logo: 'Linky Business',
+                menuItems: [
+                    { href: 'dashboard.html', label: '대시보드' },
+                    { href: 'spaces.html', label: '공간 관리' },
+                    { href: 'jobs.html', label: '작업 관리' },
+                    { href: 'reports.html', label: '리포트' },
+                    { href: 'javascript:void(0)', label: '로그아웃', onclick: 'logout()' }
+                ],
+                currentPath: window.location.pathname
+            });
+            
+            // 푸터 렌더링
+            document.getElementById('footer-container').innerHTML = UIComponents.createFooter({
+                copyright: '© 2025 Linky Platform. All rights reserved.',
+                links: [
+                    { href: '/privacy', label: '개인정보처리방침' },
+                    { href: '/terms', label: '이용약관' },
+                    { href: '/support', label: '고객지원' }
+                ]
+            });
+            
+            // 인증 확인 및 초기화
+            await initPage();
+        });
+        
+        // 페이지 초기화
+        async function initPage() {
+            try {
+                // 인증 확인
+                const session = await authManager.checkSession();
+                if (!session || session.userType !== 'business') {
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                currentUser = session.user;
+                userProfile = session.profile;
+                
+                // 공간 데이터 로드
+                await loadSpaces();
+                await loadStats();
+                
+            } catch (error) {
+                console.error('페이지 초기화 실패:', error);
+                alert('페이지를 로드하는 중 오류가 발생했습니다.');
+            }
+        }
+        
+        // 공간 목록 로드
+        async function loadSpaces() {
+            try {
+                const result = await businessAPI.getSpaces(currentUser.id);
+                
+                if (result.success) {
+                    spaces = result.data.map(space => ({
+                        id: space.id,
+                        name: space.name,
+                        type: space.type,
+                        address: space.address,
+                        size: space.size,
+                        status: space.status || 'active',
+                        openTime: space.open_time,
+                        closeTime: space.close_time,
+                        cleaningFrequency: space.cleaning_frequency,
+                        monthlyJobs: space.monthly_jobs || 0
+                    }));
+                } else {
+                    console.error('공간 로드 실패:', result.error);
+                    spaces = [];
+                }
+                
+                renderSpaces();
+                
+            } catch (error) {
+                console.error('공간 로드 실패:', error);
+            }
+        }
+        
+        // 통계 로드
+        async function loadStats() {
+            const totalSpaces = spaces.length;
+            const activeSpaces = spaces.filter(s => s.status === 'active').length;
+            const monthlyJobs = spaces.reduce((sum, s) => sum + (s.monthlyJobs || 0), 0);
+            
+            document.getElementById('totalSpaces').textContent = totalSpaces;
+            document.getElementById('activeSpaces').textContent = activeSpaces;
+            document.getElementById('monthlyJobs').textContent = monthlyJobs;
+        }
+        
+        // 공간 목록 렌더링
+        function renderSpaces() {
+            const gridElement = document.getElementById('spacesGrid');
+            
+            if (spaces.length === 0) {
+                gridElement.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏢</div>
+                        <div class="empty-state-title">등록된 공간이 없습니다</div>
+                        <div class="empty-state-message">
+                            첫 번째 공간을 등록하여 청소 서비스를 시작해보세요
+                        </div>
+                        <button class="btn btn-primary" onclick="openSpaceModal()">
+                            공간 등록하기
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const spacesHtml = spaces.map(space => createSpaceCard(space)).join('');
+            gridElement.innerHTML = spacesHtml;
+        }
+        
+        // 공간 카드 생성
+        function createSpaceCard(space) {
+            const typeLabels = {
+                'study': '스터디룸',
+                'party': '파티룸', 
+                'studio': '스튜디오',
+                'meeting': '회의실',
+                'other': '기타'
+            };
+            
+            const statusClass = space.status === 'active' ? 'status-active' : 'status-inactive';
+            const statusText = space.status === 'active' ? '활성' : '비활성';
+            
+            return `
+                <div class="space-card">
+                    <div class="space-status ${statusClass}">
+                        ${statusText}
+                    </div>
+                    <div class="space-header">
+                        <div>
+                            <h3 class="space-name">${space.name}</h3>
+                            <div class="space-type">${typeLabels[space.type] || space.type}</div>
+                        </div>
+                    </div>
+                    <div class="space-address">
+                        📍 ${space.address}
+                    </div>
+                    <div class="space-features">
+                        <div class="feature-item">
+                            📏 ${space.size || '-'}㎡
+                        </div>
+                        <div class="feature-item">
+                            ⏰ ${space.openTime}-${space.closeTime}
+                        </div>
+                        <div class="feature-item">
+                            📊 이번달 ${space.monthlyJobs || 0}건
+                        </div>
+                    </div>
+                    <div class="space-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="editSpace('${space.id}')">
+                            수정
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="createJob('${space.id}')">
+                            작업 요청
+                        </button>
+                        <button class="btn btn-sm btn-ghost" onclick="viewSpaceDetails('${space.id}')">
+                            상세보기
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 공간 등록 모달 열기
+        function openSpaceModal() {
+            document.getElementById('spaceModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 공간 등록 모달 닫기
+        function closeSpaceModal() {
+            document.getElementById('spaceModal').style.display = 'none';
+            document.body.style.overflow = '';
+            document.getElementById('spaceForm').reset();
+        }
+        
+        // 공간 등록 폼 처리
+        document.getElementById('spaceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('spaceName').value,
+                type: document.getElementById('spaceType').value,
+                size: parseInt(document.getElementById('spaceSize').value) || null,
+                address: document.getElementById('spaceAddress').value,
+                description: document.getElementById('spaceDescription').value,
+                openTime: document.getElementById('openTime').value,
+                closeTime: document.getElementById('closeTime').value,
+                accessInstructions: document.getElementById('accessInstructions').value,
+                cleaningFrequency: document.getElementById('cleaningFrequency').value,
+                preferredTime: document.getElementById('preferredTime').value,
+                specialRequirements: document.getElementById('specialRequirements').value,
+                businessUserId: userProfile?.id || currentUser?.id
+            };
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '등록 중...';
+            
+            try {
+                // API 데이터 포맷으로 변환
+                const apiData = {
+                    name: formData.name,
+                    type: formData.type,
+                    size: formData.size,
+                    address: formData.address,
+                    description: formData.description,
+                    open_time: formData.openTime,
+                    close_time: formData.closeTime,
+                    access_instructions: formData.accessInstructions,
+                    cleaning_frequency: formData.cleaningFrequency,
+                    preferred_time: formData.preferredTime,
+                    special_requirements: formData.specialRequirements
+                };
+                
+                const result = await businessAPI.createSpace(currentUser.id, apiData);
+                
+                if (result.success) {
+                    // 공간 목록 새로고침
+                    await loadSpaces();
+                    await loadStats();
+                    
+                    alert('공간이 성공적으로 등록되었습니다!');
+                    closeSpaceModal();
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                console.error('공간 등록 실패:', error);
+                alert('공간 등록 중 오류가 발생했습니다.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '공간 등록';
+            }
+        });
+        
+        // 공간 수정
+        function editSpace(spaceId) {
+            alert('공간 수정 기능은 준비 중입니다.');
+        }
+        
+        // 작업 생성
+        function createJob(spaceId) {
+            window.location.href = `jobs.html?action=create&spaceId=${spaceId}`;
+        }
+        
+        // 공간 상세보기
+        function viewSpaceDetails(spaceId) {
+            alert('공간 상세보기 기능은 준비 중입니다.');
+        }
+        
+        // 로그아웃
+        function logout() {
+            if (confirm('로그아웃하시겠습니까?')) {
+                authManager.logout().then(() => {
+                    window.location.href = 'index.html';
+                });
+            }
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('spaceModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSpaceModal();
+            }
+        });
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('spaceModal');
+                if (modal.style.display === 'flex') {
+                    closeSpaceModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

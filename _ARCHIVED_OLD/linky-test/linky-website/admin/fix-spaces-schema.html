@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaces 테이블 스키마 수정</title>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Supabase 설정 -->
+    <script src="../supabase-config.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #22c55e;
+            padding-bottom: 10px;
+        }
+        
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        
+        .btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background: #16a34a;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            background: #d1fae5;
+            border-color: #22c55e;
+            color: #065f46;
+        }
+        
+        .error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Spaces 테이블 스키마 수정 도구</h1>
+        
+        <div class="section">
+            <h2>1. 현재 Spaces 테이블 구조 확인</h2>
+            <button class="btn" onclick="checkSpacesTable()">테이블 구조 확인</button>
+            <div id="tableCheck" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>2. Spaces 테이블 생성/수정</h2>
+            <button class="btn" onclick="createSpacesTable()">테이블 생성 (IF NOT EXISTS)</button>
+            <button class="btn" onclick="addMissingColumns()">누락된 컬럼 추가</button>
+            <div id="createResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>3. 테스트 공간 데이터 삽입</h2>
+            <button class="btn" onclick="testSpaceInsert()">테스트 데이터 삽입</button>
+            <button class="btn btn-danger" onclick="clearTestData()">테스트 데이터 삭제</button>
+            <div id="testResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>4. 회원가입 테스트</h2>
+            <button class="btn" onclick="testBusinessSignup()">비즈니스 회원가입 시뮬레이션</button>
+            <div id="signupResult" class="result"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 현재 spaces 테이블 구조 확인
+        async function checkSpacesTable() {
+            const resultDiv = document.getElementById('tableCheck');
+            resultDiv.textContent = '확인 중...';
+            
+            try {
+                // 테이블 존재 여부 확인
+                const { data: tables, error: tablesError } = await window.supabaseClient
+                    .from('information_schema.tables')
+                    .select('table_name')
+                    .eq('table_name', 'spaces')
+                    .eq('table_schema', 'public');
+                
+                if (tablesError) {
+                    throw tablesError;
+                }
+                
+                if (!tables || tables.length === 0) {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent = '❌ spaces 테이블이 존재하지 않습니다.';
+                    return;
+                }
+                
+                // 컬럼 구조 확인 - RPC 함수 사용
+                const { data: columns, error: columnsError } = await window.supabaseClient
+                    .rpc('get_table_columns', { table_name_param: 'spaces' });
+                
+                if (columnsError) {
+                    // RPC가 없으면 다른 방법 시도
+                    const { data: directQuery, error: queryError } = await window.supabaseClient
+                        .from('spaces')
+                        .select('*')
+                        .limit(1);
+                    
+                    if (queryError) {
+                        throw queryError;
+                    }
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ spaces 테이블이 존재합니다.\n\n테스트 쿼리 성공. 샘플 데이터:\n${JSON.stringify(directQuery, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ spaces 테이블 구조:\n\n${JSON.stringify(columns, null, 2)}`;
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 오류: ${error.message}`;
+            }
+        }
+        
+        // Spaces 테이블 생성
+        async function createSpacesTable() {
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.textContent = '테이블 생성 중...';
+            
+            try {
+                // SQL 실행을 위한 RPC 함수 호출 (직접 SQL 실행은 보안상 제한됨)
+                // 대신 기본 구조로 테이블을 생성해보자
+                
+                const { data, error } = await window.supabaseClient
+                    .from('spaces')
+                    .select('*')
+                    .limit(1);
+                
+                if (error && error.code === '42P01') {
+                    // 테이블이 없음
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent = '❌ spaces 테이블이 존재하지 않습니다. Supabase 대시보드에서 수동으로 생성해야 합니다.';
+                } else if (error) {
+                    throw error;
+                } else {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = '✅ spaces 테이블이 이미 존재합니다.';
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 오류: ${error.message}\n\n상세: ${JSON.stringify(error, null, 2)}`;
+            }
+        }
+        
+        // 누락된 컬럼 추가 (테스트용)
+        async function addMissingColumns() {
+            const resultDiv = document.getElementById('createResult');
+            resultDiv.textContent = '컬럼 확인 중...';
+            
+            try {
+                // 테스트 삽입으로 누락된 컬럼 확인
+                const testData = {
+                    name: 'TEST_SPACE',
+                    type: 'office',
+                    area: 100,
+                    address: 'TEST_ADDRESS',
+                    detail_address: 'TEST_DETAIL',
+                    cleaning_frequency: 'weekly',
+                    notes: 'TEST_NOTES',
+                    owner_id: '00000000-0000-0000-0000-000000000000'
+                };
+                
+                const { data, error } = await window.supabaseClient
+                    .from('spaces')
+                    .insert(testData)
+                    .select();
+                
+                if (error) {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ 테스트 삽입 실패:\n${error.message}\n\n누락된 컬럼이 있거나 제약 조건 문제가 있습니다.`;
+                } else {
+                    // 테스트 데이터 삭제
+                    await window.supabaseClient
+                        .from('spaces')
+                        .delete()
+                        .eq('name', 'TEST_SPACE');
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = '✅ 모든 필요한 컬럼이 존재합니다.';
+                }
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 오류: ${error.message}`;
+            }
+        }
+        
+        // 테스트 공간 데이터 삽입
+        async function testSpaceInsert() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.textContent = '테스트 데이터 삽입 중...';
+            
+            try {
+                // 임시 auth_uid (실제로는 로그인한 사용자의 auth.uid())
+                const testAuthUid = '00000000-0000-0000-0000-000000000000';
+                
+                const testSpace = {
+                    name: '테스트 사무실',
+                    type: 'office',
+                    area: 150,
+                    address: '서울시 강남구 테헤란로 123',
+                    detail_address: '5층 501호',
+                    cleaning_frequency: 'weekly',
+                    notes: '테스트용 공간입니다.',
+                    owner_id: testAuthUid
+                };
+                
+                const { data, error } = await window.supabaseClient
+                    .from('spaces')
+                    .insert(testSpace)
+                    .select()
+                    .single();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 테스트 공간 데이터 삽입 성공:\n\n${JSON.stringify(data, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 테스트 데이터 삽입 실패:\n${error.message}\n\n상세: ${JSON.stringify(error, null, 2)}`;
+            }
+        }
+        
+        // 테스트 데이터 삭제
+        async function clearTestData() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.textContent = '테스트 데이터 삭제 중...';
+            
+            try {
+                const { error } = await window.supabaseClient
+                    .from('spaces')
+                    .delete()
+                    .like('name', '%테스트%');
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = '✅ 테스트 데이터가 삭제되었습니다.';
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 테스트 데이터 삭제 실패: ${error.message}`;
+            }
+        }
+        
+        // 비즈니스 회원가입 시뮬레이션
+        async function testBusinessSignup() {
+            const resultDiv = document.getElementById('signupResult');
+            resultDiv.textContent = '회원가입 시뮬레이션 중...';
+            
+            try {
+                // 현재 로그인된 사용자 확인
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                
+                if (!session) {
+                    resultDiv.className = 'result warning';
+                    resultDiv.textContent = '❌ 로그인이 필요합니다. 먼저 로그인하세요.';
+                    return;
+                }
+                
+                // 테스트 공간 데이터
+                const testSpace = {
+                    name: '첫 번째 사무실',
+                    type: 'office',
+                    area: 200,
+                    address: '서울시 강남구 역삼동 123-45',
+                    detail_address: '10층 1001호',
+                    cleaning_frequency: 'weekly',
+                    notes: '회원가입 시 등록된 첫 공간',
+                    owner_id: session.user.id
+                };
+                
+                const { data, error } = await window.supabaseClient
+                    .from('spaces')
+                    .insert(testSpace)
+                    .select()
+                    .single();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 첫 공간 등록 시뮬레이션 성공!\n\n등록된 공간:\n${JSON.stringify(data, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 회원가입 시뮬레이션 실패:\n${error.message}\n\n상세: ${JSON.stringify(error, null, 2)}`;
+            }
+        }
+        
+        // 페이지 로드 시 자동으로 테이블 구조 확인
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSpacesTable();
+        });
+    </script>
+</body>
+</html>

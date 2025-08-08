@@ -1,0 +1,3061 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>링키그린 UI 컴포넌트 완전판</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        :root {
+            /* 세련된 모던 그린 팔레트 */
+            --linky-primary: #10B981;  /* 모던한 에메랄드 그린 */
+            --linky-primary-dark: #059669;  /* 딥 에메랄드 */
+            --linky-primary-light: #34D399;  /* 라이트 에메랄드 */
+            --linky-secondary: #D1FAE5;  /* 아주 연한 민트 */
+            --linky-accent: #F0FDF4;  /* 거의 보이지 않는 민트 틴트 */
+            
+            /* 모던한 뉴트럴 톤 */
+            --linky-background: #FFFFFF;  /* 순수 흰색 */
+            --linky-surface: #FFFFFF;
+            --linky-surface-alt: #FAFAFA;  /* 아주 연한 회색 */
+            --linky-text-primary: #0F172A;  /* 딥 슬레이트 */
+            --linky-text-secondary: #64748B;  /* 슬레이트 그레이 */
+            --linky-text-light: #94A3B8;  /* 라이트 슬레이트 */
+            --linky-border: #E2E8F0;  /* 연한 슬레이트 테두리 */
+            --linky-border-light: #F1F5F9;  /* 아주 연한 테두리 */
+            
+            /* 시스템 컬러 - 모던톤 */
+            --linky-shadow: rgba(15, 23, 42, 0.04);
+            --linky-error: #EF4444;
+            --linky-warning: #F59E0B;
+            --linky-success: #10B981;
+            --linky-info: #3B82F6;
+            
+            /* 레이아웃 설정 */
+            --max-content-width: 1200px;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--linky-background);
+            color: var(--linky-text-primary);
+            line-height: 1.6;
+            padding-top: calc(var(--header-height) + 40px);
+            overflow-x: hidden;
+        }
+
+        /* 컨테이너 시스템 */
+        .container {
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .full-width {
+            width: 100%;
+        }
+
+        .component-section {
+            max-width: var(--max-content-width);
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .component-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--linky-primary-dark);
+            border-bottom: 2px solid var(--linky-primary);
+            padding-bottom: 10px;
+        }
+
+        /* 1. 고정 헤더 네비게이션 (전체 너비) */
+        .header-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--linky-surface);
+            height: var(--header-height);
+            box-shadow: 0 2px 10px var(--linky-shadow);
+            z-index: 1000;
+        }
+
+        .header-nav-inner {
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--linky-primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--linky-text-primary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--linky-primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* 2. 히어로 섹션 */
+        .hero-section {
+            background: var(--linky-surface);
+            position: relative;
+            overflow: hidden;
+            padding: 100px 40px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+        }
+
+        .hero-title {
+            font-size: 72px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            color: var(--linky-text-primary);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-title span {
+            color: var(--linky-primary);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--linky-text-secondary);
+            max-width: 600px;
+            margin: 0 auto 48px;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        
+        .hero-section .btn-secondary {
+            background: var(--linky-primary);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 16px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .hero-section .btn-secondary:hover {
+            background: var(--linky-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        
+        .hero-section .btn-ghost {
+            color: var(--linky-text-primary);
+            background: transparent;
+            border: 1px solid var(--linky-border);
+            padding: 14px 32px;
+            font-size: 16px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .hero-section .btn-ghost:hover {
+            border-color: var(--linky-text-primary);
+            background: var(--linky-surface-alt);
+        }
+
+        /* 3. 버튼 컴포넌트 */
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-block;
+            text-decoration: none;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: var(--linky-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--linky-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--linky-text-primary);
+            box-shadow: inset 0 0 0 1px var(--linky-border);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: inset 0 0 0 1px var(--linky-text-primary);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--linky-text-secondary);
+            font-weight: 500;
+        }
+
+        .btn-ghost:hover {
+            color: var(--linky-text-primary);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--linky-error);
+            border: 1px solid var(--linky-border);
+            font-weight: 400;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: var(--linky-error);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .btn-lg {
+            padding: 14px 36px;
+            font-size: 17px;
+        }
+
+        .btn-block {
+            width: 100%;
+            display: block;
+        }
+
+        .btn-icon {
+            padding: 10px;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-group {
+            display: inline-flex;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .btn-group .btn {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        /* 4. 카드 컴포넌트 */
+        .card {
+            background: var(--linky-surface);
+            border-radius: 12px;
+            padding: 28px;
+            border: 1px solid var(--linky-border);
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(5, 24, 47, 0.08);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            background: var(--linky-surface-alt);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--linky-text-primary);
+        }
+
+        .card-content {
+            color: var(--linky-text-secondary);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .card-footer {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--linky-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* 5. 모달 */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: var(--linky-surface);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* 커스텀 스크롤바 */
+        .modal::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .modal::-webkit-scrollbar-track {
+            background: var(--linky-border-light);
+            border-radius: 4px;
+        }
+        
+        .modal::-webkit-scrollbar-thumb {
+            background: var(--linky-border);
+            border-radius: 4px;
+        }
+        
+        .modal::-webkit-scrollbar-thumb:hover {
+            background: var(--linky-text-light);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--linky-border);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--linky-text-light);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        
+        .modal-close:hover {
+            background: var(--linky-surface-alt);
+            color: var(--linky-text-primary);
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 24px;
+            border-top: 1px solid var(--linky-border);
+        }
+
+        /* 6. 폼 요소들 */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--linky-text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--linky-border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--linky-primary);
+            background: var(--linky-surface);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--linky-border);
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--linky-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--linky-surface);
+            cursor: pointer;
+        }
+
+        .form-helper {
+            margin-top: 6px;
+            font-size: 14px;
+            color: var(--linky-text-light);
+        }
+
+        .form-error {
+            margin-top: 6px;
+            font-size: 14px;
+            color: var(--linky-error);
+        }
+
+        /* 7. 탭 */
+        .tabs {
+            margin-bottom: 30px;
+        }
+
+        .tab-list {
+            display: flex;
+            border-bottom: 2px solid var(--linky-border);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--linky-text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            color: var(--linky-primary);
+        }
+
+        .tab-button.active {
+            color: var(--linky-primary);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--linky-primary);
+        }
+
+        .tab-content {
+            padding: 20px;
+            background: var(--linky-surface);
+            border-radius: 8px;
+        }
+
+        /* 8. 테이블 */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .table {
+            width: 100%;
+            background: var(--linky-surface);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--linky-shadow);
+        }
+
+        .table thead {
+            background: var(--linky-background);
+        }
+
+        .table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--linky-primary-dark);
+            border-bottom: 2px solid var(--linky-border);
+        }
+
+        .table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--linky-border);
+        }
+
+        .table tbody tr:hover {
+            background: var(--linky-background);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 9. 알림 컴포넌트 */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: #D4EDDA;
+            border-left: 4px solid var(--linky-success);
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #F8D7DA;
+            border-left: 4px solid var(--linky-error);
+            color: #721C24;
+        }
+
+        .alert-warning {
+            background: #FFF3CD;
+            border-left: 4px solid var(--linky-warning);
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #D1ECF1;
+            border-left: 4px solid var(--linky-info);
+            color: #0C5460;
+        }
+
+        .alert-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        /* 10. 배지 */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-primary {
+            background: var(--linky-accent);
+            color: var(--linky-primary);
+        }
+
+        .badge-success {
+            background: #F0FDF4;
+            color: #16A34A;
+        }
+
+        .badge-warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .badge-danger {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .badge-info {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+        /* 11. 프로그레스 */
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: var(--linky-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--linky-primary), var(--linky-primary-light));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-lg {
+            height: 20px;
+        }
+
+        .progress-striped .progress-bar {
+            background-image: linear-gradient(
+                45deg,
+                rgba(255,255,255,.15) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255,255,255,.15) 50%,
+                rgba(255,255,255,.15) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 1rem 1rem;
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+
+        @keyframes progress-bar-stripes {
+            0% { background-position: 1rem 0; }
+            100% { background-position: 0 0; }
+        }
+
+        /* 12. 토글 스위치 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 32px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--linky-border);
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .switch-slider {
+            background: var(--linky-primary);
+        }
+
+        input:checked + .switch-slider:before {
+            transform: translateX(28px);
+        }
+
+        /* 13. 체크박스 & 라디오 커스텀 */
+        .checkbox-custom,
+        .radio-custom {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-custom input,
+        .radio-custom input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .checkbox-custom .checkbox-mark,
+        .radio-custom .radio-mark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--linky-border);
+            margin-right: 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .checkbox-custom .checkbox-mark {
+            border-radius: 4px;
+        }
+
+        .radio-custom .radio-mark {
+            border-radius: 50%;
+        }
+
+        .checkbox-custom input:checked ~ .checkbox-mark,
+        .radio-custom input:checked ~ .radio-mark {
+            background: var(--linky-primary);
+            border-color: var(--linky-primary);
+        }
+
+        .checkbox-custom input:checked ~ .checkbox-mark:after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+        }
+
+        .radio-custom input:checked ~ .radio-mark:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* 14. 드롭다운 */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            padding: 10px 20px;
+            background: var(--linky-surface);
+            border: 2px solid var(--linky-border);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--linky-surface);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px var(--linky-shadow);
+            margin-top: 8px;
+            min-width: 200px;
+            z-index: 100;
+            display: none;
+        }
+
+        .dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: block;
+            text-decoration: none;
+            color: var(--linky-text-primary);
+        }
+
+        .dropdown-item:hover {
+            background: var(--linky-background);
+            color: var(--linky-primary);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--linky-border);
+            margin: 8px 0;
+        }
+
+        /* 15. 페이지네이션 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .page-item {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: var(--linky-surface);
+            color: var(--linky-text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            border: 1px solid var(--linky-border);
+        }
+
+        .page-item:hover {
+            background: var(--linky-border);
+        }
+
+        .page-item.active {
+            background: var(--linky-primary);
+            color: white;
+            border-color: var(--linky-primary);
+        }
+
+        .page-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 16. 브레드크럼 */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-item {
+            color: var(--linky-text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--linky-primary);
+        }
+
+        .breadcrumb-separator {
+            margin: 0 12px;
+            color: var(--linky-text-light);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--linky-primary);
+            font-weight: 500;
+        }
+
+        /* 17. 툴팁 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            background: var(--linky-text-primary);
+            color: white;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--linky-text-primary) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 18. 아바타 */
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--linky-primary);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .avatar-lg {
+            width: 64px;
+            height: 64px;
+            font-size: 24px;
+        }
+
+        .avatar-xl {
+            width: 96px;
+            height: 96px;
+            font-size: 36px;
+        }
+
+        .avatar-group {
+            display: flex;
+        }
+
+        .avatar-group .avatar {
+            margin-left: -10px;
+            border: 2px solid white;
+        }
+
+        .avatar-group .avatar:first-child {
+            margin-left: 0;
+        }
+
+        /* 19. 리스트 그룹 */
+        .list-group {
+            background: var(--linky-surface);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--linky-shadow);
+        }
+
+        .list-group-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--linky-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-group-item:hover {
+            background: var(--linky-background);
+        }
+
+        .list-group-item.active {
+            background: var(--linky-primary);
+            color: white;
+        }
+
+        /* 20. 스테퍼 */
+        .stepper {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--linky-border);
+            color: var(--linky-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .step.active .step-number {
+            background: var(--linky-primary);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: var(--linky-success);
+            color: white;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: var(--linky-border);
+            margin: 0 10px;
+        }
+
+        .step.active .step-line,
+        .step.completed .step-line {
+            background: var(--linky-primary);
+        }
+
+        /* 21. 칩/태그 */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            background: var(--linky-surface);
+            border: 1px solid var(--linky-border);
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 4px;
+            transition: all 0.2s;
+            color: var(--linky-text-primary);
+        }
+
+        .chip:hover {
+            border-color: var(--linky-primary);
+        }
+
+        .chip-close {
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--linky-text-light);
+            line-height: 1;
+        }
+
+        .chip-close:hover {
+            color: var(--linky-text-primary);
+        }
+
+        .chip-primary {
+            background: var(--linky-accent);
+            border-color: transparent;
+            color: var(--linky-primary);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--linky-accent);
+            color: var(--linky-primary);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 4px;
+        }
+
+        .tag-outline {
+            background: transparent;
+            border: 1px solid var(--linky-border);
+            color: var(--linky-text-primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 4px;
+            display: inline-block;
+        }
+        
+        .tag-outline:hover {
+            border-color: var(--linky-primary);
+            color: var(--linky-primary);
+        }
+
+        /* 22. 검색바 */
+        .search-bar {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 48px 14px 20px;
+            border: 2px solid var(--linky-border);
+            border-radius: 50px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--linky-primary);
+            box-shadow: 0 0 0 4px rgba(0, 200, 150, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--linky-primary);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-btn:hover {
+            background: var(--linky-primary-dark);
+        }
+
+        /* 23. 아코디언 */
+        .accordion {
+            background: var(--linky-surface);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px var(--linky-shadow);
+        }
+
+        .accordion-header {
+            padding: 16px 20px;
+            background: var(--linky-surface);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .accordion-header:hover {
+            background: var(--linky-background);
+        }
+
+        .accordion-content {
+            padding: 0 20px 20px;
+            color: var(--linky-text-secondary);
+            display: none;
+        }
+
+        .accordion.active .accordion-content {
+            display: block;
+        }
+
+        .accordion.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        /* 24. 타임라인 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .timeline-marker {
+            width: 16px;
+            height: 16px;
+            background: var(--linky-primary);
+            border-radius: 50%;
+            position: relative;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .timeline-marker::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 40px;
+            background: var(--linky-border);
+        }
+
+        .timeline-item:last-child .timeline-marker::after {
+            display: none;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 10px 20px;
+            background: var(--linky-surface);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--linky-shadow);
+        }
+
+        .timeline-date {
+            font-size: 14px;
+            color: var(--linky-text-light);
+            margin-bottom: 8px;
+        }
+
+        /* 25. 스켈레톤 로더 */
+        .skeleton {
+            background: linear-gradient(90deg, var(--linky-border) 25%, var(--linky-background) 50%, var(--linky-border) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-title {
+            height: 24px;
+            width: 60%;
+            margin-bottom: 15px;
+        }
+
+        .skeleton-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+
+        .skeleton-button {
+            width: 120px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* 26. 플로팅 액션 버튼 */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--linky-primary);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--linky-shadow);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px var(--linky-shadow);
+        }
+
+        .fab-mini {
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+        }
+
+        /* 27. 스낵바/토스트 */
+        .snackbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--linky-text-primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* 28. 파일 업로드 */
+        .file-upload {
+            border: 2px dashed var(--linky-border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: var(--linky-surface);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover,
+        .file-upload.dragover {
+            border-color: var(--linky-primary);
+            background: var(--linky-background);
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: var(--linky-primary);
+            margin-bottom: 16px;
+        }
+
+        .file-upload-text {
+            color: var(--linky-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .file-upload-hint {
+            color: var(--linky-text-light);
+            font-size: 14px;
+        }
+
+        /* 29. 코드 블록 */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .code-language {
+            color: var(--linky-primary-light);
+            font-size: 14px;
+        }
+
+        .code-copy {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .code-copy:hover {
+            background: #444;
+        }
+
+        /* 30. 사이드바 */
+        .sidebar {
+            width: 280px;
+            background: var(--linky-surface);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px var(--linky-shadow);
+            height: fit-content;
+        }
+
+        .sidebar-header {
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--linky-border);
+        }
+
+        .sidebar-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--linky-text-primary);
+        }
+
+        .sidebar-item:hover {
+            background: var(--linky-background);
+            color: var(--linky-primary);
+        }
+
+        .sidebar-item.active {
+            background: var(--linky-primary);
+            color: white;
+        }
+
+        .sidebar-icon {
+            font-size: 20px;
+        }
+
+        /* 31. 메시지/채팅 */
+        .chat-container {
+            background: var(--linky-surface);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px var(--linky-shadow);
+        }
+
+        .chat-header {
+            background: var(--linky-primary);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-messages {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            background: var(--linky-background);
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message.sent .message-bubble {
+            background: var(--linky-primary);
+            color: white;
+        }
+
+        .chat-input {
+            padding: 16px;
+            border-top: 1px solid var(--linky-border);
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 32. 레이팅 */
+        .rating {
+            display: flex;
+            gap: 4px;
+        }
+
+        .star {
+            font-size: 24px;
+            color: var(--linky-border);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star.filled {
+            color: var(--linky-warning);
+        }
+
+        .star:hover,
+        .star.hover {
+            color: var(--linky-warning);
+        }
+
+        /* 33. 스피너/로더 */
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--linky-border);
+            border-top-color: var(--linky-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-sm {
+            width: 20px;
+            height: 20px;
+            border-width: 2px;
+        }
+
+        .spinner-lg {
+            width: 60px;
+            height: 60px;
+            border-width: 6px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 34. 통계 카드 */
+        .stat-card {
+            background: var(--linky-surface);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--linky-shadow);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--linky-text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--linky-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--linky-background);
+        }
+
+        .stat-change.positive {
+            color: var(--linky-success);
+        }
+
+        .stat-change.negative {
+            color: var(--linky-error);
+        }
+
+        /* 35. 가격 카드 */
+        .pricing-card {
+            background: var(--linky-surface);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 2px 8px var(--linky-shadow);
+            transition: transform 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px var(--linky-shadow);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid var(--linky-primary);
+            transform: scale(1.05);
+        }
+
+        .pricing-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .pricing-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--linky-primary);
+            margin-bottom: 8px;
+        }
+
+        .pricing-period {
+            color: var(--linky-text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--linky-border);
+        }
+
+        /* 36. 칸반 보드 */
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .kanban-column {
+            min-width: 300px;
+            background: var(--linky-background);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .kanban-header {
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kanban-card {
+            background: var(--linky-surface);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: move;
+            box-shadow: 0 2px 4px var(--linky-shadow);
+            transition: all 0.2s;
+        }
+
+        .kanban-card:hover {
+            box-shadow: 0 4px 8px var(--linky-shadow);
+        }
+
+        /* 37. 갤러리 그리드 */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: var(--linky-border);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            color: white;
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        /* 38. 댓글 섹션 */
+        .comment {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+        }
+
+        .comment-date {
+            font-size: 14px;
+            color: var(--linky-text-light);
+        }
+
+        .comment-text {
+            color: var(--linky-text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .comment-action {
+            font-size: 14px;
+            color: var(--linky-text-light);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .comment-action:hover {
+            color: var(--linky-primary);
+        }
+
+        /* 39. 오프캔버스 */
+        .offcanvas {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--linky-surface);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: left 0.3s;
+            z-index: 1999;
+            overflow-y: auto;
+        }
+
+        .offcanvas.show {
+            left: 0;
+        }
+
+        .offcanvas-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--linky-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .offcanvas-body {
+            padding: 20px;
+        }
+
+        .offcanvas-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1998;
+            display: none;
+        }
+
+        .offcanvas-backdrop.show {
+            display: block;
+        }
+
+        /* 40. 리본/라벨 */
+        .ribbon-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ribbon {
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: var(--linky-primary);
+            color: white;
+            padding: 8px 40px;
+            transform: rotate(45deg);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .ribbon-corner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: var(--linky-primary);
+            color: white;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 0 0 8px 0;
+        }
+
+        /* 41. 풀 푸터 (전체 너비) */
+        .footer {
+            background: #0F172A;  /* 딥 슬레이트 배경 */
+            color: white;
+            margin-top: 80px;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+        }
+
+        .footer-content {
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+            padding: 60px 20px 40px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: white;
+            letter-spacing: -0.01em;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #94A3B8;  /* 라이트 슬레이트 */
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #1E293B;  /* 다크 슬레이트 테두리 */
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-copyright {
+            color: #64748B;  /* 미디움 슬레이트 */
+            font-size: 14px;
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .footer-legal a {
+            color: #94A3B8;  /* 라이트 슬레이트 */
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 14px;
+        }
+
+        .footer-legal a:hover {
+            color: white;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 16px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #1E293B;  /* 다크 슬레이트 배경 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94A3B8;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .social-icon:hover {
+            background: var(--linky-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .kanban-board {
+                flex-direction: column;
+            }
+            
+            .kanban-column {
+                min-width: 100%;
+            }
+        }
+
+        /* 유틸리티 클래스 */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .mt-30 { margin-top: 30px; }
+        .mb-10 { margin-bottom: 10px; }
+        .mb-20 { margin-bottom: 20px; }
+        .mb-30 { margin-bottom: 30px; }
+        
+        .p-10 { padding: 10px; }
+        .p-20 { padding: 20px; }
+        .p-30 { padding: 30px; }
+        
+        .flex { display: flex; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex-column { display: flex; flex-direction: column; }
+        
+        .gap-10 { gap: 10px; }
+        .gap-20 { gap: 20px; }
+        .gap-30 { gap: 30px; }
+        
+        .w-100 { width: 100%; }
+        .h-100 { height: 100%; }
+        
+        .position-relative { position: relative; }
+        .position-absolute { position: absolute; }
+        
+        .overflow-hidden { overflow: hidden; }
+        .overflow-auto { overflow: auto; }
+    </style>
+</head>
+<body>
+    <!-- 고정 헤더 (전체 너비) -->
+    <nav class="header-nav">
+        <div class="header-nav-inner">
+            <a href="#" class="logo">LINKY</a>
+            <ul class="nav-links">
+                <li><a href="#">홈</a></li>
+                <li><a href="#">서비스</a></li>
+                <li><a href="#">제품</a></li>
+                <li><a href="#">가격</a></li>
+                <li><a href="#">고객지원</a></li>
+                <li><a href="#">문의</a></li>
+            </ul>
+            <button class="mobile-menu-btn">☰</button>
+        </div>
+    </nav>
+
+    <!-- 컴포넌트 쇼케이스 -->
+    
+    <div class="component-section">
+        <h2 class="component-title">1. 히어로 섹션</h2>
+        <div class="hero-section">
+            <h1 class="hero-title">이게 <span>되네?</span></h1>
+            <p class="hero-subtitle">덱 없이도 이해가 되는 시대, 링키그린으로 새로운 경험을 시작하세요</p>
+            <div>
+                <button class="btn btn-secondary btn-lg">시작하기</button>
+                <button class="btn btn-ghost btn-lg">더 알아보기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">2. 모든 버튼 스타일</h2>
+        <div class="mb-20">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-ghost">Ghost</button>
+            <button class="btn btn-danger">Danger</button>
+        </div>
+        <div class="mb-20">
+            <button class="btn btn-primary btn-sm">Small</button>
+            <button class="btn btn-primary">Normal</button>
+            <button class="btn btn-primary btn-lg">Large</button>
+        </div>
+        <div class="mb-20">
+            <button class="btn btn-primary btn-block">Block Button</button>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary">Left</button>
+            <button class="btn btn-primary">Center</button>
+            <button class="btn btn-primary">Right</button>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">3. 카드 레이아웃</h2>
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-image"></div>
+                <h3 class="card-title">이미지 카드</h3>
+                <p class="card-content">이미지와 함께 구성된 카드 레이아웃입니다.</p>
+                <div class="card-footer">
+                    <span class="tag">New</span>
+                    <button class="btn btn-sm btn-ghost">자세히</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">심플 카드</h3>
+                <p class="card-content">기본적인 텍스트 중심의 카드입니다.</p>
+                <div class="card-footer">
+                    <span class="badge badge-primary">HOT</span>
+                    <button class="btn btn-sm btn-primary">구매하기</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">인터랙티브 카드</h3>
+                <p class="card-content">호버 효과가 적용된 인터랙티브 카드입니다.</p>
+                <div class="card-footer">
+                    <div class="rating">
+                        <span class="star filled">★</span>
+                        <span class="star filled">★</span>
+                        <span class="star filled">★</span>
+                        <span class="star filled">★</span>
+                        <span class="star">★</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">4. 폼 요소 (모달 예시)</h2>
+        <button class="btn btn-primary" onclick="document.getElementById('formModal').style.display='flex'">폼 열기</button>
+        
+        <!-- 폼 모달 -->
+        <div id="formModal" class="modal-backdrop" style="display: none; position: fixed; z-index: 2000;">
+            <div class="modal" style="max-width: 600px; max-height: 85vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3 class="modal-title">회원가입</h3>
+                    <button class="modal-close" onclick="document.getElementById('formModal').style.display='none'">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">이름 *</label>
+                        <input type="text" class="form-input" placeholder="홍길동">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">이메일 주소 *</label>
+                        <input type="email" class="form-input" placeholder="example@email.com">
+                        <span class="form-helper">비즈니스 이메일을 입력해주세요</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">비밀번호 *</label>
+                        <input type="password" class="form-input" placeholder="8자 이상 입력">
+                        <span class="form-helper">영문, 숫자, 특수문자를 포함해주세요</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">비밀번호 확인 *</label>
+                        <input type="password" class="form-input" placeholder="비밀번호를 다시 입력">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">회사명</label>
+                        <input type="text" class="form-input" placeholder="링키 코퍼레이션">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">직무</label>
+                        <select class="form-select">
+                            <option>선택하세요</option>
+                            <option>개발</option>
+                            <option>디자인</option>
+                            <option>마케팅</option>
+                            <option>영업</option>
+                            <option>경영/관리</option>
+                            <option>기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">팀 규모</label>
+                        <select class="form-select">
+                            <option>선택하세요</option>
+                            <option>1-10명</option>
+                            <option>11-50명</option>
+                            <option>51-200명</option>
+                            <option>201-500명</option>
+                            <option>500명 이상</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">사용 목적</label>
+                        <textarea class="form-textarea" placeholder="링키를 어떻게 활용하실 계획인지 알려주세요..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-custom">
+                            <input type="checkbox">
+                            <span class="checkbox-mark"></span>
+                            <span>서비스 이용약관에 동의합니다 (필수)</span>
+                        </label>
+                        <label class="checkbox-custom">
+                            <input type="checkbox">
+                            <span class="checkbox-mark"></span>
+                            <span>개인정보 처리방침에 동의합니다 (필수)</span>
+                        </label>
+                        <label class="checkbox-custom">
+                            <input type="checkbox">
+                            <span class="checkbox-mark"></span>
+                            <span>마케팅 정보 수신에 동의합니다 (선택)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-ghost" onclick="document.getElementById('formModal').style.display='none'">취소</button>
+                    <button class="btn btn-primary">가입하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">5. 검색바</h2>
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="무엇을 찾고 계신가요?">
+            <button class="search-btn">🔍</button>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">6. 탭 네비게이션</h2>
+        <div class="tabs">
+            <div class="tab-list">
+                <button class="tab-button active">개요</button>
+                <button class="tab-button">기능</button>
+                <button class="tab-button">사양</button>
+                <button class="tab-button">리뷰</button>
+                <button class="tab-button">FAQ</button>
+            </div>
+            <div class="tab-content">
+                <h3>제품 개요</h3>
+                <p>링키그린 테마로 구성된 탭 네비게이션입니다. 각 탭을 클릭하면 해당 콘텐츠가 표시됩니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">7. 테이블</h2>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>이름</th>
+                        <th>이메일</th>
+                        <th>역할</th>
+                        <th>상태</th>
+                        <th>작업</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#001</td>
+                        <td>홍길동</td>
+                        <td>hong@example.com</td>
+                        <td>개발자</td>
+                        <td><span class="badge badge-success">활성</span></td>
+                        <td>
+                            <div class="flex gap-10">
+                                <button class="btn btn-sm btn-ghost">편집</button>
+                                <button class="btn btn-sm btn-ghost" style="color: var(--linky-text-light);">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#002</td>
+                        <td>김철수</td>
+                        <td>kim@example.com</td>
+                        <td>디자이너</td>
+                        <td><span class="badge badge-warning">대기</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-ghost">편집</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#003</td>
+                        <td>이영희</td>
+                        <td>lee@example.com</td>
+                        <td>PM</td>
+                        <td><span class="badge badge-info">휴가</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-ghost">편집</button>
+                            <button class="btn btn-sm btn-danger">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">8. 알림 메시지</h2>
+        <div class="alert alert-success">
+            <span>✓</span>
+            <span>성공! 작업이 정상적으로 완료되었습니다.</span>
+            <button class="alert-close">×</button>
+        </div>
+        <div class="alert alert-error">
+            <span>⚠</span>
+            <span>오류! 문제가 발생했습니다. 다시 시도해주세요.</span>
+            <button class="alert-close">×</button>
+        </div>
+        <div class="alert alert-warning">
+            <span>!</span>
+            <span>주의! 이 작업은 되돌릴 수 없습니다.</span>
+            <button class="alert-close">×</button>
+        </div>
+        <div class="alert alert-info">
+            <span>ℹ</span>
+            <span>정보: 새로운 업데이트가 있습니다.</span>
+            <button class="alert-close">×</button>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">9. 프로그레스 바</h2>
+        <div class="progress">
+            <div class="progress-bar" style="width: 25%;"></div>
+        </div>
+        <div class="progress">
+            <div class="progress-bar" style="width: 50%;"></div>
+        </div>
+        <div class="progress">
+            <div class="progress-bar" style="width: 75%;"></div>
+        </div>
+        <div class="progress progress-lg">
+            <div class="progress-bar" style="width: 60%;"></div>
+        </div>
+        <div class="progress progress-striped">
+            <div class="progress-bar" style="width: 40%;"></div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">10. 토글 스위치</h2>
+        <div class="flex gap-30">
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="switch-slider"></span>
+            </label>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">11. 드롭다운</h2>
+        <div class="dropdown">
+            <button class="dropdown-toggle">
+                옵션 선택 ▾
+            </button>
+            <div class="dropdown-menu">
+                <a href="#" class="dropdown-item">프로필 보기</a>
+                <a href="#" class="dropdown-item">설정</a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">로그아웃</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">12. 페이지네이션</h2>
+        <div class="pagination">
+            <a href="#" class="page-item">«</a>
+            <a href="#" class="page-item">‹</a>
+            <a href="#" class="page-item">1</a>
+            <a href="#" class="page-item active">2</a>
+            <a href="#" class="page-item">3</a>
+            <a href="#" class="page-item">4</a>
+            <a href="#" class="page-item">5</a>
+            <a href="#" class="page-item">›</a>
+            <a href="#" class="page-item">»</a>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">13. 브레드크럼</h2>
+        <div class="breadcrumb">
+            <a href="#" class="breadcrumb-item">홈</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="#" class="breadcrumb-item">제품</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="#" class="breadcrumb-item">카테고리</a>
+            <span class="breadcrumb-separator">›</span>
+            <span class="breadcrumb-item active">상세페이지</span>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">14. 배지 & 태그</h2>
+        <div class="mb-20">
+            <span class="badge badge-primary">PRIMARY</span>
+            <span class="badge badge-success">SUCCESS</span>
+            <span class="badge badge-warning">WARNING</span>
+            <span class="badge badge-danger">DANGER</span>
+            <span class="badge badge-info">INFO</span>
+        </div>
+        <div class="mb-20">
+            <span class="tag">New</span>
+            <span class="tag">인기</span>
+            <span class="tag">추천</span>
+            <span class="tag-outline">할인</span>
+            <span class="tag-outline">이벤트</span>
+        </div>
+        <div>
+            <span class="chip">
+                JavaScript
+                <span class="chip-close">×</span>
+            </span>
+            <span class="chip">
+                React
+                <span class="chip-close">×</span>
+            </span>
+            <span class="chip chip-primary">
+                Vue.js
+                <span class="chip-close">×</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">15. 아바타</h2>
+        <div class="flex gap-20 mb-20">
+            <div class="avatar avatar-sm">A</div>
+            <div class="avatar">JD</div>
+            <div class="avatar avatar-lg">KL</div>
+            <div class="avatar avatar-xl">XL</div>
+        </div>
+        <div class="avatar-group">
+            <div class="avatar">A</div>
+            <div class="avatar">B</div>
+            <div class="avatar">C</div>
+            <div class="avatar">D</div>
+            <div class="avatar">+5</div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">16. 리스트 그룹</h2>
+        <div class="list-group">
+            <div class="list-group-item active">
+                <span>대시보드</span>
+                <span class="badge badge-primary">5</span>
+            </div>
+            <div class="list-group-item">
+                <span>프로젝트</span>
+                <span class="badge badge-info">12</span>
+            </div>
+            <div class="list-group-item">
+                <span>메시지</span>
+                <span class="badge badge-danger">3</span>
+            </div>
+            <div class="list-group-item">
+                <span>설정</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">17. 스테퍼</h2>
+        <div class="stepper">
+            <div class="step completed">
+                <div class="step-number">✓</div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-line"></div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">18. 툴팁</h2>
+        <div class="flex gap-30">
+            <div class="tooltip">
+                <button class="btn btn-primary">마우스 올려보기</button>
+                <span class="tooltip-text">이것은 툴팁입니다!</span>
+            </div>
+            <div class="tooltip">
+                <span class="badge badge-info">정보</span>
+                <span class="tooltip-text">추가 정보를 표시합니다</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">19. 아코디언</h2>
+        <div class="accordion active">
+            <div class="accordion-header">
+                <span>자주 묻는 질문 1</span>
+                <span class="accordion-icon">▾</span>
+            </div>
+            <div class="accordion-content">
+                여기에 답변 내용이 들어갑니다. 링키그린 테마로 깔끔하게 정리된 아코디언 컴포넌트입니다.
+            </div>
+        </div>
+        <div class="accordion">
+            <div class="accordion-header">
+                <span>자주 묻는 질문 2</span>
+                <span class="accordion-icon">▾</span>
+            </div>
+            <div class="accordion-content">
+                답변 내용입니다.
+            </div>
+        </div>
+        <div class="accordion">
+            <div class="accordion-header">
+                <span>자주 묻는 질문 3</span>
+                <span class="accordion-icon">▾</span>
+            </div>
+            <div class="accordion-content">
+                답변 내용입니다.
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">20. 타임라인</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2024년 1월</div>
+                    <h4>프로젝트 시작</h4>
+                    <p>초기 기획 및 디자인 단계</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2024년 3월</div>
+                    <h4>개발 단계</h4>
+                    <p>핵심 기능 구현 및 테스트</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2024년 6월</div>
+                    <h4>출시</h4>
+                    <p>정식 버전 출시 및 배포</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">21. 스켈레톤 로더</h2>
+        <div class="card">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text" style="width: 80%;"></div>
+        </div>
+        <div class="flex gap-20 mt-20">
+            <div class="skeleton skeleton-avatar"></div>
+            <div style="flex: 1;">
+                <div class="skeleton skeleton-text mb-10"></div>
+                <div class="skeleton skeleton-text" style="width: 60%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">22. 파일 업로드</h2>
+        <div class="file-upload">
+            <div class="file-upload-icon">📁</div>
+            <div class="file-upload-text">파일을 드래그하거나 클릭하여 업로드</div>
+            <div class="file-upload-hint">최대 10MB (JPG, PNG, PDF)</div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">23. 코드 블록</h2>
+        <div class="code-block">
+            <div class="code-header">
+                <span class="code-language">JavaScript</span>
+                <button class="code-copy">복사</button>
+            </div>
+            <pre>const greeting = "Hello, Linky!";
+console.log(greeting);
+
+function welcomeUser(name) {
+    return `Welcome, ${name}!`;
+}
+
+// 링키그린 테마 설정
+const theme = {
+    primary: '#00C896',
+    secondary: '#00F5C4'
+};</pre>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">24. 사이드바</h2>
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>메뉴</h3>
+            </div>
+            <a href="#" class="sidebar-item active">
+                <span class="sidebar-icon">🏠</span>
+                <span>대시보드</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-icon">📊</span>
+                <span>분석</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-icon">👥</span>
+                <span>사용자</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-icon">📁</span>
+                <span>프로젝트</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-icon">💬</span>
+                <span>메시지</span>
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-icon">⚙️</span>
+                <span>설정</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">25. 채팅 인터페이스</h2>
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="avatar avatar-sm">CS</div>
+                <div>
+                    <div style="font-weight: 600;">고객 지원</div>
+                    <div style="font-size: 12px; opacity: 0.8;">온라인</div>
+                </div>
+            </div>
+            <div class="chat-messages">
+                <div class="message">
+                    <div class="avatar avatar-sm">CS</div>
+                    <div class="message-bubble">
+                        안녕하세요! 무엇을 도와드릴까요?
+                    </div>
+                </div>
+                <div class="message sent">
+                    <div class="message-bubble">
+                        링키그린 테마 정말 좋네요!
+                    </div>
+                </div>
+                <div class="message">
+                    <div class="avatar avatar-sm">CS</div>
+                    <div class="message-bubble">
+                        감사합니다! 더 궁금하신 점이 있으시면 언제든 문의해주세요.
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" class="form-input" placeholder="메시지를 입력하세요...">
+                <button class="btn btn-primary">전송</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">26. 레이팅</h2>
+        <div class="rating">
+            <span class="star filled">★</span>
+            <span class="star filled">★</span>
+            <span class="star filled">★</span>
+            <span class="star filled">★</span>
+            <span class="star">★</span>
+        </div>
+        <p class="mt-10">4.0 / 5.0 (234개의 리뷰)</p>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">27. 스피너/로더</h2>
+        <div class="flex gap-30">
+            <div class="spinner spinner-sm"></div>
+            <div class="spinner"></div>
+            <div class="spinner spinner-lg"></div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">28. 통계 카드</h2>
+        <div class="card-grid">
+            <div class="stat-card">
+                <div class="stat-label">총 매출</div>
+                <div class="stat-value">₩2.4M</div>
+                <div class="stat-change positive">
+                    <span>↑</span>
+                    <span>12.5%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">신규 고객</div>
+                <div class="stat-value">1,234</div>
+                <div class="stat-change positive">
+                    <span>↑</span>
+                    <span>8.2%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">전환율</div>
+                <div class="stat-value">3.4%</div>
+                <div class="stat-change negative">
+                    <span>↓</span>
+                    <span>2.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">29. 가격 카드</h2>
+        <div class="card-grid">
+            <div class="pricing-card">
+                <h3 class="pricing-title">Basic</h3>
+                <div class="pricing-price">₩9,900</div>
+                <div class="pricing-period">월간</div>
+                <ul class="pricing-features">
+                    <li>✓ 기본 기능</li>
+                    <li>✓ 5GB 저장공간</li>
+                    <li>✓ 이메일 지원</li>
+                </ul>
+                <button class="btn btn-secondary btn-block">선택하기</button>
+            </div>
+            <div class="pricing-card featured">
+                <h3 class="pricing-title">Pro</h3>
+                <div class="pricing-price">₩29,900</div>
+                <div class="pricing-period">월간</div>
+                <ul class="pricing-features">
+                    <li>✓ 모든 기능</li>
+                    <li>✓ 50GB 저장공간</li>
+                    <li>✓ 우선 지원</li>
+                    <li>✓ API 접근</li>
+                </ul>
+                <button class="btn btn-primary btn-block">선택하기</button>
+            </div>
+            <div class="pricing-card">
+                <h3 class="pricing-title">Enterprise</h3>
+                <div class="pricing-price">문의</div>
+                <div class="pricing-period">맞춤형</div>
+                <ul class="pricing-features">
+                    <li>✓ 무제한 기능</li>
+                    <li>✓ 무제한 저장공간</li>
+                    <li>✓ 전담 매니저</li>
+                    <li>✓ 맞춤 개발</li>
+                </ul>
+                <button class="btn btn-secondary btn-block">문의하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">30. 칸반 보드</h2>
+        <div class="kanban-board">
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <span>할 일</span>
+                    <span class="badge badge-info">3</span>
+                </div>
+                <div class="kanban-card">
+                    <h4>UI 디자인</h4>
+                    <p>링키그린 테마 적용</p>
+                    <div class="flex gap-10 mt-10">
+                        <span class="tag">디자인</span>
+                        <span class="tag">긴급</span>
+                    </div>
+                </div>
+                <div class="kanban-card">
+                    <h4>API 연동</h4>
+                    <p>백엔드 API 연결 작업</p>
+                </div>
+            </div>
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <span>진행 중</span>
+                    <span class="badge badge-warning">2</span>
+                </div>
+                <div class="kanban-card">
+                    <h4>테스트</h4>
+                    <p>단위 테스트 작성</p>
+                </div>
+            </div>
+            <div class="kanban-column">
+                <div class="kanban-header">
+                    <span>완료</span>
+                    <span class="badge badge-success">5</span>
+                </div>
+                <div class="kanban-card">
+                    <h4>기획서 작성</h4>
+                    <p>프로젝트 기획서 완료</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">31. 갤러리 그리드</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--linky-primary), var(--linky-secondary));"></div>
+                <div class="gallery-overlay">
+                    <h4>이미지 1</h4>
+                    <p>설명 텍스트</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--linky-secondary), var(--linky-accent));"></div>
+                <div class="gallery-overlay">
+                    <h4>이미지 2</h4>
+                    <p>설명 텍스트</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, var(--linky-accent), var(--linky-primary));"></div>
+                <div class="gallery-overlay">
+                    <h4>이미지 3</h4>
+                    <p>설명 텍스트</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">32. 댓글 섹션</h2>
+        <div class="comment">
+            <div class="avatar">JD</div>
+            <div class="comment-content">
+                <div class="comment-header">
+                    <span class="comment-author">John Doe</span>
+                    <span class="comment-date">2시간 전</span>
+                </div>
+                <div class="comment-text">
+                    링키그린 테마 정말 깔끔하고 좋네요! 특히 색상 조합이 마음에 듭니다.
+                </div>
+                <div class="comment-actions">
+                    <span class="comment-action">👍 좋아요 (12)</span>
+                    <span class="comment-action">💬 답글</span>
+                    <span class="comment-action">⚑ 신고</span>
+                </div>
+            </div>
+        </div>
+        <div class="comment" style="margin-left: 50px;">
+            <div class="avatar avatar-sm">AD</div>
+            <div class="comment-content">
+                <div class="comment-header">
+                    <span class="comment-author">Admin</span>
+                    <span class="comment-date">1시간 전</span>
+                </div>
+                <div class="comment-text">
+                    감사합니다! 앞으로도 더 좋은 디자인으로 찾아뵙겠습니다.
+                </div>
+                <div class="comment-actions">
+                    <span class="comment-action">👍 좋아요 (5)</span>
+                    <span class="comment-action">💬 답글</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">33. 모달 (예시)</h2>
+        <button class="btn btn-primary mb-20">모달 열기</button>
+        <div class="modal" style="position: relative;">
+            <div class="modal-header">
+                <h3 class="modal-title">확인 메시지</h3>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <p>정말로 이 작업을 수행하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost">취소</button>
+                <button class="btn btn-primary">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="component-section">
+        <h2 class="component-title">34. 리본/라벨</h2>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div class="ribbon-wrapper" style="display: inline-block; border-radius: 8px;">
+                <div class="card" style="width: 300px; margin: 0;">
+                    <div class="ribbon">NEW</div>
+                    <h3 class="card-title">특별 상품</h3>
+                    <p class="card-content">리본이 적용된 카드입니다.</p>
+                </div>
+            </div>
+            <div style="position: relative; display: inline-block;">
+                <div class="card" style="width: 300px; margin: 0;">
+                    <div class="ribbon-corner">SALE</div>
+                    <h3 class="card-title">할인 상품</h3>
+                    <p class="card-content">코너 라벨이 적용된 카드입니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 플로팅 액션 버튼 -->
+    <button class="fab">+</button>
+
+    <!-- 스낵바 (예시) -->
+    <div class="snackbar" style="position: relative; transform: none; margin: 20px auto;">
+        <span>✓</span>
+        <span>작업이 완료되었습니다</span>
+    </div>
+
+    <!-- 풀 너비 푸터 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>LINKY</h3>
+                    <p style="color: rgba(255,255,255,0.8); margin-top: 16px;">
+                        링키그린 테마로 만든<br>
+                        모던하고 깔끔한 UI 컴포넌트
+                    </p>
+                    <div class="footer-social mt-20">
+                        <a href="#" class="social-icon">f</a>
+                        <a href="#" class="social-icon">t</a>
+                        <a href="#" class="social-icon">in</a>
+                        <a href="#" class="social-icon">ig</a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>제품</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">기능</a></li>
+                        <li><a href="#">가격</a></li>
+                        <li><a href="#">로드맵</a></li>
+                        <li><a href="#">업데이트</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>회사</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">소개</a></li>
+                        <li><a href="#">팀</a></li>
+                        <li><a href="#">채용</a></li>
+                        <li><a href="#">뉴스</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>지원</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">도움말</a></li>
+                        <li><a href="#">문서</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">상태</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    © 2024 LINKY. All rights reserved.
+                </div>
+                <ul class="footer-legal">
+                    <li><a href="#">개인정보처리방침</a></li>
+                    <li><a href="#">이용약관</a></li>
+                    <li><a href="#">쿠키 정책</a></li>
+                    <li><a href="#">문의하기</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

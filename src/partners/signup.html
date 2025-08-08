@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Linky 파트너스 회원가입 - 무인공간 청소 전문가">
+    <meta name="theme-color" content="#10B981">
+    
+    <title>파트너스 회원가입 - Linky</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- iOS PWA 지원 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Linky Partners">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+    
+    <!-- Pretendard 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- UI Core CSS -->
+    <link rel="stylesheet" href="../shared/css/ui-core.css">
+    
+    <!-- UI Components JS -->
+    <script src="../shared/js/ui-components.js" defer></script>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Config & Auth -->
+    <script src="../shared/js/config.js"></script>
+    <script src="../shared/js/auth.js"></script>
+    
+    <style>
+        body {
+            background: var(--linky-surface-alt);
+            padding-top: var(--header-height);
+        }
+        
+        .signup-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .signup-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--linky-shadow);
+        }
+        
+        .signup-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .signup-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--linky-text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .signup-subtitle {
+            color: var(--linky-text-secondary);
+            font-size: 16px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--linky-border);
+            color: var(--linky-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        
+        .step.active .step-number {
+            background: var(--linky-primary);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: var(--linky-success);
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: var(--linky-text-secondary);
+            white-space: nowrap;
+        }
+        
+        .step.active .step-label {
+            color: var(--linky-primary);
+            font-weight: 600;
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .form-actions .btn {
+            flex: 1;
+        }
+        
+        .checkbox-group {
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            margin-top: 4px;
+        }
+        
+        .checkbox-label {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--linky-text-primary);
+        }
+        
+        .checkbox-label small {
+            color: var(--linky-text-secondary);
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .skills-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .skill-tag {
+            padding: 8px 12px;
+            border: 2px solid var(--linky-border);
+            border-radius: 20px;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        
+        .skill-tag:hover {
+            border-color: var(--linky-primary);
+        }
+        
+        .skill-tag.selected {
+            background: var(--linky-primary);
+            border-color: var(--linky-primary);
+            color: white;
+        }
+        
+        .areas-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .area-tag {
+            padding: 6px 10px;
+            border: 2px solid var(--linky-border);
+            border-radius: 16px;
+            text-align: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        
+        .area-tag:hover {
+            border-color: var(--linky-primary);
+        }
+        
+        .area-tag.selected {
+            background: var(--linky-primary);
+            border-color: var(--linky-primary);
+            color: white;
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--linky-success);
+            margin-bottom: 15px;
+        }
+        
+        .success-description {
+            color: var(--linky-text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--linky-border);
+        }
+        
+        .login-link a {
+            color: var(--linky-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .signup-card {
+                padding: 30px 20px;
+            }
+            
+            .signup-title {
+                font-size: 24px;
+            }
+            
+            .step-indicator {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .step {
+                margin: 5px;
+            }
+            
+            .skills-selection {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+            
+            .areas-selection {
+                grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 네비게이션 -->
+    <div id="header-container"></div>
+    
+    <!-- 회원가입 컨테이너 -->
+    <div class="signup-container">
+        <div class="signup-card">
+            <div class="signup-header">
+                <h1 class="signup-title">파트너스 회원가입</h1>
+                <p class="signup-subtitle">무인공간 정리 전문가로 활동해보세요</p>
+            </div>
+            
+            <!-- 단계 표시기 -->
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">기본정보</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">활동정보</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">완료</div>
+                </div>
+            </div>
+            
+            <!-- 회원가입 폼 -->
+            <form id="signupForm">
+                <!-- 1단계: 기본 정보 -->
+                <div class="form-step active" data-step="1">
+                    <div class="form-group">
+                        <label class="form-label" for="email">이메일 *</label>
+                        <input type="email" id="email" class="form-input" placeholder="partner@example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="password">비밀번호 *</label>
+                        <input type="password" id="password" class="form-input" placeholder="8자 이상 입력하세요" required minlength="8">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="passwordConfirm">비밀번호 확인 *</label>
+                        <input type="password" id="passwordConfirm" class="form-input" placeholder="비밀번호를 다시 입력하세요" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="name">성명 *</label>
+                        <input type="text" id="name" class="form-input" placeholder="실명을 입력하세요" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="phone">연락처 *</label>
+                        <input type="tel" id="phone" class="form-input" placeholder="010-0000-0000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="birthDate">생년월일</label>
+                        <input type="date" id="birthDate" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">성별</label>
+                        <div style="display: flex; gap: 20px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; font-weight: normal;">
+                                <input type="radio" name="gender" value="male" style="margin-right: 5px;">
+                                남성
+                            </label>
+                            <label style="display: flex; align-items: center; font-weight: normal;">
+                                <input type="radio" name="gender" value="female" style="margin-right: 5px;">
+                                여성
+                            </label>
+                            <label style="display: flex; align-items: center; font-weight: normal;">
+                                <input type="radio" name="gender" value="other" style="margin-right: 5px;">
+                                기타
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+                            다음 단계 →
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 2단계: 활동 정보 -->
+                <div class="form-step" data-step="2">
+                    <div class="form-group">
+                        <label class="form-label" for="address">거주지 주소 *</label>
+                        <input type="text" id="address" class="form-input" placeholder="서울시 강남구..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">선호 작업 유형 (복수 선택 가능)</label>
+                        <div class="skills-selection">
+                            <div class="skill-tag" data-skill="daily_cleaning">일일 청소</div>
+                            <div class="skill-tag" data-skill="deep_cleaning">딥클리닝</div>
+                            <div class="skill-tag" data-skill="sanitization">소독</div>
+                            <div class="skill-tag" data-skill="weekly_cleaning">주간 청소</div>
+                            <div class="skill-tag" data-skill="office_cleaning">사무실 청소</div>
+                            <div class="skill-tag" data-skill="gym_cleaning">헬스장 청소</div>
+                            <div class="skill-tag" data-skill="night_cleaning">야간 청소</div>
+                            <div class="skill-tag" data-skill="maintenance">설비 관리</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">선호 활동 지역 (복수 선택 가능)</label>
+                        <div class="areas-selection">
+                            <div class="area-tag" data-area="강남구">강남구</div>
+                            <div class="area-tag" data-area="서초구">서초구</div>
+                            <div class="area-tag" data-area="송파구">송파구</div>
+                            <div class="area-tag" data-area="강동구">강동구</div>
+                            <div class="area-tag" data-area="마포구">마포구</div>
+                            <div class="area-tag" data-area="용산구">용산구</div>
+                            <div class="area-tag" data-area="영등포구">영등포구</div>
+                            <div class="area-tag" data-area="관악구">관악구</div>
+                            <div class="area-tag" data-area="동작구">동작구</div>
+                            <div class="area-tag" data-area="성동구">성동구</div>
+                            <div class="area-tag" data-area="광진구">광진구</div>
+                            <div class="area-tag" data-area="기타">기타</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="bio">자기소개 (선택)</label>
+                        <textarea id="bio" class="form-textarea" rows="3" placeholder="경력, 전문성, 성격 등을 간단히 소개해주세요"></textarea>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <label class="checkbox-label" for="agreeTerms">
+                                <strong>서비스 이용약관에 동의합니다 (필수)</strong>
+                                <small>파트너스 활동을 위한 기본 약관입니다.</small>
+                            </label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agreePrivacy" required>
+                            <label class="checkbox-label" for="agreePrivacy">
+                                <strong>개인정보 수집/이용에 동의합니다 (필수)</strong>
+                                <small>서비스 제공 및 정산을 위해 개인정보를 수집합니다.</small>
+                            </label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="agreeMarketing">
+                            <label class="checkbox-label" for="agreeMarketing">
+                                <strong>마케팅 정보 수신에 동의합니다 (선택)</strong>
+                                <small>새로운 작업 기회, 이벤트, 혜택 정보를 받을 수 있습니다.</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                            ← 이전 단계
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            회원가입 완료
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 3단계: 완료 -->
+                <div class="form-step" data-step="3">
+                    <div class="success-message">
+                        <div class="success-icon">🎉</div>
+                        <h2 class="success-title">회원가입이 완료되었습니다!</h2>
+                        <p class="success-description">
+                            환영합니다! 이제 Linky 파트너스로 활동하실 수 있습니다.<br>
+                            신원 확인 및 교육 과정을 거친 후 작업을 시작할 수 있어요.
+                        </p>
+                        <button type="button" class="btn btn-primary" onclick="goToLogin()">
+                            로그인하러 가기
+                        </button>
+                    </div>
+                </div>
+            </form>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            
+            <div class="login-link">
+                <p>이미 계정이 있으신가요? <a href="index.html">로그인하기</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 푸터 -->
+    <div id="footer-container"></div>
+    
+    <!-- PWA 설치 프롬프트 -->
+    <div id="install-prompt-container"></div>
+    
+    <script>
+        let currentStep = 1;
+        let selectedSkills = [];
+        let selectedAreas = [];
+        
+        // 페이지 로드 시 컴포넌트 렌더링
+        document.addEventListener('DOMContentLoaded', function() {
+            // 헤더 렌더링 (회원가입 페이지용 - 네비게이션 제한)
+            document.getElementById('header-container').innerHTML = UIComponents.createHeader({
+                logo: 'Linky',
+                menuItems: [
+                    { href: '../landing/', label: '홈' },
+                    { href: '../business/', label: '비즈니스' },
+                    { href: '../partners/', label: '파트너스' }
+                ],
+                currentPath: window.location.pathname,
+                logoHref: '#' // 로고 클릭 시 이동하지 않도록 설정
+            });
+            
+            // 푸터 렌더링
+            document.getElementById('footer-container').innerHTML = UIComponents.createFooter({
+                copyright: '© 2025 Linky Platform. All rights reserved.',
+                links: [
+                    { href: '/privacy', label: '개인정보처리방침' },
+                    { href: '/terms', label: '이용약관' },
+                    { href: '/support', label: '고객지원' }
+                ]
+            });
+            
+            // PWA 설치 프롬프트 렌더링
+            document.getElementById('install-prompt-container').innerHTML = UIComponents.createInstallPrompt();
+            
+            // 스킬/지역 선택 이벤트 리스너
+            setupSelectionHandlers();
+            
+            // 인증 상태 확인 (로그인된 사용자 리다이렉팅)
+            checkAuthStatus();
+        });
+        
+        // 인증 상태 확인
+        async function checkAuthStatus() {
+            try {
+                console.log('🔍 Starting auth status check...');
+                
+                const { data: { session }, error } = await supabase.auth.getSession();
+                console.log('📋 Session data:', { session: session ? 'exists' : 'null', error });
+                
+                if (session && session.user) {
+                    console.log('✅ Valid session found, user ID:', session.user.id);
+                    // 실제로 유효한 세션이 있는 경우, 사용자 프로필 확인
+                    const userId = session.user.id;
+                    
+                    // 파트너스 테이블 확인
+                    console.log('🔍 Checking partners_users table...');
+                    const { data: partnerData, error: partnerError } = await supabase
+                        .from('partners_users')
+                        .select('id, status')
+                        .eq('auth_uid', userId)
+                        .single();
+                    
+                    console.log('📊 Partner check result:', { data: partnerData, error: partnerError });
+                    
+                    if (partnerData && !partnerError) {
+                        // 파트너스로 등록된 사용자
+                        console.log('🎯 Redirecting to partners dashboard');
+                        localStorage.setItem('userType', 'partners');
+                        window.location.href = 'dashboard.html';
+                        return;
+                    }
+                    
+                    // 비즈니스 테이블 확인
+                    console.log('🔍 Checking business_users table...');
+                    const { data: businessData, error: businessError } = await supabase
+                        .from('business_users')
+                        .select('id, status')
+                        .eq('auth_uid', userId)
+                        .single();
+                    
+                    console.log('📊 Business check result:', { data: businessData, error: businessError });
+                    
+                    if (businessData && !businessError) {
+                        // 비즈니스로 등록된 사용자
+                        console.log('🎯 Redirecting to business dashboard');
+                        localStorage.setItem('userType', 'business');
+                        window.location.href = '../business/dashboard.html';
+                        return;
+                    }
+                    
+                    // 세션은 있지만 프로필이 없는 경우 (회원가입 미완료)
+                    // localStorage 정리하고 회원가입 진행 허용
+                    localStorage.removeItem('userType');
+                    console.log('⚠️ Session exists but no profile found - allowing signup');
+                } else {
+                    console.log('❌ No session or user found - allowing signup');
+                    localStorage.removeItem('userType');
+                }
+            } catch (error) {
+                console.error('🚨 Auth check error:', error);
+                // 오류 발생시 localStorage 정리
+                localStorage.removeItem('userType');
+            }
+        }
+        
+        // 선택 핸들러 설정
+        function setupSelectionHandlers() {
+            // 스킬 선택
+            document.querySelectorAll('.skill-tag').forEach(tag => {
+                tag.addEventListener('click', function() {
+                    const skill = this.dataset.skill;
+                    if (selectedSkills.includes(skill)) {
+                        selectedSkills = selectedSkills.filter(s => s !== skill);
+                        this.classList.remove('selected');
+                    } else {
+                        selectedSkills.push(skill);
+                        this.classList.add('selected');
+                    }
+                });
+            });
+            
+            // 지역 선택
+            document.querySelectorAll('.area-tag').forEach(tag => {
+                tag.addEventListener('click', function() {
+                    const area = this.dataset.area;
+                    if (selectedAreas.includes(area)) {
+                        selectedAreas = selectedAreas.filter(a => a !== area);
+                        this.classList.remove('selected');
+                    } else {
+                        selectedAreas.push(area);
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        }
+        
+        // 다음 단계로 이동
+        function nextStep(step) {
+            if (validateStep(step)) {
+                currentStep++;
+                updateStepDisplay();
+            }
+        }
+        
+        // 이전 단계로 이동
+        function prevStep(step) {
+            currentStep--;
+            updateStepDisplay();
+        }
+        
+        // 단계 표시 업데이트
+        function updateStepDisplay() {
+            // 단계 표시기 업데이트
+            document.querySelectorAll('.step').forEach((step, index) => {
+                const stepNumber = index + 1;
+                step.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // 폼 스텝 표시/숨김
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+            if (currentStepElement) {
+                currentStepElement.classList.add('active');
+            }
+        }
+        
+        // 단계별 유효성 검사
+        function validateStep(step) {
+            if (step === 1) {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const passwordConfirm = document.getElementById('passwordConfirm').value;
+                const name = document.getElementById('name').value;
+                const phone = document.getElementById('phone').value;
+                
+                if (!email || !password || !passwordConfirm || !name || !phone) {
+                    showErrorMessage('필수 항목을 모두 입력해주세요.');
+                    return false;
+                }
+                
+                if (password.length < 8) {
+                    showErrorMessage('비밀번호는 8자 이상이어야 합니다.');
+                    return false;
+                }
+                
+                if (password !== passwordConfirm) {
+                    showErrorMessage('비밀번호가 일치하지 않습니다.');
+                    return false;
+                }
+                
+                // 이메일 형식 검증
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showErrorMessage('올바른 이메일 형식을 입력해주세요.');
+                    return false;
+                }
+                
+                // 전화번호 형식 검증
+                const phoneRegex = /^010-\d{4}-\d{4}$/;
+                if (!phoneRegex.test(phone)) {
+                    showErrorMessage('전화번호를 010-0000-0000 형식으로 입력해주세요.');
+                    return false;
+                }
+            }
+            
+            hideErrorMessage();
+            return true;
+        }
+        
+        // 회원가입 폼 처리
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const address = document.getElementById('address').value;
+            const agreeTerms = document.getElementById('agreeTerms').checked;
+            const agreePrivacy = document.getElementById('agreePrivacy').checked;
+            
+            if (!address) {
+                showErrorMessage('거주지 주소를 입력해주세요.');
+                return;
+            }
+            
+            if (!agreeTerms || !agreePrivacy) {
+                showErrorMessage('필수 약관에 동의해주세요.');
+                return;
+            }
+            
+            if (selectedSkills.length === 0) {
+                showErrorMessage('선호 작업 유형을 최소 1개 이상 선택해주세요.');
+                return;
+            }
+            
+            if (selectedAreas.length === 0) {
+                showErrorMessage('선호 활동 지역을 최소 1개 이상 선택해주세요.');
+                return;
+            }
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                birthDate: document.getElementById('birthDate').value,
+                gender: document.querySelector('input[name="gender"]:checked')?.value,
+                address: address,
+                bio: document.getElementById('bio').value,
+                preferredJobTypes: selectedSkills,
+                preferredAreas: selectedAreas,
+                agreeMarketing: document.getElementById('agreeMarketing').checked
+            };
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '회원가입 처리중...';
+            
+            hideErrorMessage();
+            
+            try {
+                console.log('🚀 Starting partner signup process...');
+                console.log('📋 Form data:', {
+                    email: formData.email,
+                    name: formData.name,
+                    phone: formData.phone,
+                    areas: formData.preferredAreas?.length || 0,
+                    skills: formData.preferredJobTypes?.length || 0
+                });
+                
+                const result = await signupPartner(formData);
+                console.log('📊 Signup result:', result);
+                
+                if (result.success) {
+                    console.log('✅ Signup successful! Moving to completion step');
+                    // 회원가입 성공 - 완료 화면 표시 후 대시보드로 이동
+                    currentStep = 3;
+                    updateStepDisplay();
+                    
+                    // 3초 후 대시보드로 자동 이동
+                    setTimeout(() => {
+                        console.log('🎯 Redirecting to dashboard...');
+                        window.location.href = 'dashboard.html';
+                    }, 3000);
+                } else {
+                    console.error('❌ Signup failed:', result.error);
+                    showErrorMessage(result.error || '회원가입에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('🚨 Critical signup error:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    cause: error.cause
+                });
+                showErrorMessage(`회원가입 중 오류가 발생했습니다: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '회원가입 완료';
+            }
+        });
+        
+        // 파트너 회원가입 함수
+        async function signupPartner(formData) {
+            try {
+                // authManager를 사용한 회원가입
+                const profileData = {
+                    name: formData.name,
+                    phone: formData.phone,
+                    birth_date: formData.birthDate || null,
+                    gender: formData.gender || null,
+                    preferred_job_types: formData.preferredJobTypes,
+                    preferred_areas: formData.preferredAreas,
+                    bio: formData.bio,
+                    verification_status: 'pending',
+                    availability_status: 'offline',
+                    status: 'pending'
+                };
+                
+                const result = await authManager.signup(
+                    formData.email,
+                    formData.password,
+                    'partners',
+                    profileData
+                );
+                
+                if (result.success) {
+                    return { success: true, data: result.profile };
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                console.error('Partner signup error:', error);
+                
+                // 에러 메시지 처리
+                if (error.message.includes('already registered')) {
+                    return { success: false, error: '이미 등록된 이메일입니다.' };
+                } else if (error.message.includes('invalid email')) {
+                    return { success: false, error: '유효하지 않은 이메일입니다.' };
+                } else if (error.message.includes('weak password')) {
+                    return { success: false, error: '비밀번호가 너무 약합니다.' };
+                } else {
+                    return { success: false, error: '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' };
+                }
+            }
+        }
+        
+        // 로그인 페이지로 이동
+        function goToLogin() {
+            window.location.href = 'index.html';
+        }
+        
+        // 에러 메시지 표시
+        function showErrorMessage(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // 에러 메시지 숨기기
+        function hideErrorMessage() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        // 전화번호 자동 포맷팅
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 3 && value.length <= 7) {
+                value = value.replace(/(\d{3})(\d{1,4})/, '$1-$2');
+            } else if (value.length > 7) {
+                value = value.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

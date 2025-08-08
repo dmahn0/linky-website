@@ -1,0 +1,81 @@
+<footer class="dashboard-footer">
+    <div class="footer-container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Linky Business</h4>
+                <p>스마트한 공간 관리의 시작</p>
+            </div>
+            <div class="footer-section">
+                <h4>고객센터</h4>
+                <p>평일 09:00 - 18:00</p>
+                <p>help@linkykorea.com</p>
+            </div>
+            <div class="footer-section">
+                <h4>회사정보</h4>
+                <p>링키코리아 주식회사</p>
+                <p>사업자번호: 123-45-67890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Linky Korea. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<style>
+.dashboard-footer {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    margin-top: auto;
+    padding: 40px 0 20px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.footer-section h4 {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.footer-section p {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.footer-bottom p {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .footer-section {
+        text-align: center;
+    }
+}
+</style>

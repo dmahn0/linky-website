@@ -1,0 +1,409 @@
+/**
+ * Linky UI Core CSS
+ * ui-core.html에서 추출한 중앙화된 스타일
+ */
+
+:root {
+    /* 세련된 모던 그린 팔레트 */
+    --linky-primary: #10B981;  /* 모던한 에메랄드 그린 */
+    --linky-primary-dark: #059669;  /* 딥 에메랄드 */
+    --linky-primary-light: #34D399;  /* 라이트 에메랄드 */
+    --linky-secondary: #D1FAE5;  /* 아주 연한 민트 */
+    --linky-accent: #F0FDF4;  /* 거의 보이지 않는 민트 틴트 */
+    
+    /* 모던한 뉴트럴 톤 */
+    --linky-background: #FFFFFF;  /* 순수 흰색 */
+    --linky-surface: #FFFFFF;
+    --linky-surface-alt: #FAFAFA;  /* 아주 연한 회색 */
+    --linky-text-primary: #0F172A;  /* 딥 슬레이트 */
+    --linky-text-secondary: #64748B;  /* 슬레이트 그레이 */
+    --linky-text-light: #94A3B8;  /* 라이트 슬레이트 */
+    --linky-border: #E2E8F0;  /* 연한 슬레이트 테두리 */
+    --linky-border-light: #F1F5F9;  /* 아주 연한 테두리 */
+    
+    /* 시스템 컬러 - 모던톤 */
+    --linky-shadow: rgba(15, 23, 42, 0.04);
+    --linky-error: #EF4444;
+    --linky-warning: #F59E0B;
+    --linky-success: #10B981;
+    --linky-info: #3B82F6;
+    
+    /* 레이아웃 설정 */
+    --max-content-width: 1200px;
+    --header-height: 70px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--linky-background);
+    color: var(--linky-text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* 컨테이너 시스템 */
+.container {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 헤더 네비게이션 */
+.header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: var(--linky-surface);
+    height: var(--header-height);
+    box-shadow: 0 2px 10px var(--linky-shadow);
+    z-index: 1000;
+}
+
+.header-nav-inner {
+    max-width: var(--max-content-width);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--linky-primary);
+    text-decoration: none;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.nav-menu a {
+    color: var(--linky-text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+    color: var(--linky-primary);
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-family: inherit;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--linky-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--linky-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--linky-primary);
+    border: 2px solid var(--linky-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--linky-accent);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--linky-text-secondary);
+    border: 2px solid var(--linky-border);
+}
+
+.btn-ghost:hover {
+    border-color: var(--linky-primary);
+    color: var(--linky-primary);
+}
+
+.btn-danger {
+    background: var(--linky-error);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #DC2626;
+}
+
+.btn-sm {
+    padding: 6px 16px;
+    font-size: 14px;
+}
+
+.btn-lg {
+    padding: 14px 32px;
+    font-size: 18px;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* 카드 컴포넌트 */
+.card {
+    background: var(--linky-surface);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px var(--linky-shadow);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.1);
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--linky-text-primary);
+    margin-bottom: 12px;
+}
+
+.card-content {
+    color: var(--linky-text-secondary);
+    line-height: 1.6;
+}
+
+.card-footer {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+/* 히어로 섹션 */
+.hero-section {
+    padding: 80px 0;
+    background: linear-gradient(135deg, var(--linky-accent) 0%, var(--linky-secondary) 100%);
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--linky-text-primary);
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 20px;
+    color: var(--linky-text-secondary);
+    margin-bottom: 40px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* 폼 요소 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--linky-text-primary);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--linky-border);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: var(--linky-surface);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--linky-primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* 섹션 스타일 */
+.section {
+    padding: 60px 0;
+}
+
+.section-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--linky-text-primary);
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* 특징 그리드 */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-top: 60px;
+}
+
+.feature-item {
+    text-align: center;
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background: var(--linky-accent);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+.feature-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--linky-text-primary);
+    margin-bottom: 12px;
+}
+
+.feature-description {
+    color: var(--linky-text-secondary);
+    line-height: 1.6;
+}
+
+/* 푸터 */
+.footer {
+    background: var(--linky-surface-alt);
+    padding: 40px 0;
+    margin-top: 80px;
+    border-top: 1px solid var(--linky-border);
+}
+
+.footer-content {
+    text-align: center;
+    color: var(--linky-text-secondary);
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .nav-menu {
+        display: none;
+    }
+    
+    .hero-title {
+        font-size: 36px;
+    }
+    
+    .hero-subtitle {
+        font-size: 18px;
+    }
+    
+    .section-title {
+        font-size: 28px;
+    }
+    
+    .card-grid,
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* PWA 설치 프롬프트 */
+.install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--linky-primary);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    display: none;
+    align-items: center;
+    gap: 16px;
+    z-index: 1001;
+    animation: slideUp 0.5s ease;
+}
+
+.install-prompt.show {
+    display: flex;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}

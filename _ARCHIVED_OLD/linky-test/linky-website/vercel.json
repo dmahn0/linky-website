@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/",          "destination": "/index.html"     },
+    { "source": "/business",  "destination": "/business.html"  },
+    { "source": "/business/contract",   "destination": "/business/contract.html"},
+    { "source": "/business/billings",   "destination": "/business/billings.html"},
+    { "source": "/partners",   "destination": "/partners.html" },
+    { "source": "/og-main",   "destination": "/og-main.png"    }
+  ]
+}

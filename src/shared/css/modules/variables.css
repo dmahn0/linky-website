@@ -1,0 +1,77 @@
+/* Linky Design System - CSS Variables Module */
+
+:root {
+    /* 링키 그린 컬러 시스템 */
+    --linky-primary: #10B981;      /* 메인 에메랄드 그린 */
+    --linky-primary-dark: #059669;  /* 딥 에메랄드 */
+    --linky-primary-light: #34D399; /* 라이트 에메랄드 */
+    --linky-secondary: #D1FAE5;     /* 아주 연한 민트 */
+    --linky-accent: #F0FDF4;        /* 거의 보이지 않는 민트 틴트 */
+    
+    /* 모던한 뉴트럴 톤 */
+    --linky-background: #FFFFFF;    /* 순수 흰색 */
+    --linky-surface: #FFFFFF;
+    --linky-surface-alt: #FAFAFA;   /* 아주 연한 회색 */
+    --linky-text-primary: #0F172A;  /* 딥 슬레이트 */
+    --linky-text-secondary: #64748B; /* 슬레이트 그레이 */
+    --linky-text-light: #94A3B8;    /* 라이트 슬레이트 */
+    --linky-border: #E2E8F0;        /* 연한 슬레이트 테두리 */
+    --linky-border-light: #F1F5F9;  /* 아주 연한 테두리 */
+    
+    /* 시스템 컬러 - 모던톤 */
+    --linky-shadow: rgba(15, 23, 42, 0.04);
+    --linky-shadow-md: rgba(15, 23, 42, 0.06);
+    --linky-shadow-lg: rgba(15, 23, 42, 0.08);
+    --linky-error: #EF4444;
+    --linky-warning: #F59E0B;
+    --linky-success: #10B981;
+    --linky-info: #3B82F6;
+    
+    /* 레이아웃 설정 */
+    --max-content-width: 1200px;
+    --header-height: 70px;
+    
+    /* Typography */
+    --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+    --font-size-3xl: 32px;
+    --font-size-4xl: 48px;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    --spacing-3xl: 64px;
+    --spacing-4xl: 80px;
+    --spacing-5xl: 96px;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+    
+    /* Z-index layers */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-popover: 600;
+    --z-tooltip: 700;
+    --z-notification: 800;
+}

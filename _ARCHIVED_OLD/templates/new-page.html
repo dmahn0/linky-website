@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- TODO: 페이지 제목 변경 -->
+    <title>페이지 제목 - Linky</title>
+    
+    <!-- 공통 메타 태그 -->
+    <meta name="description" content="페이지 설명">
+    
+    <!-- PWA 필수 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#22c55e">
+    
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/main.css">
+    
+    <!-- TODO: 페이지별 스타일 추가 -->
+    <!-- <link rel="stylesheet" href="/css/pages/YOUR_PAGE.css"> -->
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header id="main-header"></header>
+    
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        <div class="section-container">
+            <!-- TODO: 페이지 콘텐츠 작성 -->
+            <h1>페이지 제목</h1>
+            
+            <!-- 예시: 카드 레이아웃 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">카드 제목</h2>
+                </div>
+                <div class="card-body">
+                    <p>카드 내용</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 푸터 -->
+    <footer id="main-footer"></footer>
+    
+    <!-- 공통 스크립트 -->
+    <script src="/supabase-config.js"></script>
+    <script src="/js/auth-utils.js"></script>
+    <script src="/js/utils.js"></script>
+    
+    <!-- 공통 컴포넌트 -->
+    <script src="/components/header.js"></script>
+    <script src="/components/footer.js"></script>
+    
+    <!-- PWA 초기화 -->
+    <script type="module">
+        // PWA Manager 임포트
+        import { pwaManager } from '/js/pwa/core/PWAManager.js';
+        
+        // 설정 임포트
+        import { APP_CONFIG } from '/config/app.config.js';
+        import { API_ENDPOINTS } from '/config/api.config.js';
+        
+        // 페이지 초기화
+        window.addEventListener('DOMContentLoaded', async () => {
+            // 1. 인증 체크
+            const user = await checkAuth();
+            if (!user) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            // 2. PWA 초기화
+            await pwaManager.init();
+            
+            // 3. 페이지별 초기화
+            initializePage();
+        });
+        
+        // TODO: 페이지별 초기화 함수
+        async function initializePage() {
+            // 데이터 로드
+            // UI 초기화
+            // 이벤트 리스너 등록
+        }
+    </script>
+    
+    <!-- TODO: 페이지별 스크립트 추가 -->
+    <!-- <script src="/js/pages/YOUR_PAGE.js"></script> -->
+</body>
+</html>

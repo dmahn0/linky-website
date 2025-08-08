@@ -1,0 +1,281 @@
+{
+  "business_users": [
+    {
+      "id": 1,
+      "auth_uid": "test-business-001",
+      "email": "test.business@linky.com",
+      "business_name": "그린 스터디카페 강남점",
+      "business_type": "study_cafe",
+      "owner_name": "김대표",
+      "phone": "010-1234-5678",
+      "address": "서울시 강남구 테헤란로 123-45",
+      "business_registration_number": "123-45-67890",
+      "status": "active",
+      "subscription_plan": "standard",
+      "monthly_limit": 500000,
+      "current_month_spent": 125000,
+      "created_at": "2024-12-01T00:00:00Z",
+      "updated_at": "2025-01-07T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "auth_uid": "test-business-002",
+      "email": "cafe.owner@linky.com",
+      "business_name": "모던 무인카페 홍대점",
+      "business_type": "cafe",
+      "owner_name": "이사장",
+      "phone": "010-9876-5432",
+      "address": "서울시 마포구 홍익로 789-12",
+      "business_registration_number": "987-65-43210",
+      "status": "active",
+      "subscription_plan": "premium",
+      "monthly_limit": 800000,
+      "current_month_spent": 340000,
+      "created_at": "2024-11-15T00:00:00Z",
+      "updated_at": "2025-01-06T15:20:00Z"
+    },
+    {
+      "id": 3,
+      "auth_uid": "test-business-003",
+      "email": "gym.manager@linky.com",
+      "business_name": "24시 피트니스 센터",
+      "business_type": "gym",
+      "owner_name": "박대표",
+      "phone": "010-5555-7777",
+      "address": "서울시 송파구 잠실로 456-78",
+      "business_registration_number": "456-78-90123",
+      "status": "active",
+      "subscription_plan": "enterprise",
+      "monthly_limit": 1200000,
+      "current_month_spent": 890000,
+      "created_at": "2024-10-20T00:00:00Z",
+      "updated_at": "2025-01-07T09:15:00Z"
+    }
+  ],
+  "spaces": [
+    {
+      "id": 1,
+      "owner_id": "test-business-001",
+      "name": "그린 스터디카페 A홀",
+      "address": "서울시 강남구 테헤란로 123-45, 2층",
+      "space_type": "study_room",
+      "area": 120,
+      "capacity": 50,
+      "operating_hours": "06:00-24:00",
+      "special_instructions": "조용한 환경 유지 필수, 음료 반입 금지",
+      "cleaning_requirements": [
+        "테이블 및 의자 정리정돈",
+        "바닥 청소",
+        "쓰레기통 비우기",
+        "화장실 청소"
+      ],
+      "status": "active",
+      "created_at": "2024-12-01T10:00:00Z",
+      "updated_at": "2025-01-03T14:30:00Z"
+    },
+    {
+      "id": 2,
+      "owner_id": "test-business-001",
+      "name": "그린 스터디카페 B홀",
+      "address": "서울시 강남구 테헤란로 123-45, 3층",
+      "space_type": "study_room",
+      "area": 80,
+      "capacity": 30,
+      "operating_hours": "06:00-24:00",
+      "special_instructions": "개인 사물함 정리 확인",
+      "cleaning_requirements": [
+        "테이블 및 의자 정리정돈",
+        "바닥 청소",
+        "쓰레기통 비우기"
+      ],
+      "status": "active",
+      "created_at": "2024-12-10T16:00:00Z",
+      "updated_at": "2025-01-02T11:20:00Z"
+    },
+    {
+      "id": 3,
+      "owner_id": "test-business-002",
+      "name": "모던 무인카페 메인홀",
+      "address": "서울시 마포구 홍익로 789-12, 1층",
+      "space_type": "cafe",
+      "area": 150,
+      "capacity": 40,
+      "operating_hours": "24시간",
+      "special_instructions": "커피머신 및 음료 디스펜서 청소 중요",
+      "cleaning_requirements": [
+        "테이블 및 의자 청소",
+        "커피머신 청소",
+        "음료 디스펜서 청소",
+        "바닥 물걸레질",
+        "화장실 청소",
+        "쓰레기통 교체"
+      ],
+      "status": "active",
+      "created_at": "2024-11-15T12:00:00Z",
+      "updated_at": "2025-01-07T08:45:00Z"
+    },
+    {
+      "id": 4,
+      "owner_id": "test-business-003",
+      "name": "24시 피트니스 웨이트룸",
+      "address": "서울시 송파구 잠실로 456-78, B1층",
+      "space_type": "gym",
+      "area": 300,
+      "capacity": 80,
+      "operating_hours": "24시간",
+      "special_instructions": "운동기구 소독 필수, 매트 정리",
+      "cleaning_requirements": [
+        "운동기구 소독 및 정리",
+        "매트 정리 및 소독",
+        "바닥 청소 및 소독",
+        "라커룸 청소",
+        "샤워실 청소",
+        "수건 교체"
+      ],
+      "status": "active",
+      "created_at": "2024-10-20T14:30:00Z",
+      "updated_at": "2025-01-06T19:00:00Z"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 1,
+      "business_id": "test-business-001",
+      "space_id": 1,
+      "partners_id": "test-partners-001",
+      "title": "스터디카페 A홀 일일 청소",
+      "description": "테이블 정리정돈 및 바닥청소",
+      "job_type": "daily_cleaning",
+      "scheduled_date": "2025-01-08",
+      "scheduled_time": "07:00",
+      "estimated_duration": 120,
+      "base_price": 30000,
+      "final_price": 30000,
+      "status": "assigned",
+      "priority": "medium",
+      "requirements": [
+        "테이블 및 의자 정리정돈",
+        "바닥 청소",
+        "쓰레기통 비우기",
+        "화장실 청소"
+      ],
+      "created_at": "2025-01-07T15:30:00Z",
+      "updated_at": "2025-01-07T16:45:00Z",
+      "assigned_at": "2025-01-07T16:45:00Z"
+    },
+    {
+      "id": 2,
+      "business_id": "test-business-002",
+      "space_id": 3,
+      "partners_id": null,
+      "title": "무인카페 심야 청소",
+      "description": "커피머신 청소 및 테이블 정리",
+      "job_type": "deep_cleaning",
+      "scheduled_date": "2025-01-08",
+      "scheduled_time": "23:30",
+      "estimated_duration": 180,
+      "base_price": 45000,
+      "final_price": null,
+      "status": "pending",
+      "priority": "high",
+      "requirements": [
+        "커피머신 완전 청소",
+        "음료 디스펜서 청소",
+        "모든 테이블 소독",
+        "바닥 물걸레질",
+        "화장실 완전 청소"
+      ],
+      "created_at": "2025-01-07T20:15:00Z",
+      "updated_at": "2025-01-07T20:15:00Z",
+      "assigned_at": null
+    },
+    {
+      "id": 3,
+      "business_id": "test-business-003",
+      "space_id": 4,
+      "partners_id": "test-partners-002",
+      "title": "헬스장 새벽 청소",
+      "description": "운동기구 소독 및 라커룸 청소",
+      "job_type": "sanitization",
+      "scheduled_date": "2025-01-09",
+      "scheduled_time": "05:00",
+      "estimated_duration": 150,
+      "base_price": 50000,
+      "final_price": 50000,
+      "status": "in_progress",
+      "priority": "high",
+      "requirements": [
+        "모든 운동기구 소독",
+        "매트 정리 및 소독",
+        "라커룸 청소",
+        "샤워실 청소 및 소독",
+        "바닥 완전 청소"
+      ],
+      "created_at": "2025-01-07T18:00:00Z",
+      "updated_at": "2025-01-09T05:15:00Z",
+      "assigned_at": "2025-01-08T10:30:00Z",
+      "actual_start_time": "2025-01-09T05:00:00Z"
+    },
+    {
+      "id": 4,
+      "business_id": "test-business-001",
+      "space_id": 2,
+      "partners_id": "test-partners-003",
+      "title": "스터디카페 B홀 주간 청소",
+      "description": "정기 청소 및 점검",
+      "job_type": "weekly_cleaning",
+      "scheduled_date": "2025-01-06",
+      "scheduled_time": "14:00",
+      "estimated_duration": 90,
+      "base_price": 25000,
+      "final_price": 25000,
+      "status": "completed",
+      "priority": "low",
+      "requirements": [
+        "테이블 및 의자 정리",
+        "바닥 청소",
+        "개인 사물함 정리"
+      ],
+      "created_at": "2025-01-05T09:00:00Z",
+      "updated_at": "2025-01-06T15:30:00Z",
+      "assigned_at": "2025-01-05T11:20:00Z",
+      "actual_start_time": "2025-01-06T14:00:00Z",
+      "actual_end_time": "2025-01-06T15:30:00Z"
+    }
+  ],
+  "statistics": {
+    "total_businesses": 3,
+    "active_spaces": 4,
+    "total_jobs_this_month": 15,
+    "completed_jobs_this_month": 8,
+    "average_job_price": 35000,
+    "popular_job_types": [
+      {
+        "type": "daily_cleaning",
+        "count": 8,
+        "percentage": 53
+      },
+      {
+        "type": "deep_cleaning",
+        "count": 4,
+        "percentage": 27
+      },
+      {
+        "type": "sanitization",
+        "count": 2,
+        "percentage": 13
+      },
+      {
+        "type": "weekly_cleaning",
+        "count": 1,
+        "percentage": 7
+      }
+    ],
+    "busiest_hours": [
+      { "hour": "07:00", "job_count": 5 },
+      { "hour": "23:00", "job_count": 3 },
+      { "hour": "05:00", "job_count": 3 },
+      { "hour": "14:00", "job_count": 2 }
+    ]
+  }
+}
