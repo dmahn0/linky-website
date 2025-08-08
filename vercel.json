@@ -11,19 +11,32 @@
   "rewrites": [
     { "source": "/", "destination": "/src/landing/index.html" },
     { "source": "/index.html", "destination": "/src/landing/index.html" },
+    { "source": "/src/business", "destination": "/src/business/index.html" },
+    { "source": "/src/business/", "destination": "/src/business/index.html" },
     { "source": "/business", "destination": "/src/business/index.html" },
     { "source": "/business/", "destination": "/src/business/index.html" },
     { "source": "/business/dashboard", "destination": "/src/business/dashboard.html" },
+    { "source": "/src/business/dashboard", "destination": "/src/business/dashboard.html" },
     { "source": "/business/spaces", "destination": "/src/business/spaces.html" },
+    { "source": "/src/business/spaces", "destination": "/src/business/spaces.html" },
     { "source": "/business/jobs", "destination": "/src/business/jobs.html" },
+    { "source": "/src/business/jobs", "destination": "/src/business/jobs.html" },
     { "source": "/business/signup", "destination": "/src/business/signup.html" },
+    { "source": "/src/business/signup", "destination": "/src/business/signup.html" },
+    { "source": "/src/partners", "destination": "/src/partners/index.html" },
+    { "source": "/src/partners/", "destination": "/src/partners/index.html" },
     { "source": "/partners", "destination": "/src/partners/index.html" },
     { "source": "/partners/", "destination": "/src/partners/index.html" },
     { "source": "/partners/dashboard", "destination": "/src/partners/dashboard.html" },
+    { "source": "/src/partners/dashboard", "destination": "/src/partners/dashboard.html" },
     { "source": "/partners/signup", "destination": "/src/partners/signup.html" },
+    { "source": "/src/partners/signup", "destination": "/src/partners/signup.html" },
     { "source": "/partners/jobs", "destination": "/src/partners/jobs.html" },
+    { "source": "/src/partners/jobs", "destination": "/src/partners/jobs.html" },
     { "source": "/partners/available-jobs", "destination": "/src/partners/available-jobs.html" },
-    { "source": "/partners/my-jobs", "destination": "/src/partners/my-jobs.html" }
+    { "source": "/src/partners/available-jobs", "destination": "/src/partners/available-jobs.html" },
+    { "source": "/partners/my-jobs", "destination": "/src/partners/my-jobs.html" },
+    { "source": "/src/partners/my-jobs", "destination": "/src/partners/my-jobs.html" }
   ],
   "headers": [
     {
