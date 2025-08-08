@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Redirect Test</title>
+</head>
+<body>
+    <h1>Simple Redirect Test</h1>
+    
+    <button onclick="testRedirect1()">Test 1: window.location.href = '/src/partners/index.html'</button><br><br>
+    <button onclick="testRedirect2()">Test 2: window.location.replace('/src/partners/index.html')</button><br><br>
+    <button onclick="testRedirect3()">Test 3: window.location = '/src/partners/index.html'</button><br><br>
+    <button onclick="testRedirect4()">Test 4: document.location.href = '/src/partners/index.html'</button><br><br>
+    
+    <h2>Console Output:</h2>
+    <pre id="output"></pre>
+    
+    <script>
+        function log(msg) {
+            document.getElementById('output').textContent += msg + '\n';
+            console.log(msg);
+        }
+        
+        function testRedirect1() {
+            log('Testing: window.location.href = "/src/partners/index.html"');
+            window.location.href = '/src/partners/index.html';
+            log('Command executed - if you see this, redirect failed');
+        }
+        
+        function testRedirect2() {
+            log('Testing: window.location.replace("/src/partners/index.html")');
+            window.location.replace('/src/partners/index.html');
+            log('Command executed - if you see this, redirect failed');
+        }
+        
+        function testRedirect3() {
+            log('Testing: window.location = "/src/partners/index.html"');
+            window.location = '/src/partners/index.html';
+            log('Command executed - if you see this, redirect failed');
+        }
+        
+        function testRedirect4() {
+            log('Testing: document.location.href = "/src/partners/index.html"');
+            document.location.href = '/src/partners/index.html';
+            log('Command executed - if you see this, redirect failed');
+        }
+        
+        // 현재 위치 정보
+        log('Current location: ' + window.location.href);
+        log('Current pathname: ' + window.location.pathname);
+        log('Current protocol: ' + window.location.protocol);
+    </script>
+</body>
+</html>

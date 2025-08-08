@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>리다이렉트 디버깅</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🔍 리다이렉트 디버깅 도구</h1>
+    
+    <div class="section">
+        <h2>1. 현재 위치 정보</h2>
+        <div id="locationInfo" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. 리다이렉트 테스트</h2>
+        <button onclick="testRedirect1()">window.location.href 테스트</button>
+        <button onclick="testRedirect2()">window.location.replace 테스트</button>
+        <button onclick="testRedirect3()">window.location.assign 테스트</button>
+        <button onclick="testRedirect4()">setTimeout 리다이렉트 테스트</button>
+        <div id="redirectResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. 경로 테스트</h2>
+        <button onclick="testPath('index.html')">상대경로: index.html</button>
+        <button onclick="testPath('./index.html')">상대경로: ./index.html</button>
+        <button onclick="testPath('/src/partners/index.html')">절대경로: /src/partners/index.html</button>
+        <button onclick="testPath('../partners/index.html')">상위경로: ../partners/index.html</button>
+        <div id="pathResult" class="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. 실제 로그아웃 시뮬레이션</h2>
+        <button onclick="simulateLogout()">로그아웃 플로우 시뮬레이션</button>
+        <div id="simulationResult" class="result"></div>
+    </div>
+
+    <script>
+        // 페이지 로드시 현재 위치 정보 표시
+        window.addEventListener('DOMContentLoaded', () => {
+            const info = document.getElementById('locationInfo');
+            info.innerHTML = `
+                <div class="info"><strong>현재 URL:</strong> ${window.location.href}</div>
+                <div class="info"><strong>Protocol:</strong> ${window.location.protocol}</div>
+                <div class="info"><strong>Host:</strong> ${window.location.host}</div>
+                <div class="info"><strong>Pathname:</strong> ${window.location.pathname}</div>
+                <div class="info"><strong>현재 디렉토리:</strong> ${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/</div>
+            `;
+        });
+
+        // 1. window.location.href 테스트
+        function testRedirect1() {
+            const result = document.getElementById('redirectResult');
+            try {
+                result.innerHTML = '<div class="info">window.location.href = "index.html" 실행중...</div>';
+                console.log('Testing window.location.href...');
+                
+                // 실제로 이동하지 않고 테스트만
+                const newUrl = new URL('index.html', window.location.href);
+                result.innerHTML = `
+                    <div class="success">✅ window.location.href 작동 가능</div>
+                    <div class="info">예상 이동 경로: ${newUrl.href}</div>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 에러: ${error.message}</div>`;
+            }
+        }
+
+        // 2. window.location.replace 테스트
+        function testRedirect2() {
+            const result = document.getElementById('redirectResult');
+            try {
+                result.innerHTML = '<div class="info">window.location.replace("index.html") 실행중...</div>';
+                console.log('Testing window.location.replace...');
+                
+                const newUrl = new URL('index.html', window.location.href);
+                result.innerHTML = `
+                    <div class="success">✅ window.location.replace 작동 가능</div>
+                    <div class="info">예상 이동 경로: ${newUrl.href}</div>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 에러: ${error.message}</div>`;
+            }
+        }
+
+        // 3. window.location.assign 테스트
+        function testRedirect3() {
+            const result = document.getElementById('redirectResult');
+            try {
+                result.innerHTML = '<div class="info">window.location.assign("index.html") 실행중...</div>';
+                console.log('Testing window.location.assign...');
+                
+                const newUrl = new URL('index.html', window.location.href);
+                result.innerHTML = `
+                    <div class="success">✅ window.location.assign 작동 가능</div>
+                    <div class="info">예상 이동 경로: ${newUrl.href}</div>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 에러: ${error.message}</div>`;
+            }
+        }
+
+        // 4. setTimeout 리다이렉트 테스트
+        function testRedirect4() {
+            const result = document.getElementById('redirectResult');
+            result.innerHTML = '<div class="info">setTimeout으로 3초 후 리다이렉트 테스트...</div>';
+            
+            let countdown = 3;
+            const timer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    result.innerHTML = `<div class="info">${countdown}초 후 리다이렉트...</div>`;
+                } else {
+                    clearInterval(timer);
+                    result.innerHTML = '<div class="success">✅ 타이머 완료 (실제로 이동하지는 않음)</div>';
+                }
+            }, 1000);
+        }
+
+        // 5. 경로 테스트
+        function testPath(path) {
+            const result = document.getElementById('pathResult');
+            try {
+                const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+                let resolvedUrl;
+                
+                if (path.startsWith('/')) {
+                    // 절대 경로
+                    resolvedUrl = window.location.origin + path;
+                } else if (path.startsWith('../')) {
+                    // 상위 디렉토리
+                    const parentDir = baseUrl.substring(0, baseUrl.slice(0, -1).lastIndexOf('/') + 1);
+                    resolvedUrl = parentDir + path.substring(3);
+                } else if (path.startsWith('./')) {
+                    // 현재 디렉토리 (명시적)
+                    resolvedUrl = baseUrl + path.substring(2);
+                } else {
+                    // 상대 경로
+                    resolvedUrl = baseUrl + path;
+                }
+                
+                result.innerHTML = `
+                    <div class="success">✅ 경로 해석 성공</div>
+                    <div class="info"><strong>입력 경로:</strong> ${path}</div>
+                    <div class="info"><strong>절대 경로:</strong> ${resolvedUrl}</div>
+                    <div class="info"><strong>파일 존재 확인:</strong> <span id="fileCheck">확인중...</span></div>
+                `;
+                
+                // 파일 존재 확인 (fetch로 HEAD 요청)
+                fetch(resolvedUrl, { method: 'HEAD' })
+                    .then(response => {
+                        const checkSpan = document.getElementById('fileCheck');
+                        if (response.ok) {
+                            checkSpan.innerHTML = '<span class="success">✅ 파일 존재</span>';
+                        } else {
+                            checkSpan.innerHTML = `<span class="error">❌ 파일 없음 (${response.status})</span>`;
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('fileCheck').innerHTML = `<span class="error">❌ 확인 실패: ${error.message}</span>`;
+                    });
+                    
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ 경로 해석 에러: ${error.message}</div>`;
+            }
+        }
+
+        // 6. 실제 로그아웃 시뮬레이션
+        async function simulateLogout() {
+            const result = document.getElementById('simulationResult');
+            result.innerHTML = '<div class="info">로그아웃 플로우 시뮬레이션 시작...</div>';
+            
+            try {
+                // Step 1: 확인 다이얼로그
+                result.innerHTML += '<div class="info">Step 1: 확인 다이얼로그 (시뮬레이션에서는 스킵)</div>';
+                
+                // Step 2: 버튼 비활성화
+                result.innerHTML += '<div class="info">Step 2: 로그아웃 버튼 비활성화</div>';
+                
+                // Step 3: 로그아웃 처리 (시뮬레이션)
+                result.innerHTML += '<div class="info">Step 3: authManager.logout() 호출 (시뮬레이션)</div>';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Step 4: 세션 확인
+                result.innerHTML += '<div class="info">Step 4: 세션 재확인</div>';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Step 5: setTimeout 대기
+                result.innerHTML += '<div class="info">Step 5: 100ms 대기중...</div>';
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Step 6: 리다이렉트 시도
+                result.innerHTML += '<div class="info">Step 6: window.location.replace("index.html") 호출</div>';
+                
+                const targetUrl = new URL('index.html', window.location.href);
+                result.innerHTML += `
+                    <div class="success">✅ 시뮬레이션 완료</div>
+                    <div class="info"><strong>최종 이동 경로:</strong> ${targetUrl.href}</div>
+                    <div class="info">실제 환경에서는 이 경로로 이동됩니다.</div>
+                `;
+                
+            } catch (error) {
+                result.innerHTML += `<div class="error">❌ 시뮬레이션 에러: ${error.message}</div>`;
+                console.error('Simulation error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

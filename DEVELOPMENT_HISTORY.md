@@ -10,6 +10,82 @@
 
 ## 📅 개발 히스토리
 
+### 🎨 Phase 5: UI 컴포넌트 중앙화 시스템 구축 (2025-01-15)
+
+#### ✅ 완료된 작업
+
+**1. CSS 모듈 시스템 구축**
+- `/src/shared/css/linky-ui.css` - 메인 엔트리 포인트 생성
+- 8개 모듈로 분리 구현:
+  - `variables.css` - CSS 변수 정의
+  - `buttons.css` - 버튼 컴포넌트
+  - `cards.css` - 카드 컴포넌트  
+  - `forms.css` - 폼 요소
+  - `modals.css` - 모달 컴포넌트
+  - `navigation.css` - 네비게이션
+  - `components-extra.css` - 추가 컴포넌트
+  - `utilities.css` - 유틸리티 클래스
+
+**2. JavaScript 컴포넌트 라이브러리**
+- `/js/components/linky-ui.js` - 통합 라이브러리
+- Modal, Dropdown 확장 컴포넌트 구현
+- 유틸리티 함수 추가 (toast, confirm, formatCurrency 등)
+
+**3. Web Components 구현**
+- `<linky-button>` - Shadow DOM 기반 버튼 컴포넌트
+- `<linky-card>` - Shadow DOM 기반 카드 컴포넌트
+- 완전한 스타일 캡슐화 달성
+
+**4. 문서화**
+- `/docs/COMPONENT_CENTRALIZATION_GUIDE.md` 작성
+- 3가지 사용 방법 (CSS, JS, Web Components) 문서화
+- 마이그레이션 가이드 포함
+
+#### 📝 기술적 성과
+- **중앙화**: 단일 import로 전체 디자인 시스템 사용
+- **모듈화**: 컴포넌트별 독립적 관리
+- **재사용성**: 모든 페이지에서 동일 컴포넌트 사용 가능
+- **성능**: 필요한 모듈만 선택적 로드 가능
+
+#### 🔄 다음 단계 (예정)
+- [ ] 기존 페이지들을 중앙화 시스템으로 마이그레이션
+- [ ] 추가 Web Components 개발
+- [ ] Storybook 통합 검토
+
+### 🚨 Phase 4: 중요 오류 해결 (2025-08-07)
+
+#### ✅ 완료된 작업
+
+**1. 리다이렉트 오류 해결 ("Cannot GET /index.html")**
+- **문제**: 로그아웃 시 "Cannot GET /index.html" 오류 발생
+- **원인**: 루트 디렉토리에 index.html 파일이 없음 (상대 경로 사용 문제)
+- **해결**:
+  - 모든 리다이렉트 경로를 절대 경로로 변경
+  - `'index.html'` → `/src/partners/index.html`
+  - `'./index.html'` → `/src/business/index.html`
+- **영향 파일**:
+  - `/src/partners/dashboard.html` - 로그아웃 리다이렉트 수정
+  - `/src/business/dashboard.html` - 로그아웃 리다이렉트 수정
+
+**2. JavaScript 문법 오류 수정**
+- **문제**: "Uncaught SyntaxError: Missing catch or finally after try"
+- **원인**: try 블록에 catch/finally 누락
+- **해결**: 모든 try 블록에 적절한 catch 블록 추가
+- **영향 파일**: `/src/partners/dashboard.html`
+
+**3. 문서화 개선**
+- **생성**: `/docs/COMMON_ERRORS_AND_SOLUTIONS.md`
+  - 자주 발생하는 오류와 해결방법 정리
+  - 디버깅 도구 및 체크리스트 포함
+- **업데이트**: `/CLAUDE.md`
+  - 빠른 오류 해결 참조 섹션 추가
+  - TOP 3 빈번한 오류 해결법 포함
+
+#### 📝 학습된 교훈
+1. **경로 규칙**: 항상 절대 경로 사용 권장
+2. **에러 처리**: 모든 try 블록은 catch/finally 필수
+3. **문서화**: 오류 발생 시 즉시 문서화하여 재발 방지
+
 ### 🗄️ Phase 3: 데이터베이스 구축 완료 (2025-01-08)
 
 #### ✅ 완료된 작업

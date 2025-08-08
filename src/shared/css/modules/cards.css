@@ -1,0 +1,299 @@
+/* Linky Design System - Cards Module */
+
+/* Base Card */
+.card {
+    background: var(--linky-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 8px var(--linky-shadow);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px var(--linky-shadow-md);
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--linky-border);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-footer {
+    padding: 20px;
+    border-top: 1px solid var(--linky-border);
+    background: var(--linky-surface-alt);
+}
+
+.card-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--linky-text-primary);
+    margin: 0;
+}
+
+.card-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--linky-text-secondary);
+    margin-top: 4px;
+}
+
+/* Card Variants */
+.card-bordered {
+    border: 1px solid var(--linky-border);
+    box-shadow: none;
+}
+
+.card-flat {
+    box-shadow: none;
+    border: 1px solid var(--linky-border);
+}
+
+.card-raised {
+    box-shadow: 0 8px 24px var(--linky-shadow-lg);
+}
+
+/* Feature Card */
+.feature-card {
+    background: var(--linky-surface);
+    padding: 32px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 8px var(--linky-shadow);
+    text-align: center;
+    transition: all var(--transition-base);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px var(--linky-shadow-md);
+}
+
+.feature-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    background: var(--linky-accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 28px;
+    color: var(--linky-primary);
+}
+
+.feature-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--linky-text-primary);
+    margin-bottom: 12px;
+}
+
+.feature-description {
+    color: var(--linky-text-secondary);
+    line-height: 1.6;
+}
+
+/* Pricing Card */
+.pricing-card {
+    background: var(--linky-surface);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 2px 8px var(--linky-shadow);
+    transition: transform var(--transition-base);
+    position: relative;
+}
+
+.pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px var(--linky-shadow-md);
+}
+
+.pricing-card.featured {
+    border: 2px solid var(--linky-primary);
+    transform: scale(1.05);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--linky-primary);
+    color: white;
+    padding: 4px 16px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.pricing-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--linky-text-primary);
+}
+
+.pricing-price {
+    font-size: var(--font-size-4xl);
+    font-weight: 700;
+    color: var(--linky-primary);
+    margin-bottom: 8px;
+}
+
+.pricing-unit {
+    font-size: var(--font-size-base);
+    color: var(--linky-text-secondary);
+    margin-bottom: 24px;
+}
+
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px;
+    text-align: left;
+}
+
+.pricing-features li {
+    padding: 8px 0;
+    color: var(--linky-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pricing-features li::before {
+    content: "✓";
+    color: var(--linky-success);
+    font-weight: bold;
+}
+
+/* Stat Card */
+.stat-card {
+    background: var(--linky-surface);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 8px var(--linky-shadow);
+}
+
+.stat-card-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--linky-accent);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: var(--linky-primary);
+    font-size: 24px;
+}
+
+.stat-card-label {
+    font-size: var(--font-size-sm);
+    color: var(--linky-text-secondary);
+    margin-bottom: 4px;
+}
+
+.stat-card-value {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--linky-text-primary);
+}
+
+.stat-card-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.stat-card-change.positive {
+    color: var(--linky-success);
+}
+
+.stat-card-change.negative {
+    color: var(--linky-error);
+}
+
+/* Testimonial Card */
+.testimonial-card {
+    background: var(--linky-surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: 0 2px 8px var(--linky-shadow);
+    transition: transform var(--transition-base);
+}
+
+.testimonial-card:hover {
+    transform: translateY(-4px);
+}
+
+.testimonial-quote {
+    font-size: var(--font-size-4xl);
+    color: var(--linky-primary);
+    opacity: 0.2;
+    line-height: 1;
+    margin-bottom: 16px;
+}
+
+.testimonial-rating {
+    color: var(--linky-warning);
+    margin-bottom: 12px;
+}
+
+.testimonial-text {
+    font-size: var(--font-size-base);
+    color: var(--linky-text-primary);
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.testimonial-author {
+    font-weight: 600;
+    color: var(--linky-text-primary);
+    margin-bottom: 4px;
+}
+
+.testimonial-role {
+    color: var(--linky-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* Card Grid */
+.card-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.card-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.card-grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.card-grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-grid-2,
+    .card-grid-3,
+    .card-grid-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .pricing-card.featured {
+        transform: scale(1);
+    }
+}

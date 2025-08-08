@@ -318,14 +318,14 @@
                 
                 if (!session) {
                     console.error('❌ No valid session found - redirecting to login');
-                    window.location.href = 'index.html';
+                    window.location.href = '/src/partners/index.html';
                     return;
                 }
                 
                 if (session.userType !== 'partners') {
                     console.error('❌ Wrong user type:', session.userType, '- expected: partners');
                     console.log('💡 Tip: Check localStorage userType value');
-                    window.location.href = 'index.html';
+                    window.location.href = '/src/partners/index.html';
                     return;
                 }
                 
@@ -333,7 +333,7 @@
                     console.error('❌ No profile found for user:', session.user?.id);
                     console.log('💡 This might mean the profile creation failed during signup');
                     alert('프로필 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
-                    window.location.href = 'index.html';
+                    window.location.href = '/src/partners/index.html';
                     return;
                 }
                 
@@ -351,13 +351,17 @@
                 currentUser = session.user;
                 userProfile = session.profile;
             
-            // 사용자 이름 표시
-            document.getElementById('partnerName').textContent = 
-                userProfile?.name || userProfile?.nickname || currentUser?.email || '파트너';
-            
-            // 대시보드 데이터 로드
-            await loadDashboardStats();
-            await loadAvailableJobs();
+                // 사용자 이름 표시
+                document.getElementById('partnerName').textContent = 
+                    userProfile?.name || userProfile?.nickname || currentUser?.email || '파트너';
+                
+                // 대시보드 데이터 로드
+                await loadDashboardStats();
+                await loadAvailableJobs();
+            } catch (error) {
+                console.error('Dashboard initialization error:', error);
+                alert('대시보드 초기화 중 오류가 발생했습니다.');
+            }
         }
         
         // 대시보드 통계 로드
@@ -467,6 +471,8 @@
         // 로그아웃
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             console.log('🚪 Logout button clicked');
+            console.log('📍 Current location:', window.location.href);
+            console.log('📂 Current pathname:', window.location.pathname);
             
             // 확인 메시지 (선택사항)
             if (!confirm('정말 로그아웃 하시겠습니까?')) {
@@ -480,36 +486,98 @@
             logoutBtn.disabled = true;
             
             try {
+                console.log('🔐 Calling authManager.logout()...');
                 const result = await authManager.logout();
+                console.log('📊 Logout result:', result);
                 
                 if (result.success) {
-                    console.log('✅ Logout successful, redirecting...');
+                    console.log('✅ Logout successful');
                     
-                    // 세션이 완전히 정리되었는지 한번 더 확인
-                    const { data: { session } } = await authManager.supabase.auth.getSession();
-                    if (session) {
-                        console.error('⚠️ Warning: Session still exists after logout!');
-                        // 강제로 한번 더 시도
-                        await authManager.supabase.auth.signOut({ scope: 'global' });
+                    // 디버깅: 리다이렉트 전 상태 확인
+                    console.log('🔍 Pre-redirect check:');
+                    console.log('- localStorage length:', localStorage.length);
+                    console.log('- sessionStorage length:', sessionStorage.length);
+                    console.log('- document.readyState:', document.readyState);
+                    console.log('- window.location.href:', window.location.href);
+                    
+                    // 리다이렉트 경로 명시적으로 계산
+                    const currentPath = window.location.pathname;
+                    const currentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+                    const targetPath = currentDir + '/index.html';
+                    
+                    console.log('🎯 Redirect target calculated:');
+                    console.log('- Current path:', currentPath);
+                    console.log('- Current dir:', currentDir);
+                    console.log('- Target path:', targetPath);
+                    
+                    // 브라우저 캐시 무효화 및 강제 리다이렉트
+                    console.log('🔄 Starting redirect to login page...');
+                    
+                    // 1. 현재 페이지를 캐시에서 제거
+                    if ('caches' in window) {
+                        caches.keys().then(names => {
+                            names.forEach(name => {
+                                caches.delete(name);
+                            });
+                        });
                     }
                     
-                    // 잠시 대기 후 리다이렉트 (완전한 정리를 위해)
-                    console.log('🔄 Redirecting to index.html...');
+                    // 2. 페이지 새로고침 방지
+                    window.addEventListener('beforeunload', (e) => {
+                        delete e['returnValue'];
+                    });
+                    
+                    // 3. History API로 현재 페이지를 대체
+                    try {
+                        history.replaceState(null, '', 'index.html');
+                        console.log('✅ History replaced');
+                    } catch (e) {
+                        console.error('History replace failed:', e);
+                    }
+                    
+                    // 4. 실제 리다이렉트 - 올바른 경로 사용
+                    console.log('🎯 Redirecting to partner login page...');
+                    
+                    // 파트너 로그인 페이지로 이동 (같은 디렉토리의 index.html)
+                    const loginUrl = '/src/partners/index.html';
+                    console.log('📍 Target URL:', loginUrl);
+                    
+                    // replace 사용 (뒤로가기 방지)
+                    window.location.replace(loginUrl);
+                    
+                    // 5. replace가 실패할 경우 href 사용
                     setTimeout(() => {
-                        window.location.replace('index.html');
+                        console.log('⚠️ Fallback: Using location.href...');
+                        window.location.href = loginUrl;
                     }, 100);
+                    
                 } else {
                     console.error('❌ Logout failed:', result.error);
                     alert('로그아웃 중 오류가 발생했습니다.');
                     // 실패해도 로그인 페이지로 이동
-                    window.location.replace('index.html');
+                    window.location.href = '/src/partners/index.html';
                 }
             } catch (error) {
                 console.error('❌ Logout error:', error);
+                console.error('Stack trace:', error.stack);
                 alert('로그아웃 중 오류가 발생했습니다: ' + error.message);
-                // 에러가 발생해도 로그인 페이지로 이동
-                window.location.replace('index.html');
+                // 에러가 발생해도 로그인 페이지로 이동  
+                window.location.href = '/src/partners/index.html';
+            } finally {
+                // 버튼 복구 (리다이렉트 실패 시를 대비)
+                setTimeout(() => {
+                    if (logoutBtn && document.body.contains(logoutBtn)) {
+                        logoutBtn.textContent = originalText;
+                        logoutBtn.disabled = false;
+                        console.log('⚠️ Button restored - redirect may have failed');
+                    }
+                }, 2000);
             }
+        });
+        
+        // 페이지 언로드 시 정리
+        window.addEventListener('unload', () => {
+            console.log('📤 Page unloading...');
         });
         
         // 초기화 실행

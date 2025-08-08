@@ -1,0 +1,198 @@
+/* Linky Design System - Buttons Module */
+
+/* Base Button */
+.btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    text-decoration: none;
+    line-height: 1.5;
+    font-family: var(--font-family);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Button Variants */
+.btn-primary {
+    background: var(--linky-primary);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--linky-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary {
+    background: var(--linky-surface);
+    color: var(--linky-primary);
+    border: 2px solid var(--linky-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--linky-accent);
+    transform: translateY(-2px);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--linky-text-primary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: var(--linky-surface-alt);
+}
+
+.btn-danger {
+    background: var(--linky-error);
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #DC2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-white {
+    background: white;
+    color: var(--linky-primary);
+    box-shadow: 0 2px 8px var(--linky-shadow);
+}
+
+.btn-white:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--linky-shadow-md);
+}
+
+/* Button Sizes */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: var(--font-size-xs);
+}
+
+.btn-md {
+    padding: 10px 24px;
+    font-size: var(--font-size-sm);
+}
+
+.btn-lg {
+    padding: 14px 36px;
+    font-size: var(--font-size-base);
+}
+
+.btn-xl {
+    padding: 18px 48px;
+    font-size: var(--font-size-lg);
+}
+
+/* Button Modifiers */
+.btn-block {
+    display: flex;
+    width: 100%;
+}
+
+.btn-rounded {
+    border-radius: var(--radius-full);
+}
+
+.btn-icon {
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+}
+
+.btn-icon.btn-sm {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+}
+
+.btn-icon.btn-lg {
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+}
+
+/* Button with loading state */
+.btn-loading {
+    color: transparent;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid white;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spinner 0.6s linear infinite;
+}
+
+/* Button Group */
+.btn-group {
+    display: inline-flex;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+    margin: 0;
+}
+
+.btn-group .btn:first-child {
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.btn-group .btn:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Floating Action Button */
+.fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px var(--linky-shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-sticky);
+}
+
+.fab:hover {
+    transform: scale(1.1);
+}
+
+/* Animations */
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}

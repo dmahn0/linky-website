@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>데이터 플로우 분석 도구</title>
+    <style>
+        body { font-family: 'Courier New', monospace; padding: 20px; background: #1a1a1a; color: #0f0; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #0f0; background: #0a0a0a; }
+        .log-entry { margin: 5px 0; padding: 5px; background: #111; }
+        .error { color: #f00; }
+        .warning { color: #ff0; }
+        .success { color: #0f0; }
+        .info { color: #0ff; }
+        button { padding: 10px 20px; margin: 5px; background: #0f0; color: #000; border: none; cursor: pointer; }
+        button:hover { background: #0a0; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        pre { background: #222; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔬 데이터 플로우 분석 도구</h1>
+    
+    <div class="section">
+        <h2>1. 환경 데이터 수집</h2>
+        <button onclick="collectEnvironmentData()">환경 데이터 수집</button>
+        <div id="envData" class="log-entry"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. 리다이렉트 메커니즘 테스트</h2>
+        <div class="data-grid">
+            <div>
+                <h3>테스트 시나리오</h3>
+                <button onclick="testRedirectMethods()">모든 리다이렉트 방법 테스트</button>
+                <button onclick="testAsyncFlow()">비동기 플로우 테스트</button>
+                <button onclick="testEventPropagation()">이벤트 전파 테스트</button>
+            </div>
+            <div>
+                <h3>실시간 모니터링</h3>
+                <button onclick="startMonitoring()">모니터링 시작</button>
+                <button onclick="stopMonitoring()">모니터링 중지</button>
+            </div>
+        </div>
+        <div id="redirectResults" class="log-entry"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. 스토리지 상태 추적</h2>
+        <button onclick="trackStorageChanges()">스토리지 변경 추적</button>
+        <div id="storageData" class="log-entry"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. 네트워크 요청 분석</h2>
+        <button onclick="analyzeNetworkPatterns()">네트워크 패턴 분석</button>
+        <div id="networkData" class="log-entry"></div>
+    </div>
+
+    <div class="section">
+        <h2>5. 실시간 로그 스트림</h2>
+        <pre id="logStream"></pre>
+    </div>
+
+    <script>
+        // 로그 스트림
+        const logStream = [];
+        const maxLogs = 100;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toISOString();
+            const entry = `[${timestamp}] [${type.toUpperCase()}] ${message}`;
+            logStream.push(entry);
+            if (logStream.length > maxLogs) logStream.shift();
+            
+            const logElement = document.getElementById('logStream');
+            logElement.textContent = logStream.join('\n');
+            logElement.scrollTop = logElement.scrollHeight;
+            
+            console.log(entry);
+        }
+
+        // 1. 환경 데이터 수집
+        function collectEnvironmentData() {
+            const envData = {
+                timestamp: new Date().toISOString(),
+                browser: {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    cookieEnabled: navigator.cookieEnabled,
+                    onLine: navigator.onLine,
+                    vendor: navigator.vendor
+                },
+                location: {
+                    href: window.location.href,
+                    protocol: window.location.protocol,
+                    host: window.location.host,
+                    hostname: window.location.hostname,
+                    port: window.location.port,
+                    pathname: window.location.pathname,
+                    search: window.location.search,
+                    hash: window.location.hash,
+                    origin: window.location.origin
+                },
+                document: {
+                    readyState: document.readyState,
+                    referrer: document.referrer,
+                    title: document.title,
+                    URL: document.URL,
+                    baseURI: document.baseURI,
+                    characterSet: document.characterSet,
+                    contentType: document.contentType,
+                    lastModified: document.lastModified
+                },
+                window: {
+                    innerWidth: window.innerWidth,
+                    innerHeight: window.innerHeight,
+                    screenX: window.screenX,
+                    screenY: window.screenY,
+                    opener: !!window.opener,
+                    parent: window.parent === window,
+                    top: window.top === window,
+                    frames: window.frames.length
+                },
+                performance: {
+                    memory: performance.memory ? {
+                        usedJSHeapSize: performance.memory.usedJSHeapSize,
+                        totalJSHeapSize: performance.memory.totalJSHeapSize,
+                        jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+                    } : 'Not available',
+                    navigation: {
+                        type: performance.navigation?.type,
+                        redirectCount: performance.navigation?.redirectCount
+                    }
+                },
+                storage: {
+                    localStorage: {
+                        length: localStorage.length,
+                        keys: Object.keys(localStorage).filter(k => !k.includes('password'))
+                    },
+                    sessionStorage: {
+                        length: sessionStorage.length,
+                        keys: Object.keys(sessionStorage)
+                    }
+                }
+            };
+            
+            document.getElementById('envData').innerHTML = `<pre>${JSON.stringify(envData, null, 2)}</pre>`;
+            log('Environment data collected', 'success');
+            return envData;
+        }
+
+        // 2. 리다이렉트 메커니즘 테스트
+        async function testRedirectMethods() {
+            const results = [];
+            
+            // Test 1: window.location.href
+            try {
+                const test1 = { method: 'window.location.href', status: 'pending' };
+                const testUrl1 = new URL('./index.html', window.location.href);
+                test1.targetUrl = testUrl1.href;
+                test1.fileCheck = await checkFileExists(testUrl1.href);
+                test1.status = test1.fileCheck ? 'ready' : 'file_not_found';
+                results.push(test1);
+                log(`Test window.location.href: ${test1.status}`, test1.status === 'ready' ? 'success' : 'error');
+            } catch (e) {
+                results.push({ method: 'window.location.href', error: e.message });
+                log(`Error testing window.location.href: ${e.message}`, 'error');
+            }
+            
+            // Test 2: window.location.replace
+            try {
+                const test2 = { method: 'window.location.replace', status: 'pending' };
+                const testUrl2 = new URL('./index.html', window.location.href);
+                test2.targetUrl = testUrl2.href;
+                test2.fileCheck = await checkFileExists(testUrl2.href);
+                test2.status = test2.fileCheck ? 'ready' : 'file_not_found';
+                results.push(test2);
+                log(`Test window.location.replace: ${test2.status}`, test2.status === 'ready' ? 'success' : 'error');
+            } catch (e) {
+                results.push({ method: 'window.location.replace', error: e.message });
+                log(`Error testing window.location.replace: ${e.message}`, 'error');
+            }
+            
+            // Test 3: window.location.assign
+            try {
+                const test3 = { method: 'window.location.assign', status: 'pending' };
+                const testUrl3 = new URL('./index.html', window.location.href);
+                test3.targetUrl = testUrl3.href;
+                test3.fileCheck = await checkFileExists(testUrl3.href);
+                test3.status = test3.fileCheck ? 'ready' : 'file_not_found';
+                results.push(test3);
+                log(`Test window.location.assign: ${test3.status}`, test3.status === 'ready' ? 'success' : 'error');
+            } catch (e) {
+                results.push({ method: 'window.location.assign', error: e.message });
+                log(`Error testing window.location.assign: ${e.message}`, 'error');
+            }
+            
+            // Test 4: History API
+            try {
+                const test4 = { method: 'history.pushState', status: 'pending' };
+                test4.canUse = typeof history.pushState === 'function';
+                test4.currentLength = history.length;
+                test4.status = test4.canUse ? 'available' : 'not_available';
+                results.push(test4);
+                log(`Test history.pushState: ${test4.status}`, test4.status === 'available' ? 'success' : 'warning');
+            } catch (e) {
+                results.push({ method: 'history.pushState', error: e.message });
+                log(`Error testing history.pushState: ${e.message}`, 'error');
+            }
+            
+            document.getElementById('redirectResults').innerHTML = `<pre>${JSON.stringify(results, null, 2)}</pre>`;
+            return results;
+        }
+
+        // 파일 존재 확인
+        async function checkFileExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // 3. 비동기 플로우 테스트
+        async function testAsyncFlow() {
+            const flowData = {
+                steps: [],
+                timings: []
+            };
+            
+            const startTime = performance.now();
+            
+            // Step 1: Immediate execution
+            flowData.steps.push({ step: 1, action: 'immediate', time: 0 });
+            
+            // Step 2: Microtask (Promise)
+            await Promise.resolve().then(() => {
+                const elapsed = performance.now() - startTime;
+                flowData.steps.push({ step: 2, action: 'microtask', time: elapsed });
+                log(`Microtask executed at ${elapsed.toFixed(2)}ms`, 'info');
+            });
+            
+            // Step 3: Macrotask (setTimeout 0)
+            await new Promise(resolve => {
+                setTimeout(() => {
+                    const elapsed = performance.now() - startTime;
+                    flowData.steps.push({ step: 3, action: 'macrotask_0', time: elapsed });
+                    log(`Macrotask(0) executed at ${elapsed.toFixed(2)}ms`, 'info');
+                    resolve();
+                }, 0);
+            });
+            
+            // Step 4: Delayed task (100ms)
+            await new Promise(resolve => {
+                setTimeout(() => {
+                    const elapsed = performance.now() - startTime;
+                    flowData.steps.push({ step: 4, action: 'delayed_100', time: elapsed });
+                    log(`Delayed(100) executed at ${elapsed.toFixed(2)}ms`, 'info');
+                    resolve();
+                }, 100);
+            });
+            
+            // Test redirect in different contexts
+            flowData.redirectTests = {
+                inPromise: await testRedirectInPromise(),
+                inTimeout: await testRedirectInTimeout(),
+                inEventHandler: await testRedirectInEventHandler()
+            };
+            
+            document.getElementById('redirectResults').innerHTML += `<pre>Async Flow:\n${JSON.stringify(flowData, null, 2)}</pre>`;
+            return flowData;
+        }
+
+        async function testRedirectInPromise() {
+            return new Promise(resolve => {
+                Promise.resolve().then(() => {
+                    try {
+                        // Simulate redirect
+                        const url = new URL('./index.html', window.location.href);
+                        resolve({ context: 'promise', url: url.href, success: true });
+                    } catch (e) {
+                        resolve({ context: 'promise', error: e.message, success: false });
+                    }
+                });
+            });
+        }
+
+        async function testRedirectInTimeout() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    try {
+                        const url = new URL('./index.html', window.location.href);
+                        resolve({ context: 'timeout', url: url.href, success: true });
+                    } catch (e) {
+                        resolve({ context: 'timeout', error: e.message, success: false });
+                    }
+                }, 10);
+            });
+        }
+
+        async function testRedirectInEventHandler() {
+            return new Promise(resolve => {
+                const button = document.createElement('button');
+                button.addEventListener('click', () => {
+                    try {
+                        const url = new URL('./index.html', window.location.href);
+                        resolve({ context: 'event_handler', url: url.href, success: true });
+                    } catch (e) {
+                        resolve({ context: 'event_handler', error: e.message, success: false });
+                    }
+                });
+                button.click();
+            });
+        }
+
+        // 4. 이벤트 전파 테스트
+        function testEventPropagation() {
+            const results = {
+                phases: [],
+                stopPropagation: false,
+                preventDefault: false
+            };
+            
+            // Create nested elements
+            const outer = document.createElement('div');
+            const middle = document.createElement('div');
+            const inner = document.createElement('button');
+            
+            outer.appendChild(middle);
+            middle.appendChild(inner);
+            document.body.appendChild(outer);
+            
+            // Add listeners at different phases
+            outer.addEventListener('click', (e) => {
+                results.phases.push({ element: 'outer', phase: 'capture', eventPhase: e.eventPhase });
+                log('Event: outer capture', 'info');
+            }, true);
+            
+            middle.addEventListener('click', (e) => {
+                results.phases.push({ element: 'middle', phase: 'capture', eventPhase: e.eventPhase });
+                log('Event: middle capture', 'info');
+            }, true);
+            
+            inner.addEventListener('click', (e) => {
+                results.phases.push({ element: 'inner', phase: 'target', eventPhase: e.eventPhase });
+                log('Event: inner target', 'info');
+                
+                // Test redirect here
+                try {
+                    window.location.href = './index.html';
+                    results.redirectAttempt = { success: true, method: 'href' };
+                } catch (err) {
+                    results.redirectAttempt = { success: false, error: err.message };
+                }
+            });
+            
+            middle.addEventListener('click', (e) => {
+                results.phases.push({ element: 'middle', phase: 'bubble', eventPhase: e.eventPhase });
+                log('Event: middle bubble', 'info');
+            });
+            
+            outer.addEventListener('click', (e) => {
+                results.phases.push({ element: 'outer', phase: 'bubble', eventPhase: e.eventPhase });
+                log('Event: outer bubble', 'info');
+            });
+            
+            // Trigger click
+            inner.click();
+            
+            // Clean up
+            document.body.removeChild(outer);
+            
+            document.getElementById('redirectResults').innerHTML += `<pre>Event Propagation:\n${JSON.stringify(results, null, 2)}</pre>`;
+            return results;
+        }
+
+        // 5. 스토리지 추적
+        function trackStorageChanges() {
+            const storageData = {
+                initial: {},
+                changes: [],
+                final: {}
+            };
+            
+            // Capture initial state
+            storageData.initial.localStorage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (!key.includes('password')) {
+                    storageData.initial.localStorage[key] = localStorage.getItem(key);
+                }
+            }
+            
+            storageData.initial.sessionStorage = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                storageData.initial.sessionStorage[key] = sessionStorage.getItem(key);
+            }
+            
+            // Monitor changes
+            const originalSetItem = Storage.prototype.setItem;
+            const originalRemoveItem = Storage.prototype.removeItem;
+            const originalClear = Storage.prototype.clear;
+            
+            Storage.prototype.setItem = function(key, value) {
+                storageData.changes.push({
+                    type: 'setItem',
+                    storage: this === localStorage ? 'local' : 'session',
+                    key: key,
+                    value: value,
+                    timestamp: new Date().toISOString()
+                });
+                log(`Storage setItem: ${key}`, 'info');
+                return originalSetItem.apply(this, arguments);
+            };
+            
+            Storage.prototype.removeItem = function(key) {
+                storageData.changes.push({
+                    type: 'removeItem',
+                    storage: this === localStorage ? 'local' : 'session',
+                    key: key,
+                    timestamp: new Date().toISOString()
+                });
+                log(`Storage removeItem: ${key}`, 'warning');
+                return originalRemoveItem.apply(this, arguments);
+            };
+            
+            Storage.prototype.clear = function() {
+                storageData.changes.push({
+                    type: 'clear',
+                    storage: this === localStorage ? 'local' : 'session',
+                    timestamp: new Date().toISOString()
+                });
+                log(`Storage clear: ${this === localStorage ? 'local' : 'session'}`, 'warning');
+                return originalClear.apply(this, arguments);
+            };
+            
+            // Restore after 5 seconds
+            setTimeout(() => {
+                Storage.prototype.setItem = originalSetItem;
+                Storage.prototype.removeItem = originalRemoveItem;
+                Storage.prototype.clear = originalClear;
+                
+                // Capture final state
+                storageData.final.localStorage = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (!key.includes('password')) {
+                        storageData.final.localStorage[key] = localStorage.getItem(key);
+                    }
+                }
+                
+                storageData.final.sessionStorage = {};
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    storageData.final.sessionStorage[key] = sessionStorage.getItem(key);
+                }
+                
+                document.getElementById('storageData').innerHTML = `<pre>${JSON.stringify(storageData, null, 2)}</pre>`;
+                log('Storage tracking completed', 'success');
+            }, 5000);
+            
+            log('Storage tracking started for 5 seconds', 'info');
+        }
+
+        // 6. 네트워크 패턴 분석
+        function analyzeNetworkPatterns() {
+            const networkData = {
+                performance: {},
+                resources: [],
+                navigation: {}
+            };
+            
+            // Navigation timing
+            if (performance.timing) {
+                const timing = performance.timing;
+                networkData.navigation = {
+                    redirectTime: timing.redirectEnd - timing.redirectStart,
+                    dnsTime: timing.domainLookupEnd - timing.domainLookupStart,
+                    connectionTime: timing.connectEnd - timing.connectStart,
+                    requestTime: timing.responseStart - timing.requestStart,
+                    responseTime: timing.responseEnd - timing.responseStart,
+                    domProcessing: timing.domComplete - timing.domLoading,
+                    loadComplete: timing.loadEventEnd - timing.navigationStart
+                };
+            }
+            
+            // Resource timing
+            if (performance.getEntriesByType) {
+                const resources = performance.getEntriesByType('resource');
+                networkData.resources = resources.slice(-10).map(r => ({
+                    name: r.name.split('/').pop(),
+                    type: r.initiatorType,
+                    duration: r.duration,
+                    size: r.transferSize,
+                    protocol: r.nextHopProtocol
+                }));
+            }
+            
+            // Paint timing
+            if (performance.getEntriesByType) {
+                const paints = performance.getEntriesByType('paint');
+                networkData.paints = paints.map(p => ({
+                    name: p.name,
+                    startTime: p.startTime
+                }));
+            }
+            
+            document.getElementById('networkData').innerHTML = `<pre>${JSON.stringify(networkData, null, 2)}</pre>`;
+            log('Network patterns analyzed', 'success');
+            return networkData;
+        }
+
+        // 7. 실시간 모니터링
+        let monitoringInterval;
+        function startMonitoring() {
+            if (monitoringInterval) return;
+            
+            log('Monitoring started', 'success');
+            
+            // Monitor navigation attempts
+            const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
+            Object.defineProperty(window.location, 'href', {
+                get: function() {
+                    return originalHref.get.call(this);
+                },
+                set: function(value) {
+                    log(`Navigation attempt to: ${value}`, 'warning');
+                    return originalHref.set.call(this, value);
+                }
+            });
+            
+            // Monitor errors
+            window.addEventListener('error', (e) => {
+                log(`Error: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`, 'error');
+            });
+            
+            // Monitor unhandled rejections
+            window.addEventListener('unhandledrejection', (e) => {
+                log(`Unhandled rejection: ${e.reason}`, 'error');
+            });
+            
+            // Regular status check
+            monitoringInterval = setInterval(() => {
+                const status = {
+                    time: new Date().toISOString(),
+                    readyState: document.readyState,
+                    activeElement: document.activeElement?.tagName,
+                    localStorage: localStorage.length,
+                    sessionStorage: sessionStorage.length
+                };
+                log(`Status: ${JSON.stringify(status)}`, 'info');
+            }, 2000);
+        }
+
+        function stopMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+                log('Monitoring stopped', 'warning');
+            }
+        }
+
+        // Auto-start monitoring
+        startMonitoring();
+        
+        // Initial data collection
+        window.addEventListener('DOMContentLoaded', () => {
+            collectEnvironmentData();
+            log('Data flow analysis tool ready', 'success');
+        });
+    </script>
+</body>
+</html>

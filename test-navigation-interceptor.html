@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Navigation Interceptor</title>
+    <script>
+        // Navigation 인터셉터 설치
+        (function() {
+            console.log('🔍 Navigation Interceptor 활성화');
+            
+            // 원본 메서드 저장
+            const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
+            const originalReplace = window.location.replace;
+            const originalAssign = window.location.assign;
+            
+            // href setter 인터셉트
+            Object.defineProperty(window.location, 'href', {
+                get: function() {
+                    return originalHref.get.call(this);
+                },
+                set: function(value) {
+                    console.group('🚀 Navigation Attempt (href setter)');
+                    console.log('Target:', value);
+                    console.log('Current:', window.location.href);
+                    console.log('Resolved:', new URL(value, window.location.href).href);
+                    console.trace('Call Stack');
+                    console.groupEnd();
+                    
+                    // 실제 네비게이션 차단 (테스트용)
+                    const shouldNavigate = confirm(`Navigate to: ${value}?`);
+                    if (shouldNavigate) {
+                        return originalHref.set.call(this, value);
+                    }
+                }
+            });
+            
+            // replace 메서드 인터셉트
+            window.location.replace = function(url) {
+                console.group('🔄 Navigation Attempt (replace)');
+                console.log('Target:', url);
+                console.log('Current:', window.location.href);
+                console.log('Resolved:', new URL(url, window.location.href).href);
+                console.trace('Call Stack');
+                console.groupEnd();
+                
+                const shouldNavigate = confirm(`Replace to: ${url}?`);
+                if (shouldNavigate) {
+                    return originalReplace.call(this, url);
+                }
+            };
+            
+            // assign 메서드 인터셉트
+            window.location.assign = function(url) {
+                console.group('📍 Navigation Attempt (assign)');
+                console.log('Target:', url);
+                console.log('Current:', window.location.href);
+                console.log('Resolved:', new URL(url, window.location.href).href);
+                console.trace('Call Stack');
+                console.groupEnd();
+                
+                const shouldNavigate = confirm(`Assign to: ${url}?`);
+                if (shouldNavigate) {
+                    return originalAssign.call(this, url);
+                }
+            };
+            
+            console.log('✅ Interceptor 설치 완료');
+        })();
+    </script>
+</head>
+<body>
+    <h1>Navigation Interceptor Active</h1>
+    <p>이 스크립트를 파트너 대시보드에 주입하여 실제 네비게이션 시도를 추적합니다.</p>
+    
+    <h2>사용 방법:</h2>
+    <ol>
+        <li>브라우저 개발자 도구 열기 (F12)</li>
+        <li>Console 탭으로 이동</li>
+        <li>위의 스크립트 복사</li>
+        <li>파트너 대시보드 페이지에서 붙여넣기 실행</li>
+        <li>로그아웃 버튼 클릭</li>
+        <li>Console에서 네비게이션 시도 확인</li>
+    </ol>
+    
+    <h2>테스트 버튼:</h2>
+    <button onclick="window.location.href = 'index.html'">href = 'index.html'</button>
+    <button onclick="window.location.href = './index.html'">href = './index.html'</button>
+    <button onclick="window.location.replace('index.html')">replace('index.html')</button>
+    <button onclick="window.location.replace('./index.html')">replace('./index.html')</button>
+</body>
+</html>

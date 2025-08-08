@@ -254,7 +254,7 @@
             // 인증 확인
             const session = await authManager.checkSession();
             if (!session || session.userType !== 'business') {
-                window.location.href = 'index.html';
+                window.location.href = '/src/business/index.html';
                 return;
             }
             
@@ -367,20 +367,20 @@
                 
                 if (result.success) {
                     console.log('✅ Logout successful, redirecting...');
-                    // 상대 경로로 랜딩 페이지로 이동
-                    console.log('🔄 Redirecting to landing page...');
-                    window.location.replace('../landing/index.html');
+                    // 비즈니스 로그인 페이지로 이동
+                    console.log('🔄 Redirecting to business login page...');
+                    window.location.replace('/src/business/index.html');
                 } else {
                     console.error('❌ Logout failed:', result.error);
                     alert('로그아웃 중 오류가 발생했습니다.');
-                    // 실패해도 랜딩 페이지로 이동
-                    window.location.replace('../landing/index.html');
+                    // 실패해도 로그인 페이지로 이동
+                    window.location.replace('/src/business/index.html');
                 }
             } catch (error) {
                 console.error('❌ Logout error:', error);
                 alert('로그아웃 중 오류가 발생했습니다: ' + error.message);
-                // 에러가 발생해도 랜딩 페이지로 이동
-                window.location.replace('../landing/index.html');
+                // 에러가 발생해도 로그인 페이지로 이동
+                window.location.replace('/src/business/index.html');
             }
         });
         

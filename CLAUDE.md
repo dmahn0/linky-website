@@ -541,6 +541,56 @@ node scripts/docs-guide-helper.js search
 
 ## 🔧 문제 해결
 
+### ⚠️ 중요: 자주 발생하는 오류들
+**상세한 오류 해결 가이드는 `/docs/COMMON_ERRORS_AND_SOLUTIONS.md` 참조**
+
+### 🚨 가장 빈번한 오류 TOP 3
+
+#### 1. "Cannot GET /index.html" 오류 (리다이렉트 실패)
+```javascript
+// ❌ 잘못된 코드 - 루트에 index.html이 없음!
+window.location.href = 'index.html';
+window.location.href = './index.html';
+
+// ✅ 올바른 코드 - 절대 경로 사용
+window.location.href = '/src/partners/index.html';  // 파트너
+window.location.href = '/src/business/index.html';  // 비즈니스
+window.location.href = '/src/landing/index.html';   // 랜딩
+```
+
+#### 2. "Missing catch or finally after try" 문법 오류
+```javascript
+// ❌ 불완전한 try 블록
+async function someFunction() {
+    try {
+        // 코드
+    }
+    // catch 또는 finally 누락!
+}
+
+// ✅ 완전한 try-catch 블록
+async function someFunction() {
+    try {
+        // 코드
+    } catch (error) {
+        console.error('Error:', error);
+        // 에러 처리
+    }
+}
+```
+
+#### 3. 로그아웃 후 세션 유지 문제
+```javascript
+// ❌ 불완전한 로그아웃
+await supabase.auth.signOut();
+
+// ✅ 완전한 로그아웃 (auth.js의 logout 메서드 사용)
+const result = await authManager.logout();
+if (result.success) {
+    window.location.href = '/src/partners/index.html';
+}
+```
+
 ### 일반적인 문제와 해결책
 
 #### 1. Supabase 연결 오류
