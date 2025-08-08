@@ -58,16 +58,15 @@ const UIComponents = {
         
         return `
             <header class="header-nav">
-                <div class="header-nav-inner">
+                <div class="header-nav-inner" style="display: flex; align-items: center;">
                     <a href="${logoHref}" class="logo">${logo}</a>
-                    <nav>
-                        <ul class="nav-menu">
+                    <nav style="flex: 1; display: flex; justify-content: flex-end;">
+                        <ul class="nav-menu" style="display: flex; align-items: center; margin: 0;">
                             ${menuItems.map(item => `
                                 <li><a href="${item.href}" class="${currentPath === item.href ? 'active' : ''}" ${item.onclick ? `onclick="${item.onclick}"` : ''}>${item.label}</a></li>
                             `).join('')}
                         </ul>
                     </nav>
-                    <button class="mobile-menu-btn">☰</button>
                 </div>
             </header>
         `;

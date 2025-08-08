@@ -983,21 +983,20 @@
             // 헤더 렌더링 (커스텀 헤더 with 로그인 버튼)
             document.getElementById('header-container').innerHTML = `
                 <header class="header-nav">
-                    <div class="header-nav-inner">
+                    <div class="header-nav-inner" style="display: flex; align-items: center;">
                         <a href="/" class="logo">Linky Partners</a>
-                        <nav style="flex: 1;">
-                            <ul class="nav-menu">
+                        <nav style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                            <ul class="nav-menu" style="display: flex; align-items: center; margin: 0;">
                                 <li><a href="/">홈</a></li>
                                 <li><a href="/src/business/">운영자</a></li>
                                 <li><a href="/src/partners/" class="active">파트너스</a></li>
                                 <li><a href="#benefits">혜택</a></li>
                                 <li><a href="#calculator">수익계산</a></li>
+                                <li style="margin-left: 20px;">
+                                    <button class="btn btn-primary btn-sm" onclick="openLoginModal()">로그인</button>
+                                </li>
                             </ul>
                         </nav>
-                        <div style="margin-left: auto; margin-right: 20px;">
-                            <button class="btn btn-primary btn-sm" onclick="openLoginModal()">로그인</button>
-                        </div>
-                        <button class="mobile-menu-btn">☰</button>
                     </div>
                 </header>
             `;
