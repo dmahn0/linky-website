@@ -58,17 +58,63 @@ const UIComponents = {
         
         return `
             <header class="header-nav">
-                <div class="header-nav-inner" style="display: flex; align-items: center;">
+                <div class="header-nav-inner" style="display: flex; align-items: center; position: relative;">
                     <a href="${logoHref}" class="logo">${logo}</a>
                     <nav style="flex: 1; display: flex; justify-content: flex-end;">
-                        <ul class="nav-menu" style="display: flex; align-items: center; margin: 0;">
+                        <ul class="nav-menu" id="navMenu" style="display: flex; align-items: center; margin: 0;">
                             ${menuItems.map(item => `
                                 <li><a href="${item.href}" class="${currentPath === item.href ? 'active' : ''}" ${item.onclick ? `onclick="${item.onclick}"` : ''}>${item.label}</a></li>
                             `).join('')}
                         </ul>
                     </nav>
+                    <button class="nav-mobile-toggle" onclick="toggleMobileMenu()" style="display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--linky-text-primary); margin-left: 20px;">☰</button>
                 </div>
             </header>
+            <style>
+                @media (max-width: 768px) {
+                    .nav-menu {
+                        display: none !important;
+                    }
+                    .nav-menu.nav-links-mobile {
+                        display: flex !important;
+                        flex-direction: column;
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        background: white;
+                        padding: 16px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                        z-index: 1000;
+                    }
+                    .nav-menu.nav-links-mobile li {
+                        width: 100%;
+                        margin: 8px 0;
+                    }
+                    .nav-menu.nav-links-mobile a {
+                        display: block;
+                        padding: 12px;
+                        text-align: center;
+                        border-radius: 8px;
+                        transition: background 0.3s;
+                    }
+                    .nav-menu.nav-links-mobile a:hover {
+                        background: var(--linky-surface-alt);
+                    }
+                    .nav-mobile-toggle {
+                        display: block !important;
+                    }
+                    .header-nav-inner {
+                        position: relative;
+                    }
+                }
+            </style>
+            <script>
+                function toggleMobileMenu() {
+                    const navMenu = document.getElementById('navMenu');
+                    navMenu.classList.toggle('nav-links-mobile');
+                }
+            </script>
         `;
     },
     
