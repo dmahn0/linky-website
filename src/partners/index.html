@@ -981,20 +981,18 @@
         // 페이지 로드 시 컴포넌트 렌더링
         document.addEventListener('DOMContentLoaded', function() {
             // 헤더 렌더링
-            let headerHTML = UIComponents.createHeader({
+            document.getElementById('header-container').innerHTML = UIComponents.createHeader({
                 logo: 'Linky Partners',
                 menuItems: [
                     { href: '/', label: '홈' },
                     { href: '/src/business/', label: '운영자' },
                     { href: '/src/partners/', label: '파트너스' },
                     { href: '#benefits', label: '혜택' },
-                    { href: '#calculator', label: '수익계산' }
+                    { href: '#calculator', label: '수익계산' },
+                    { href: 'javascript:openLoginModal()', label: '로그인' }
                 ],
                 currentPath: window.location.pathname
             });
-            // 로그인 버튼 추가
-            headerHTML = headerHTML.replace('</ul>', '<li style="margin-left: 20px;"><button class="btn btn-primary btn-sm" onclick="openLoginModal()">로그인</button></li></ul>');
-            document.getElementById('header-container').innerHTML = headerHTML;
             
             // 푸터 렌더링
             document.getElementById('footer-container').innerHTML = UIComponents.createFooter({

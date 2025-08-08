@@ -62,9 +62,13 @@ const UIComponents = {
                     <a href="${logoHref}" class="logo">${logo}</a>
                     <nav style="flex: 1; display: flex; justify-content: flex-end;">
                         <ul class="nav-menu" id="navMenu" style="display: flex; align-items: center; margin: 0;">
-                            ${menuItems.map(item => `
-                                <li><a href="${item.href}" class="${currentPath === item.href ? 'active' : ''}" ${item.onclick ? `onclick="${item.onclick}"` : ''}>${item.label}</a></li>
-                            `).join('')}
+                            ${menuItems.map((item, index) => {
+                                // 마지막 항목이 로그인인 경우 버튼으로 처리
+                                if (item.label === '로그인' && index === menuItems.length - 1) {
+                                    return `<li style="margin-left: 20px;"><button class="btn btn-primary btn-sm" onclick="${item.href.replace('javascript:', '')}">${item.label}</button></li>`;
+                                }
+                                return `<li><a href="${item.href}" class="${currentPath === item.href ? 'active' : ''}" ${item.onclick ? `onclick="${item.onclick}"` : ''}>${item.label}</a></li>`;
+                            }).join('')}
                         </ul>
                     </nav>
                     <button class="nav-mobile-toggle" onclick="toggleMobileMenu()" style="display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--linky-text-primary); margin-left: 20px;">☰</button>
@@ -101,6 +105,10 @@ const UIComponents = {
                     .nav-menu.nav-links-mobile a:hover {
                         background: var(--linky-surface-alt);
                     }
+                    .nav-menu.nav-links-mobile button {
+                        width: 100%;
+                        margin: 8px 0;
+                    }
                     .nav-mobile-toggle {
                         display: block !important;
                     }
@@ -109,12 +117,6 @@ const UIComponents = {
                     }
                 }
             </style>
-            <script>
-                function toggleMobileMenu() {
-                    const navMenu = document.getElementById('navMenu');
-                    navMenu.classList.toggle('nav-links-mobile');
-                }
-            </script>
         `;
     },
     
@@ -279,7 +281,16 @@ const UIComponents = {
     }
 };
 
+// 모바일 메뉴 토글 함수
+function toggleMobileMenu() {
+    const navMenu = document.getElementById('navMenu');
+    if (navMenu) {
+        navMenu.classList.toggle('nav-links-mobile');
+    }
+}
+
 // 전역 노출
 window.UIComponents = UIComponents;
 window.installPWA = installPWA;
 window.hideInstallPrompt = hideInstallPrompt;
+window.toggleMobileMenu = toggleMobileMenu;
