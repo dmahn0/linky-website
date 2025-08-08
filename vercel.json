@@ -9,8 +9,10 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "public": true,
+  "routes": [
+    { "src": "^/$", "dest": "/index.html" }
+  ],
   "rewrites": [
-    { "source": "/", "destination": "/index.html" },
     { "source": "/business", "destination": "/src/business/index.html" },
     { "source": "/business/", "destination": "/src/business/index.html" },
     { "source": "/business/dashboard", "destination": "/src/business/dashboard.html" },
